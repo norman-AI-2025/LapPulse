@@ -192,14 +192,28 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   const handleCellClick = (day: DayInfo, timeBlock: string) => {
     if (day.isClosed) return;
 
+    // Toggle unselect if clicking the already open booking slot
+    if (activeBookingSlot && activeBookingSlot.date === day.dateStr && activeBookingSlot.timeBlock === timeBlock) {
+      setActiveBookingSlot(null);
+      return;
+    }
+
+    // Toggle unselect if clicking the already open inspect slot
+    if (inspectSlot && inspectSlot.date === day.displayDate && inspectSlot.timeBlock === timeBlock) {
+      setInspectSlot(null);
+      return;
+    }
+
     const existingBooking = getBookingForCell(day.dateStr, timeBlock);
     if (existingBooking) {
+      setActiveBookingSlot(null);
       setInspectSlot({
         booking: existingBooking,
         date: day.displayDate,
         timeBlock
       });
     } else {
+      setInspectSlot(null);
       setActiveBookingSlot({
         date: day.dateStr,
         dayName: day.dayName,

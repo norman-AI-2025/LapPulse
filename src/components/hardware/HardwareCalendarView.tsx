@@ -48,6 +48,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
   // Interactive user date selection
   const [borrowDate, setBorrowDate] = useState<string>('2026-11-10');
   const [returnDate, setReturnDate] = useState<string>('2026-11-17');
+  const [hoverDate, setHoverDate] = useState<string | null>(null);
   const [purpose, setPurpose] = useState<string>('');
 
   // Find all active/pending loans for this hardware item
@@ -190,25 +191,61 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
     if (borrowDate === dateStr) return 'start';
     if (returnDate === dateStr) return 'end';
     if (returnDate && dateStr > borrowDate && dateStr < returnDate) return 'between';
+    if (!returnDate && borrowDate && hoverDate) {
+      if (dateStr === hoverDate) return 'hover-end';
+      if (dateStr > borrowDate && dateStr < hoverDate) return 'hover-between';
+    }
     return null;
   };
 
-  // Handle clicking a calendar cell date to pick range
+  // Handle clicking a calendar cell date to pick or toggle range
   const handleDateClick = (dateStr: string) => {
-    // If no borrowDate or if both are set, start new selection
-    if (!borrowDate || (borrowDate && returnDate)) {
+    // 1. If clicking the already selected borrowDate (when no returnDate is chosen yet) -> Unselect!
+    if (borrowDate === dateStr && !returnDate) {
+      setBorrowDate('');
+      setReturnDate('');
+      setHoverDate(null);
+      return;
+    }
+
+    // 2. If clicking on the already selected returnDate -> Unselect returnDate!
+    if (returnDate === dateStr) {
+      setReturnDate('');
+      setHoverDate(null);
+      return;
+    }
+
+    // 3. If clicking on borrowDate when both are set -> Unselect borrowDate and reset!
+    if (borrowDate === dateStr && returnDate) {
+      setBorrowDate('');
+      setReturnDate('');
+      setHoverDate(null);
+      return;
+    }
+
+    // 4. If nothing is selected, select this date as borrowDate
+    if (!borrowDate) {
       setBorrowDate(dateStr);
       setReturnDate('');
-    } else {
-      // Return date is being selected
+      return;
+    }
+
+    // 5. If only borrowDate is selected, select returnDate
+    if (borrowDate && !returnDate) {
       if (dateStr < borrowDate) {
-        // Swap if clicked earlier date
         setReturnDate(borrowDate);
         setBorrowDate(dateStr);
       } else {
         setReturnDate(dateStr);
       }
+      setHoverDate(null);
+      return;
     }
+
+    // 6. If both were already set and user clicks a different date, restart selection with this date
+    setBorrowDate(dateStr);
+    setReturnDate('');
+    setHoverDate(null);
   };
 
   const handleLoanSubmit = (e: React.FormEvent) => {
@@ -387,6 +424,11 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   );
                 } else if (userRange === 'between') {
                   cellBg = 'bg-[#DBEAFE] text-blue-900 font-semibold';
+                } else if (userRange === 'hover-end') {
+                  cellBg = 'bg-blue-200 text-blue-900 font-semibold border-blue-400';
+                  indicator = <span className="text-[9px] block text-blue-800 font-bold">Return</span>;
+                } else if (userRange === 'hover-between') {
+                  cellBg = 'bg-blue-50 text-blue-800';
                 }
                 // 2. Active Loan / Borrowed Range
                 else if (loanInfo) {
@@ -415,6 +457,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <div
                     key={cell.dateStr}
                     onClick={() => handleDateClick(cell.dateStr)}
+                    onMouseEnter={() => !returnDate && borrowDate && setHoverDate(cell.dateStr)}
                     className={`min-h-[58px] p-1.5 rounded-xl border border-slate-100 transition-all cursor-pointer flex flex-col justify-between ${cellBg}`}
                     title={
                       loanInfo
@@ -482,13 +525,29 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
           
           {/* SECTION 1: INTERACTIVE BORROW REQUEST FORM */}
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                Loan Application
-              </span>
-              <h3 className="text-sm font-bold text-slate-900 mt-0.5">
-                Choose Borrow & Return Dates
-              </h3>
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                  Loan Application
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+                  Choose Borrow & Return Dates
+                </h3>
+              </div>
+
+              {(borrowDate || returnDate) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBorrowDate('');
+                    setReturnDate('');
+                    setHoverDate(null);
+                  }}
+                  className="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition-colors"
+                >
+                  Clear Selection
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleLoanSubmit} className="space-y-3 text-xs">
@@ -661,3 +720,4 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
     </div>
   );
 };
+
