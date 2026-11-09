@@ -18,6 +18,20 @@ export type LabCategory =
   | 'IoT & Robotics'
   | 'Meeting & Seminar';
 
+export interface RoomReportRecord {
+  id: string;
+  roomId: string;
+  date: string;
+  title: string;
+  description: string;
+  category: 'Air Conditioning' | 'Projector & AV' | 'Workstations & PCs' | 'Electrical & Power' | 'Cleanliness' | 'Network & Wi-Fi' | 'Other';
+  reportedBy: string;
+  reporterMatric?: string;
+  severity: 'Minor' | 'Moderate' | 'Critical';
+  status: 'Open' | 'In Progress' | 'Resolved';
+  resolutionNotes?: string;
+}
+
 export interface LabRoom {
   id: string;
   name: string;
@@ -38,6 +52,7 @@ export interface LabRoom {
   highResource: boolean; // Requires supervisor endorsement
   imageUrl: string;
   activeNotice?: string;
+  reports?: RoomReportRecord[];
 }
 
 export type TimeSlotString = string;

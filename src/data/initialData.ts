@@ -61,7 +61,34 @@ export const INITIAL_ROOMS: LabRoom[] = [
     },
     highResource: true,
     imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    activeNotice: 'FYP & Master thesis deep learning training reservation requires Supervisor Endorsement.'
+    activeNotice: 'FYP & Master thesis deep learning training reservation requires Supervisor Endorsement.',
+    reports: [
+      {
+        id: 'rep-ai-01',
+        roomId: 'lab-ai-1',
+        date: '2026-11-09',
+        title: 'Workstation #07 GPU Thermal Throttling',
+        category: 'Workstations & PCs',
+        severity: 'Moderate',
+        status: 'In Progress',
+        reportedBy: 'Norman Lee Weng Hong',
+        reporterMatric: '25005870',
+        description: 'RTX 4090 node 07 fan bearing emits high-pitch rattle when CUDA load exceeds 85%. Thermal limiter triggers after 20 minutes of training.',
+        resolutionNotes: 'Technician scheduled fan shroud replacement on 11 Nov.'
+      },
+      {
+        id: 'rep-ai-02',
+        roomId: 'lab-ai-1',
+        date: '2026-11-04',
+        title: 'Wall Display HDMI 2 Loose Port',
+        category: 'Projector & AV',
+        severity: 'Minor',
+        status: 'Resolved',
+        reportedBy: 'En. Faizal bin Ahmad',
+        description: 'Primary presentation display port loose. Replaced with heavy-duty 8K gold-plated braided HDMI cable.',
+        resolutionNotes: 'Tested OK with 4K AirPlay presentation.'
+      }
+    ]
   },
   {
     id: 'lab-se-2',
@@ -79,7 +106,21 @@ export const INITIAL_ROOMS: LabRoom[] = [
       specialEquipment: 'Docker / Kubernetes Local Dev Sandbox'
     },
     highResource: false,
-    imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80',
+    reports: [
+      {
+        id: 'rep-se-01',
+        roomId: 'lab-se-2',
+        date: '2026-11-08',
+        title: 'Ceiling Air Conditioning Cassette #2 Water Dripping',
+        category: 'Air Conditioning',
+        severity: 'Moderate',
+        status: 'Open',
+        reportedBy: 'Siti Nur Aisyah',
+        reporterMatric: '24003211',
+        description: 'Condensation drain line dripping directly above workstation pod 14. Temporarily relocated student laptops.'
+      }
+    ]
   },
   {
     id: 'lab-net-sys',
@@ -99,7 +140,20 @@ export const INITIAL_ROOMS: LabRoom[] = [
     },
     highResource: true,
     imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
-    activeNotice: 'High-resource sandbox: Network penetration and packet flooding strictly regulated.'
+    activeNotice: 'High-resource sandbox: Network penetration and packet flooding strictly regulated.',
+    reports: [
+      {
+        id: 'rep-net-01',
+        roomId: 'lab-net-sys',
+        date: '2026-11-07',
+        title: 'Cisco Rack 02 Patch Panel Port 16 Blinking Amber',
+        category: 'Electrical & Power',
+        severity: 'Minor',
+        status: 'Open',
+        reportedBy: 'Prof. Madya Dr. Amir Rudin',
+        description: 'PoE+ negotiation failed intermittently on port 16 connecting to the sniffer node.'
+      }
+    ]
   },
   {
     id: 'lab-iot-box',
@@ -117,7 +171,21 @@ export const INITIAL_ROOMS: LabRoom[] = [
       screens: 'Interactive Smart Board'
     },
     highResource: false,
-    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80',
+    reports: [
+      {
+        id: 'rep-iot-01',
+        roomId: 'lab-iot-box',
+        date: '2026-11-06',
+        title: 'Fume Extractor Unit 3 Filter Replacement Due',
+        category: 'Cleanliness',
+        severity: 'Minor',
+        status: 'Resolved',
+        reportedBy: 'En. Faizal bin Ahmad',
+        description: 'HEPA carbon active filter reached 200 hours operational threshold. Replaced with fresh OEM filter unit.',
+        resolutionNotes: 'Airflow suction calibrated to 180 m3/h.'
+      }
+    ]
   },
   {
     id: 'lab-postgrad-sem',
@@ -134,7 +202,8 @@ export const INITIAL_ROOMS: LabRoom[] = [
       screens: 'Dual 75" Samsung Flip Interactive Whiteboards'
     },
     highResource: true,
-    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80'
+    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+    reports: []
   }
 ];
 
@@ -444,6 +513,24 @@ export const INITIAL_BOOKINGS: LabBooking[] = [
     status: 'Pending Approval',
     endorsementNote: 'Endorsed. Please grant access.',
     createdAt: '2026-11-08 04:45 PM'
+  },
+  {
+    id: 'bk-7740',
+    tokenCode: 'LP-7740',
+    userId: 'usr_student_02',
+    userName: 'Siti Nur Aisyah',
+    userMatric: '24003211',
+    userEmail: '24003211@siswa.um.edu.my',
+    roomId: 'lab-se-2',
+    roomName: 'Software Engineering Lab 2',
+    roomCode: 'FCSIT-A1-SE02',
+    date: '2026-11-11',
+    slot: '10:00 - 12:00',
+    purpose: 'Agile Sprint User Acceptance Testing with industry mentors',
+    courseCode: 'WIE2002 Software Architecture',
+    isFYP: false,
+    status: 'Pending Approval',
+    createdAt: '2026-11-09 05:10 PM'
   }
 ];
 
@@ -469,6 +556,22 @@ export const INITIAL_LOANS: HardwareLoan[] = [
       powersOnWithoutError: true
     },
     createdAt: '2026-11-08 10:12 AM'
+  },
+  {
+    id: 'loan-7714',
+    tokenCode: 'LP-7714',
+    userId: 'usr_student_03',
+    userName: 'Arun Kumar a/l Rajan',
+    userMatric: '23008129',
+    hardwareId: 'hw-jetson-orin-01',
+    hardwareName: 'NVIDIA Jetson Orin Nano Developer Kit (8GB)',
+    hardwareTag: 'FCSIT-HW-JET-01',
+    serialNumber: 'SN-NV-ORIN-9421',
+    requestDate: '2026-11-12',
+    dueDate: '2026-11-19',
+    purpose: 'Autonomous drone obstacle avoidance with TensorRT on Jetson Orin',
+    status: 'Pending Approval',
+    createdAt: '2026-11-09 04:30 PM'
   },
   {
     id: 'loan-5120',

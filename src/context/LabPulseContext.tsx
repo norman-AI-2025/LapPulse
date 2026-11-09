@@ -11,7 +11,8 @@ import {
   AuditLog, 
   TimeSlotString,
   BookingStatus,
-  LoanStatus
+  LoanStatus,
+  RoomReportRecord
 } from '../types';
 import { 
   USERS, 
@@ -94,6 +95,17 @@ interface LabPulseContextType {
   joinWaitlist: (targetType: 'room' | 'hardware', targetId: string, targetName: string, slotOrDetails: string, date: string) => { success: boolean; message: string; entry?: WaitlistEntry };
   leaveWaitlist: (waitlistId: string) => void;
   
+  // Issue & Incident Reports
+  addRoomReport: (data: {
+    roomId: string;
+    title: string;
+    description: string;
+    category: 'Air Conditioning' | 'Projector & AV' | 'Workstations & PCs' | 'Electrical & Power' | 'Cleanliness' | 'Network & Wi-Fi' | 'Other';
+    severity: 'Minor' | 'Moderate' | 'Critical';
+  }) => void;
+  updateRoomReportStatus: (roomId: string, reportId: string, status: 'Open' | 'In Progress' | 'Resolved', notes?: string) => void;
+  updateHardwareDefectStatus: (hardwareId: string, defectId: string, status: 'Investigating' | 'Pending Parts' | 'Resolved') => void;
+
   // Utilities
   resetToDemoData: () => void;
   addAuditLog: (action: string, details: string, category: 'booking' | 'hardware' | 'checkin' | 'waitlist' | 'system') => void;
@@ -125,7 +137,19 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
   // Persistent States
   const [rooms, setRooms] = useState<LabRoom[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ROOMS);
-    return saved ? JSON.parse(saved) : INITIAL_ROOMS;
+    if (!saved) return INITIAL_ROOMS;
+    try {
+      const parsed: LabRoom[] = JSON.parse(saved);
+      return parsed.map((r) => {
+        const init = INITIAL_ROOMS.find((ir) => ir.id === r.id);
+        return {
+          ...r,
+          reports: r.reports && r.reports.length > 0 ? r.reports : (init?.reports || [])
+        };
+      });
+    } catch {
+      return INITIAL_ROOMS;
+    }
   });
 
   const [hardware, setHardware] = useState<HardwareItem[]>(() => {
@@ -135,12 +159,27 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const [bookings, setBookings] = useState<LabBooking[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
-    return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
+    if (!saved) return INITIAL_BOOKINGS;
+    try {
+      const parsed: LabBooking[] = JSON.parse(saved);
+      // Ensure seeded bookings exist
+      const missingSeeded = INITIAL_BOOKINGS.filter((ib) => !parsed.some((p) => p.id === ib.id));
+      return [...parsed, ...missingSeeded];
+    } catch {
+      return INITIAL_BOOKINGS;
+    }
   });
 
   const [loans, setLoans] = useState<HardwareLoan[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.LOANS);
-    return saved ? JSON.parse(saved) : INITIAL_LOANS;
+    if (!saved) return INITIAL_LOANS;
+    try {
+      const parsed: HardwareLoan[] = JSON.parse(saved);
+      const missingSeeded = INITIAL_LOANS.filter((il) => !parsed.some((p) => p.id === il.id));
+      return [...parsed, ...missingSeeded];
+    } catch {
+      return INITIAL_LOANS;
+    }
   });
 
   const [waitlist, setWaitlist] = useState<WaitlistEntry[]>(() => {
@@ -891,6 +930,78 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     addToast('Defect Logged', `Digital passport updated with incident report.`, 'warning');
   };
 
+  // Update Hardware Defect Status
+  const updateHardwareDefectStatus = (hardwareId: string, defectId: string, status: 'Investigating' | 'Pending Parts' | 'Resolved') => {
+    setHardware((prev) =>
+      prev.map((h) => {
+        if (h.id === hardwareId) {
+          return {
+            ...h,
+            defects: h.defects.map((d) => (d.id === defectId ? { ...d, status } : d))
+          };
+        }
+        return h;
+      })
+    );
+    addToast('Defect Status Updated', `Defect report status marked as "${status}".`, 'info');
+  };
+
+  // Report Space Issue
+  const addRoomReport = (data: {
+    roomId: string;
+    title: string;
+    description: string;
+    category: 'Air Conditioning' | 'Projector & AV' | 'Workstations & PCs' | 'Electrical & Power' | 'Cleanliness' | 'Network & Wi-Fi' | 'Other';
+    severity: 'Minor' | 'Moderate' | 'Critical';
+  }) => {
+    const newReport: RoomReportRecord = {
+      id: `rep-${Date.now().toString(36)}`,
+      roomId: data.roomId,
+      date: getTodayDateString(),
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      severity: data.severity,
+      status: 'Open',
+      reportedBy: currentUser.name,
+      reporterMatric: currentUser.matricOrStaffId
+    };
+
+    setRooms((prev) =>
+      prev.map((r) => {
+        if (r.id === data.roomId) {
+          return {
+            ...r,
+            reports: [newReport, ...(r.reports || [])]
+          };
+        }
+        return r;
+      })
+    );
+
+    const room = rooms.find((r) => r.id === data.roomId);
+    addAuditLog('Space Issue Reported', `${currentUser.name} reported "${data.title}" for ${room?.name} (${data.severity})`, 'booking');
+    addToast('Report Submitted', `Incident logged for ${room?.name}. FCSIT technical team notified.`, 'success');
+  };
+
+  // Update Room Report Status (e.g. In Progress, Resolved)
+  const updateRoomReportStatus = (roomId: string, reportId: string, status: 'Open' | 'In Progress' | 'Resolved', notes?: string) => {
+    setRooms((prev) =>
+      prev.map((r) => {
+        if (r.id === roomId) {
+          return {
+            ...r,
+            reports: (r.reports || []).map((rep) =>
+              rep.id === reportId ? { ...rep, status, resolutionNotes: notes || rep.resolutionNotes } : rep
+            )
+          };
+        }
+        return r;
+      })
+    );
+    addToast('Report Updated', `Report status changed to "${status}".`, 'info');
+  };
+
   // Reset to Demo Data
   const resetToDemoData = () => {
     localStorage.removeItem(STORAGE_KEYS.ROOMS);
@@ -948,6 +1059,9 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
         verifyAndIssueLoan,
         processReturn,
         reportDefect,
+        updateHardwareDefectStatus,
+        addRoomReport,
+        updateRoomReportStatus,
         joinWaitlist,
         leaveWaitlist,
         resetToDemoData,

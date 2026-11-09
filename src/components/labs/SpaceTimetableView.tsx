@@ -14,7 +14,15 @@ import {
   AlertCircle,
   Calendar,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  FileText,
+  Wrench,
+  Send
 } from 'lucide-react';
 
 interface SpaceTimetableViewProps {
@@ -61,11 +69,37 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   onBack,
   onSelectRoom
 }) => {
-  const { rooms, bookings, currentUser, createBooking, joinWaitlist, setActiveTab } = useLabPulse();
+  const { 
+    rooms, 
+    bookings, 
+    currentUser, 
+    createBooking, 
+    approveBooking, 
+    rejectBooking, 
+    addRoomReport, 
+    updateRoomReportStatus, 
+    joinWaitlist, 
+    setActiveTab 
+  } = useLabPulse();
+
+  const isOfficer = currentUser.role === 'admin';
+  const currentRoom = rooms.find((r) => r.id === room.id) || room;
 
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
-  // Booking modal/drawer state
+  // Officer Subtab State
+  const [officerTab, setOfficerTab] = useState<'queue' | 'history' | 'reports'>('queue');
+  const [expandedHistoryId, setExpandedHistoryId] = useState<string | null>(null);
+  const [expandedReportId, setExpandedReportId] = useState<string | null>(null);
+
+  // Space Issue Report Modal State
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [reportTitle, setReportTitle] = useState('');
+  const [reportCategory, setReportCategory] = useState<'Air Conditioning' | 'Projector & AV' | 'Workstations & PCs' | 'Electrical & Power' | 'Cleanliness' | 'Network & Wi-Fi' | 'Other'>('Workstations & PCs');
+  const [reportSeverity, setReportSeverity] = useState<'Minor' | 'Moderate' | 'Critical'>('Moderate');
+  const [reportDescription, setReportDescription] = useState('');
+
+  // Booking modal/drawer state (for students)
   const [activeBookingSlot, setActiveBookingSlot] = useState<{
     date: string;
     dayName: string;
@@ -225,12 +259,31 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   const handleCellClick = (day: DayInfo, timeBlock: string) => {
     if (day.isClosed) return;
 
+    const existingBooking = getBookingForCell(day.dateStr, timeBlock);
+
+    // OFFICER USER FLOW: Timetable is read-only for bookings.
+    // Clicking an existing booked slot inspects its details. Available slots do not open booking form.
+    if (isOfficer) {
+      if (existingBooking) {
+        if (inspectSlot && inspectSlot.date === day.displayDate && inspectSlot.timeBlock === timeBlock) {
+          setInspectSlot(null);
+        } else {
+          setInspectSlot({
+            booking: existingBooking,
+            date: day.displayDate,
+            timeBlock
+          });
+        }
+      }
+      return;
+    }
+
+    // STUDENT USER FLOW:
     // Block reservation on past dates
     if (day.isPast) {
-      const existing = getBookingForCell(day.dateStr, timeBlock);
-      if (existing) {
+      if (existingBooking) {
         setInspectSlot({
-          booking: existing,
+          booking: existingBooking,
           date: day.displayDate,
           timeBlock
         });
@@ -250,7 +303,6 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       return;
     }
 
-    const existingBooking = getBookingForCell(day.dateStr, timeBlock);
     if (existingBooking) {
       setActiveBookingSlot(null);
       setInspectSlot({
@@ -268,6 +320,23 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       setPurpose('');
       setIsFYP(room.highResource);
     }
+  };
+
+  const handleReportSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportTitle.trim() || !reportDescription.trim()) return;
+
+    addRoomReport({
+      roomId: room.id,
+      title: reportTitle.trim(),
+      description: reportDescription.trim(),
+      category: reportCategory,
+      severity: reportSeverity
+    });
+
+    setReportTitle('');
+    setReportDescription('');
+    setIsReportModalOpen(false);
   };
 
   const handleConfirmBooking = (e: React.FormEvent) => {
@@ -288,6 +357,14 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
     setActiveBookingSlot(null);
   };
+
+  const roomPendingBookings = bookings.filter(
+    (b) => b.roomId === room.id && (b.status === 'Pending Approval' || b.status === 'Pending Endorsement')
+  );
+  const roomHistoryBookings = bookings.filter(
+    (b) => b.roomId === room.id && b.status !== 'Pending Approval' && b.status !== 'Pending Endorsement'
+  );
+  const roomReports = currentRoom.reports || [];
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto pb-12 animate-in fade-in duration-200">
@@ -353,8 +430,12 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         {/* Action Status */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 text-right">
           <span className="text-xs font-medium text-slate-400">Timetable View</span>
-          <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60 mt-1">
-            Click any cell to book
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full border mt-1 ${
+            isOfficer
+              ? 'text-blue-800 bg-blue-50 border-blue-200/80'
+              : 'text-emerald-700 bg-emerald-50 border-emerald-200/60'
+          }`}>
+            {isOfficer ? 'Officer Mode: Schedule Read-Only' : 'Click any cell to book'}
           </span>
         </div>
       </div>
@@ -572,13 +653,433 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
           </div>
 
           <div className="text-[11px] text-slate-400">
-            Click any cell to reserve slot or join waitlist
+            {isOfficer 
+              ? 'Officer Mode: Schedule is read-only. Manage Queue, History & Reports below.' 
+              : 'Click any cell to reserve slot or join waitlist'}
           </div>
         </div>
       </div>
 
-      {/* MODAL 1: Clean Interactive Booking Drawer when clicking an Available cell */}
-      {activeBookingSlot && (
+      {/* OFFICER USER FLOW: QUEUE LIST, HISTORY LIST & REPORTS (REPLACING BOOKING FUNCTION) */}
+      {isOfficer && (
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5 animate-in fade-in">
+          
+          {/* Header & Sub-Navigation Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
+                  Officer Desk
+                </span>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-xs text-slate-500 font-medium">Laboratory Operations & Audit</span>
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mt-1">
+                Space Management Station: {room.name}
+              </h2>
+            </div>
+
+            {/* Segmented 3-Tab Control */}
+            <div className="flex items-center bg-slate-100 p-1 rounded-2xl">
+              <button
+                onClick={() => setOfficerTab('queue')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  officerTab === 'queue'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Users className="w-3.5 h-3.5 text-amber-500" />
+                <span>Queue List</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  roomPendingBookings.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
+                }`}>
+                  {roomPendingBookings.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setOfficerTab('history')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  officerTab === 'history'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Clock className="w-3.5 h-3.5 text-blue-500" />
+                <span>History List</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-slate-200 text-slate-600">
+                  {roomHistoryBookings.length}
+                </span>
+              </button>
+
+              <button
+                onClick={() => setOfficerTab('reports')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  officerTab === 'reports'
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <Wrench className="w-3.5 h-3.5 text-rose-500" />
+                <span>Space Reports</span>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                  roomReports.filter(r => r.status !== 'Resolved').length > 0
+                    ? 'bg-rose-100 text-rose-800'
+                    : 'bg-slate-200 text-slate-600'
+                }`}>
+                  {roomReports.length}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* TAB 1: QUEUE LIST (Show Reason, Approve and Decline Buttons) */}
+          {officerTab === 'queue' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
+                <span>Pending reservation requests for {room.name}</span>
+                <span>{roomPendingBookings.length} awaiting review</span>
+              </div>
+
+              {roomPendingBookings.length === 0 ? (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-80" />
+                  <p className="text-xs font-semibold text-slate-700">All Space Requests Cleared</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">No pending reservation requests in queue for this laboratory.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {roomPendingBookings.map((b) => (
+                    <div key={b.id} className="p-4 rounded-2xl border border-amber-200/80 bg-amber-50/30 space-y-3 transition-all hover:shadow-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 text-sm">{b.userName}</span>
+                            <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700">
+                              {b.userMatric}
+                            </span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-900">
+                              {b.status}
+                            </span>
+                            {b.isFYP && (
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-100 text-indigo-900">
+                                FYP
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                            <span className="flex items-center gap-1 font-semibold text-slate-700">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                              {b.date}
+                            </span>
+                            <span>•</span>
+                            <span className="flex items-center gap-1 font-mono font-semibold text-slate-700">
+                              <Clock className="w-3.5 h-3.5 text-slate-400" />
+                              {b.slot}
+                            </span>
+                            {b.courseCode && (
+                              <>
+                                <span>•</span>
+                                <span>{b.courseCode}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Approve and Decline Buttons */}
+                        <div className="flex items-center gap-2 pt-2 sm:pt-0">
+                          <button
+                            type="button"
+                            onClick={() => approveBooking(b.id)}
+                            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs transition-colors shadow-sm flex items-center gap-1.5"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => rejectBooking(b.id, 'Declined by FCSIT Technical Officer')}
+                            className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-rose-50 text-rose-700 border border-rose-200 font-semibold text-xs transition-colors flex items-center gap-1.5"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                            <span>Decline</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Reason & Project Objective Callout */}
+                      <div className="p-3 bg-white rounded-xl border border-slate-200/80">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                          Reason & Project Objective
+                        </span>
+                        <p className="text-xs font-medium text-slate-800 leading-relaxed">
+                          &ldquo;{b.purpose}&rdquo;
+                        </p>
+                      </div>
+
+                      {b.endorsementNote && (
+                        <div className="text-[11px] font-medium text-indigo-900 bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100 flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 flex-shrink-0" />
+                          <span>
+                            <strong>Supervisor Endorsed:</strong> {b.endorsementNote}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: HISTORY LIST (Expand Button to Know More) */}
+          {officerTab === 'history' && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-500 pb-1">
+                <span>Recorded bookings & reservations for {room.name}</span>
+                <span>{roomHistoryBookings.length} total records</span>
+              </div>
+
+              {roomHistoryBookings.length === 0 ? (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                  <Clock className="w-8 h-8 text-slate-400 mx-auto mb-2 opacity-60" />
+                  <p className="text-xs font-semibold text-slate-700">No Booking History Yet</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">Past and completed sessions will be logged here.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {roomHistoryBookings.map((b) => {
+                    const isExpanded = expandedHistoryId === b.id;
+                    return (
+                      <div key={b.id} className="p-3.5 rounded-2xl border border-slate-200 bg-slate-50/60 hover:bg-slate-50 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-3">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                              b.status === 'Active'
+                                ? 'bg-emerald-500 text-white'
+                                : b.status === 'Approved'
+                                ? 'bg-blue-600 text-white'
+                                : b.status === 'Completed'
+                                ? 'bg-slate-700 text-white'
+                                : 'bg-slate-200 text-slate-700'
+                            }`}>
+                              {b.status}
+                            </span>
+                            <div>
+                              <div className="font-bold text-slate-900 text-xs flex items-center gap-1.5">
+                                <span>{b.userName}</span>
+                                <span className="font-mono text-[10px] text-slate-500 font-normal">({b.userMatric})</span>
+                              </div>
+                              <div className="text-[11px] text-slate-500 flex items-center gap-2 mt-0.5">
+                                <span>{b.date}</span>
+                                <span>•</span>
+                                <span className="font-mono">{b.slot}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Expand Button to Know More */}
+                          <button
+                            type="button"
+                            onClick={() => setExpandedHistoryId(isExpanded ? null : b.id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors shadow-sm self-start sm:self-auto"
+                          >
+                            <span>{isExpanded ? 'Collapse' : 'Expand Details'}</span>
+                            {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                          </button>
+                        </div>
+
+                        {/* Expanded Details Section */}
+                        {isExpanded && (
+                          <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5 text-xs animate-in fade-in">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Digital Pass Token</span>
+                                <span className="font-mono font-bold text-blue-700">{b.tokenCode}</span>
+                              </div>
+                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Registered Student Email</span>
+                                <span className="font-medium text-slate-800">{b.userEmail}</span>
+                              </div>
+                            </div>
+
+                            <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                              <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Full Reason & Purpose</span>
+                              <p className="text-slate-800 font-medium">{b.purpose}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Physical Check-In</span>
+                                <span className="font-semibold text-slate-800">{b.checkInTime ? `${b.date} at ${b.checkInTime}` : 'Not checked in'}</span>
+                              </div>
+                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Physical Check-Out</span>
+                                <span className="font-semibold text-slate-800">{b.checkOutTime || 'Slot end checkout'}</span>
+                              </div>
+                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Supervisor Endorsement</span>
+                                <span className="font-semibold text-slate-800">{b.supervisorName || 'Not required'}</span>
+                              </div>
+                            </div>
+
+                            {b.adminNote && (
+                              <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-100 text-amber-900">
+                                <span className="text-[10px] font-bold uppercase block">Officer Review Note</span>
+                                <p className="text-xs">{b.adminNote}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: REPORTS (For User to Report Issue About the Space, Expand Button to Know More) */}
+          {officerTab === 'reports' && (
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-1">
+                <div>
+                  <h3 className="text-xs font-bold text-slate-900">
+                    Defect & Incident Reports ({roomReports.length})
+                  </h3>
+                  <p className="text-[11px] text-slate-500">
+                    Reported maintenance issues, hardware glitches, or facility defects for {room.name}.
+                  </p>
+                </div>
+
+                {/* Report Space Issue Action Button */}
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(true)}
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-colors shadow-sm flex items-center gap-1.5 self-start sm:self-auto"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Report Issue for this Space</span>
+                </button>
+              </div>
+
+              {roomReports.length === 0 ? (
+                <div className="p-8 text-center bg-slate-50 rounded-2xl border border-slate-100">
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-70" />
+                  <p className="text-xs font-semibold text-slate-700">No Defects Reported</p>
+                  <p className="text-[11px] text-slate-400 mt-0.5">This laboratory space is fully functional with zero open incident reports.</p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {roomReports.map((rep) => {
+                    const isExpanded = expandedReportId === rep.id;
+                    return (
+                      <div key={rep.id} className="p-4 rounded-2xl border border-slate-200 bg-white space-y-2 hover:border-slate-300 transition-colors">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="font-bold text-slate-900 text-xs sm:text-sm">{rep.title}</span>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                                {rep.category}
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                                rep.severity === 'Critical'
+                                  ? 'bg-rose-100 text-rose-800'
+                                  : rep.severity === 'Moderate'
+                                  ? 'bg-amber-100 text-amber-800'
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {rep.severity} Severity
+                              </span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${
+                                rep.status === 'Resolved'
+                                  ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                  : rep.status === 'In Progress'
+                                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                                  : 'bg-rose-50 text-rose-800 border-rose-200'
+                              }`}>
+                                {rep.status}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                              <span>Reported by: <strong>{rep.reportedBy}</strong></span>
+                              <span>•</span>
+                              <span>{rep.date}</span>
+                            </div>
+                          </div>
+
+                          {/* Expand Button to Know More */}
+                          <button
+                            type="button"
+                            onClick={() => setExpandedReportId(isExpanded ? null : rep.id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors self-start sm:self-auto"
+                          >
+                            <span>{isExpanded ? 'Collapse' : 'Expand Details'}</span>
+                            {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-slate-500" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-500" />}
+                          </button>
+                        </div>
+
+                        {/* Expanded Report Details */}
+                        {isExpanded && (
+                          <div className="mt-3 pt-3 border-t border-slate-100 space-y-3 text-xs animate-in fade-in">
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                              <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Full Incident Description</span>
+                              <p className="text-slate-800 font-medium leading-relaxed">{rep.description}</p>
+                            </div>
+
+                            {rep.resolutionNotes && (
+                              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-950">
+                                <span className="text-[10px] font-bold uppercase text-emerald-700 block mb-0.5">Technician Resolution Log</span>
+                                <p className="leading-relaxed">{rep.resolutionNotes}</p>
+                              </div>
+                            )}
+
+                            {/* Officer Status Update Controls */}
+                            <div className="flex items-center gap-2 pt-1">
+                              <span className="text-[11px] font-semibold text-slate-500">Update Report Status:</span>
+                              {rep.status !== 'In Progress' && rep.status !== 'Resolved' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateRoomReportStatus(room.id, rep.id, 'In Progress')}
+                                  className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-semibold"
+                                >
+                                  Mark In Progress
+                                </button>
+                              )}
+                              {rep.status !== 'Resolved' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateRoomReportStatus(room.id, rep.id, 'Resolved', 'Resolved by FCSIT Lab Officer')}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-semibold"
+                                >
+                                  Mark Resolved
+                                </button>
+                              )}
+                              {rep.status === 'Resolved' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateRoomReportStatus(room.id, rep.id, 'Open')}
+                                  className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-semibold"
+                                >
+                                  Re-open Ticket
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* MODAL 1: Clean Interactive Booking Drawer when clicking an Available cell (STUDENTS ONLY) */}
+      {!isOfficer && activeBookingSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
           <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
             
@@ -690,6 +1191,113 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                   className="px-5 py-2 bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors"
                 >
                   Confirm Reservation
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Submit New Space Incident / Issue Report */}
+      {isReportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
+            <div className="p-5 border-b border-slate-100 flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">
+                  Report Space Issue
+                </span>
+                <h3 className="text-base font-bold text-slate-900 mt-0.5">{room.name}</h3>
+                <p className="text-xs text-slate-500">{room.floor}, {room.block}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsReportModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleReportSubmit} className="p-5 space-y-3.5 text-xs">
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Issue Summary / Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Workstation #12 GPU fan failure, Projector HDMI signal lost..."
+                  value={reportTitle}
+                  onChange={(e) => setReportTitle(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                  <select
+                    value={reportCategory}
+                    onChange={(e: any) => setReportCategory(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none"
+                  >
+                    <option value="Workstations & PCs">Workstations & PCs</option>
+                    <option value="Air Conditioning">Air Conditioning</option>
+                    <option value="Projector & AV">Projector & AV</option>
+                    <option value="Electrical & Power">Electrical & Power</option>
+                    <option value="Network & Wi-Fi">Network & Wi-Fi</option>
+                    <option value="Cleanliness">Cleanliness</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Severity</label>
+                  <select
+                    value={reportSeverity}
+                    onChange={(e: any) => setReportSeverity(e.target.value)}
+                    className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none"
+                  >
+                    <option value="Minor">Minor (Usable with annoyance)</option>
+                    <option value="Moderate">Moderate (Restricted usage)</option>
+                    <option value="Critical">Critical (Halts laboratory)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1">
+                  Detailed Description *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Describe location, symptoms, error messages, and affected hardware..."
+                  value={reportDescription}
+                  onChange={(e) => setReportDescription(e.target.value)}
+                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-500"
+                />
+              </div>
+
+              <div className="text-[11px] text-slate-400">
+                Reporter: <strong className="text-slate-700">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsReportModalOpen(false)}
+                  className="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-xl font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Submit Space Report</span>
                 </button>
               </div>
             </form>
