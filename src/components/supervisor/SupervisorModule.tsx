@@ -228,3 +228,4 @@ export const SupervisorModule: React.FC = () => {
     </div>
   );
 };
+

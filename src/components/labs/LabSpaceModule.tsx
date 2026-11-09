@@ -411,3 +411,4 @@ export const LabSpaceModule: React.FC = () => {
     </div>
   );
 };
+

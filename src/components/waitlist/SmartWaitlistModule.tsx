@@ -238,3 +238,4 @@ export const SmartWaitlistModule: React.FC = () => {
     </div>
   );
 };
+

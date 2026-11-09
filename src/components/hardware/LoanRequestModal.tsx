@@ -179,3 +179,4 @@ export const LoanRequestModal: React.FC<LoanRequestModalProps> = ({
     </div>
   );
 };
+

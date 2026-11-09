@@ -92,3 +92,4 @@ export const AuditTrailModule: React.FC = () => {
     </div>
   );
 };
+

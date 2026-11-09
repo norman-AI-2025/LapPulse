@@ -202,3 +202,4 @@ export interface HardwareBundleTemplate {
   iconName: string;
   recommendedFor: string;
 }
+

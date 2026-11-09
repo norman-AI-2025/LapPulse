@@ -322,3 +322,4 @@ export const HardwareLendingModule: React.FC = () => {
     </div>
   );
 };
+

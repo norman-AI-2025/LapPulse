@@ -378,3 +378,4 @@ export const EquipmentPassportModal: React.FC<EquipmentPassportModalProps> = ({
     </div>
   );
 };
+

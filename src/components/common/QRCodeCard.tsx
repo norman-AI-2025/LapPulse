@@ -140,3 +140,4 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
     </div>
   );
 };
+

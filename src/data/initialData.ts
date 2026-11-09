@@ -617,3 +617,4 @@ export const HARDWARE_TEMPLATES: HardwareBundleTemplate[] = [
     recommendedFor: 'Firmware engineers, hardware PCB signal timing verification, and motor controller PWM tuning'
   }
 ];
+
