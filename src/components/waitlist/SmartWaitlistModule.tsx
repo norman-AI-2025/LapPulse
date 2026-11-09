@@ -5,13 +5,8 @@ import {
   Users, 
   Zap, 
   CheckCircle2, 
-  AlertTriangle, 
-  ArrowRight, 
   Trash2, 
-  Building2, 
-  Cpu,
-  Sparkles,
-  ShieldAlert
+  Sparkles
 } from 'lucide-react';
 
 export const SmartWaitlistModule: React.FC = () => {
@@ -21,67 +16,51 @@ export const SmartWaitlistModule: React.FC = () => {
     leaveWaitlist, 
     releaseToWaitlist, 
     markNoShow,
-    currentUser, 
-    currentRole 
+    currentUser 
   } = useLabPulse();
 
   const activeWaitingList = waitlist.filter((w) => w.status === 'waiting');
   const promotedList = waitlist.filter((w) => w.status === 'promoted');
 
-  // Bookings eligible for waitlist release (Approved or Active slots where waitlist exists)
   const candidateBookings = bookings.filter(
     (b) => b.status === 'Approved' || b.status === 'No-Show / Forfeited'
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 max-w-6xl mx-auto pb-12 animate-in fade-in duration-200">
       
-      {/* Top Banner */}
-      <div className="bento-card rounded-3xl p-5 sm:p-7 border border-slate-200/90 relative overflow-hidden">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200/80 text-indigo-800 text-xs font-semibold mb-2">
-              <Clock className="w-3.5 h-3.5" />
-              <span>FIFO Real-time Reallocation Engine</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Smart Waitlist & Instant Forfeiture Reallocation
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
-              When laboratory occupants fail to physically scan into their reserved space within the 15-minute grace window, slots are instantly released to the #1 waitlisted candidate.
-            </p>
-          </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            Waitlist & Reallocation
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time queue standby and 15-minute no-show forfeiture dynamic promotion.
+          </p>
+        </div>
 
-          <div className="flex items-center gap-3">
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 text-center min-w-[110px]">
-              <div className="text-[10px] font-bold text-slate-400 uppercase">In Queue</div>
-              <div className="text-xl font-bold text-slate-900 mt-0.5">{activeWaitingList.length} Students</div>
-            </div>
-            <div className="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-center min-w-[110px]">
-              <div className="text-[10px] font-bold text-emerald-700 uppercase">Promoted</div>
-              <div className="text-xl font-bold text-emerald-900 mt-0.5">{promotedList.length} Reallocated</div>
-            </div>
-          </div>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-slate-100 text-slate-700">
+            {activeWaitingList.length} in Queue
+          </span>
+          <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+            {promotedList.length} Promoted
+          </span>
         </div>
       </div>
 
-      {/* SECTION: ACTIVE WAITLIST QUEUE */}
-      <div>
-        <div className="flex items-center justify-between mb-3 px-1">
-          <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-4 h-4 text-blue-600" />
-            Active Waitlist Standby Queue ({activeWaitingList.length})
-          </h2>
-          <span className="text-xs text-slate-500">Ordered by arrival timestamp</span>
-        </div>
+      {/* ACTIVE WAITLIST QUEUE */}
+      <div className="space-y-3">
+        <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+          Standby Queue ({activeWaitingList.length})
+        </h2>
 
         {activeWaitingList.length === 0 ? (
-          <div className="bento-card rounded-3xl p-8 text-center border border-slate-200">
-            <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-2 opacity-80" />
-            <h3 className="font-bold text-slate-800 text-sm">No Active Waitlist Queue</h3>
-            <p className="text-xs text-slate-500 mt-1">
-              All laboratory slots and hardware items are either fulfilled or currently free for immediate booking.
-            </p>
+          <div className="bg-white rounded-3xl p-8 text-center border border-slate-200">
+            <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2 opacity-70" />
+            <h3 className="text-xs font-bold text-slate-800">No Waitlist Active</h3>
+            <p className="text-[11px] text-slate-400 mt-0.5">All laboratory slots and hardware units are available or fulfilled.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -91,35 +70,34 @@ export const SmartWaitlistModule: React.FC = () => {
               return (
                 <div
                   key={entry.id}
-                  className={`bento-card rounded-2xl p-4 border transition-all ${
-                    isMe ? 'border-blue-400 bg-blue-50/20' : 'border-slate-200'
+                  className={`bg-white rounded-2xl p-4 border transition-all ${
+                    isMe ? 'border-blue-500 ring-1 ring-blue-500 shadow-sm' : 'border-slate-200'
                   }`}
                 >
                   <div className="flex items-start justify-between">
-                    <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-900 text-white flex items-center gap-1">
-                      <span>Queue Position #{entry.position}</span>
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-slate-900 text-white">
+                      Position #{entry.position}
                     </span>
-
-                    <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-                      {entry.targetType === 'room' ? 'Laboratory Space' : 'Hardware Asset'}
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase">
+                      {entry.targetType === 'room' ? 'Space' : 'Hardware'}
                     </span>
                   </div>
 
-                  <div className="mt-3">
-                    <h4 className="font-bold text-slate-900 text-sm line-clamp-1">{entry.targetName}</h4>
-                    <p className="text-xs text-blue-700 font-medium mt-0.5">{entry.slotOrDetails}</p>
+                  <div className="mt-2.5">
+                    <h4 className="text-xs font-bold text-slate-900 line-clamp-1">{entry.targetName}</h4>
+                    <p className="text-[11px] text-blue-700 font-medium mt-0.5">{entry.slotOrDetails}</p>
                   </div>
 
                   <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                     <div>
                       <div className="font-semibold text-slate-800">{isMe ? 'You (Norman Lee)' : entry.userName}</div>
-                      <div className="text-[10px] text-slate-400">{entry.userMatric} • {entry.createdAt}</div>
+                      <div className="text-[10px] text-slate-400">{entry.userMatric}</div>
                     </div>
 
                     {isMe && (
                       <button
                         onClick={() => leaveWaitlist(entry.id)}
-                        className="text-xs font-semibold text-rose-600 hover:text-rose-800 p-1 rounded-lg"
+                        className="text-xs text-rose-600 hover:text-rose-800 p-1"
                         title="Leave waitlist"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -133,51 +111,37 @@ export const SmartWaitlistModule: React.FC = () => {
         )}
       </div>
 
-      {/* SECTION: 1-CLICK DYNAMIC REALLOCATION DISPATCHER (FOR TESTING & ADMIN) */}
-      <div>
-        <div className="flex items-center justify-between mb-3 px-1">
-          <div>
-            <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Zap className="w-4 h-4 text-amber-500" />
-              Dynamic Forfeiture & Reallocation Dispatcher
-            </h2>
-            <p className="text-xs text-slate-500">
-              Simulate 15-minute no-show forfeiture to trigger immediate automated pass generation for candidate #1.
-            </p>
-          </div>
+      {/* DISPATCHER & NO-SHOW REALLOCATION */}
+      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3 mt-6">
+        <div>
+          <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-amber-500" />
+            <span>Simulate No-Show Forfeiture & Dynamic Promotion</span>
+          </h3>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            Test immediate reallocation of forfeited slots to candidate #1 in line.
+          </p>
         </div>
 
-        <div className="bento-card rounded-3xl p-5 border border-slate-200/90 overflow-x-auto">
-          <table className="w-full text-xs text-left border-collapse min-w-[650px]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-500 font-semibold bg-slate-50/60">
-                <th className="p-3 rounded-l-xl">Reservation</th>
-                <th className="p-3">Current Holder</th>
+              <tr className="border-b border-slate-100 text-slate-400 bg-slate-50/50">
+                <th className="p-3">Reservation</th>
+                <th className="p-3">Occupant</th>
                 <th className="p-3">Slot Time</th>
-                <th className="p-3">Current Status</th>
-                <th className="p-3 text-right rounded-r-xl">Reallocation Trigger</th>
+                <th className="p-3">Status</th>
+                <th className="p-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {candidateBookings.map((b) => (
                 <tr key={b.id} className="hover:bg-slate-50/50">
+                  <td className="p-3 font-semibold text-slate-800">{b.roomName}</td>
+                  <td className="p-3 text-slate-600">{b.userName} ({b.userMatric})</td>
+                  <td className="p-3 text-slate-500">{b.slot}</td>
                   <td className="p-3">
-                    <div className="font-bold text-slate-900">{b.roomName}</div>
-                    <div className="font-mono text-[10px] text-slate-500">{b.tokenCode}</div>
-                  </td>
-                  <td className="p-3">
-                    <div className="font-semibold text-slate-800">{b.userName}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{b.userMatric}</div>
-                  </td>
-                  <td className="p-3">{b.slot}</td>
-                  <td className="p-3">
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        b.status === 'Approved'
-                          ? 'bg-blue-50 text-blue-700 border-blue-200'
-                          : 'bg-rose-50 text-rose-700 border-rose-200'
-                      }`}
-                    >
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 font-semibold text-slate-700">
                       {b.status}
                     </span>
                   </td>
@@ -185,17 +149,16 @@ export const SmartWaitlistModule: React.FC = () => {
                     {b.status === 'Approved' && (
                       <button
                         onClick={() => markNoShow(b.id)}
-                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 transition-colors"
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200"
                       >
-                        Simulate 15-Min No-Show
+                        15-Min No-Show
                       </button>
                     )}
                     <button
                       onClick={() => releaseToWaitlist(b.id)}
-                      className="px-3 py-1 rounded-lg text-[11px] font-bold bg-[#002B7F] hover:bg-blue-800 text-white transition-colors shadow-sm inline-flex items-center gap-1"
+                      className="px-3 py-1 rounded-lg text-[11px] font-semibold bg-slate-900 hover:bg-slate-800 text-white"
                     >
-                      <Sparkles className="w-3 h-3 text-amber-300" />
-                      Promote Next in Line
+                      Promote Candidate #1
                     </button>
                   </td>
                 </tr>
@@ -204,38 +167,6 @@ export const SmartWaitlistModule: React.FC = () => {
           </table>
         </div>
       </div>
-
-      {/* SECTION: PROMOTED HISTORY */}
-      {promotedList.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-sm font-bold text-slate-900">
-              Successfully Promoted Candidates Archive ({promotedList.length})
-            </h2>
-          </div>
-
-          <div className="bento-card rounded-3xl p-4 border border-emerald-200/80 bg-emerald-50/20">
-            <div className="divide-y divide-emerald-100 text-xs">
-              {promotedList.map((entry) => (
-                <div key={entry.id} className="py-2.5 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                    <div>
-                      <span className="font-bold text-slate-900">{entry.userName}</span> (
-                      {entry.userMatric}) was awarded slot in{' '}
-                      <span className="font-semibold text-emerald-800">{entry.targetName}</span>
-                    </div>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                    AUTOMATICALLY PROMOTED
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
