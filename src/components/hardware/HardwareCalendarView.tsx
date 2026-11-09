@@ -200,6 +200,12 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
   // Handle clicking a calendar cell date to pick or toggle range
   const handleDateClick = (dateStr: string) => {
+    // 0. Do not allow selecting past dates
+    const today = '2026-11-10';
+    if (dateStr < today) {
+      return;
+    }
+
     // 1. If clicking the already selected borrowDate (when no returnDate is chosen yet) -> Unselect!
     if (borrowDate === dateStr && !returnDate) {
       setBorrowDate('');
@@ -448,20 +454,30 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   }
                 }
 
+                const isPast = cell.dateStr < '2026-11-10';
+
+                // If past date without active loan, show disabled
+                if (isPast && !loanInfo && !userRange) {
+                  cellBg = 'bg-slate-50/50 text-slate-300 cursor-not-allowed';
+                }
                 // If not in current viewing month
-                if (!cell.isCurrentMonth && !userRange && !loanInfo) {
+                else if (!cell.isCurrentMonth && !userRange && !loanInfo) {
                   cellBg = 'bg-slate-50/50 text-slate-300';
                 }
 
                 return (
                   <div
                     key={cell.dateStr}
-                    onClick={() => handleDateClick(cell.dateStr)}
-                    onMouseEnter={() => !returnDate && borrowDate && setHoverDate(cell.dateStr)}
-                    className={`min-h-[58px] p-1.5 rounded-xl border border-slate-100 transition-all cursor-pointer flex flex-col justify-between ${cellBg}`}
+                    onClick={() => !isPast && handleDateClick(cell.dateStr)}
+                    onMouseEnter={() => !isPast && !returnDate && borrowDate && setHoverDate(cell.dateStr)}
+                    className={`min-h-[58px] p-1.5 rounded-xl border border-slate-100 transition-all ${
+                      isPast ? 'cursor-not-allowed' : 'cursor-pointer'
+                    } flex flex-col justify-between ${cellBg}`}
                     title={
                       loanInfo
                         ? `On Loan: ${(loanInfo as any).loan?.userName || (loanInfo as any).hist?.borrower}`
+                        : isPast
+                        ? 'Past date - loans closed'
                         : `Click to select ${cell.dateStr}`
                     }
                   >
@@ -561,6 +577,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <input
                     type="date"
                     required
+                    min="2026-11-10"
                     value={borrowDate}
                     onChange={(e) => setBorrowDate(e.target.value)}
                     className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
@@ -574,7 +591,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <input
                     type="date"
                     required
-                    min={borrowDate}
+                    min={borrowDate || "2026-11-10"}
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
                     className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"

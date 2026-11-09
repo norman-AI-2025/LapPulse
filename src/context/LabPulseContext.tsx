@@ -275,6 +275,13 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
       return { success: false, message: 'Laboratory space not found.' };
     }
 
+    // Block booking on past dates
+    const today = getTodayDateString();
+    if (data.date < today) {
+      addToast('Invalid Date', 'Cannot book space for a past date. Only current and future dates are allowed.', 'warning');
+      return { success: false, message: 'Cannot book space for a past date.' };
+    }
+
     // Check concurrency conflict
     const conflict = checkConflict(data.roomId, data.date, data.slot);
     if (conflict.hasConflict) {
@@ -629,6 +636,14 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
   }) => {
     const item = hardware.find((h) => h.id === data.hardwareId);
     if (!item) return { success: false, message: 'Hardware item not found.' };
+
+    // Block loans on past dates
+    const today = getTodayDateString();
+    const reqDate = data.requestDate || today;
+    if (reqDate < today || data.dueDate < today) {
+      addToast('Invalid Date', 'Cannot request hardware loans for past dates. Only current and future dates are allowed.', 'warning');
+      return { success: false, message: 'Cannot request hardware loans for past dates.' };
+    }
 
     if (item.availableUnits <= 0) {
       return { success: false, message: `${item.name} is currently out of stock. Join waitlist instead!` };

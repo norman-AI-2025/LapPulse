@@ -50,6 +50,7 @@ interface DayInfo {
   dayName: string; // Monday, Tuesday, ...
   displayDate: string; // 9 Nov, 2026
   isToday: boolean;
+  isPast: boolean;
   isHoliday?: boolean;
   holidayName?: string;
   isClosed?: boolean;
@@ -107,6 +108,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       const dateStr = `${year}-${month}-${date}`;
 
       const isToday = offset === 0 && d.getDate() === 10 && d.getMonth() === 10 && d.getFullYear() === 2026;
+      const isPast = dateStr < '2026-11-10';
       
       // Monday 9 Nov 2026 is Hari Deepavali
       const isHariDeepavali = d.getDate() === 9 && d.getMonth() === 10 && d.getFullYear() === 2026;
@@ -117,6 +119,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         dayName: dayNames[i],
         displayDate: `${d.getDate()} ${monthNames[d.getMonth()]}, ${year}`,
         isToday,
+        isPast,
         isHoliday: isHariDeepavali,
         holidayName: isHariDeepavali ? 'HARI DEEPAVALI' : undefined,
         isClosed: isHariDeepavali || isSunday,
@@ -191,6 +194,19 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
   const handleCellClick = (day: DayInfo, timeBlock: string) => {
     if (day.isClosed) return;
+
+    // Block reservation on past dates
+    if (day.isPast) {
+      const existing = getBookingForCell(day.dateStr, timeBlock);
+      if (existing) {
+        setInspectSlot({
+          booking: existing,
+          date: day.displayDate,
+          timeBlock
+        });
+      }
+      return;
+    }
 
     // Toggle unselect if clicking the already open booking slot
     if (activeBookingSlot && activeBookingSlot.date === day.dateStr && activeBookingSlot.timeBlock === timeBlock) {
@@ -457,7 +473,20 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       );
                     }
 
-                    // CASE 4: AVAILABLE CELL (Light Gray / White, Click to Book)
+                    // CASE 4: PAST DATE (No bookings permitted)
+                    if (day.isPast) {
+                      return (
+                        <td
+                          key={day.dateStr}
+                          className="p-1.5 border-r border-slate-200/60 bg-slate-100/40 text-slate-300 text-center cursor-not-allowed select-none"
+                          title="Past date - reservations closed"
+                        >
+                          <div className="h-5" />
+                        </td>
+                      );
+                    }
+
+                    // CASE 5: AVAILABLE CELL (Light Gray / White, Click to Book)
                     return (
                       <td
                         key={day.dateStr}
