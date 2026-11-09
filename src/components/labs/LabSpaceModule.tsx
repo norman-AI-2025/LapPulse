@@ -1,33 +1,19 @@
 import React, { useState } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
-import { LabCategory, LabRoom, TimeSlotString } from '../../types';
-import { BookingModal } from './BookingModal';
+import { LabRoom, TimeSlotString } from '../../types';
 import { 
   Building2, 
-  Search, 
-  Filter, 
-  Users, 
-  Cpu, 
   Calendar, 
   Clock, 
-  CheckCircle2, 
+  Users, 
+  Check, 
   AlertCircle, 
-  ShieldCheck, 
-  Sparkles, 
-  Grid3X3, 
-  Table2,
+  Plus, 
+  Sparkles,
   ChevronRight,
-  Info
+  ShieldCheck,
+  Search
 } from 'lucide-react';
-
-const CATEGORIES: ('All' | LabCategory)[] = [
-  'All',
-  'AI & Data Science',
-  'Software Engineering',
-  'Networking & Security',
-  'IoT & Robotics',
-  'Meeting & Seminar',
-];
 
 const TIME_SLOTS: TimeSlotString[] = [
   '08:00 - 10:00',
@@ -38,377 +24,369 @@ const TIME_SLOTS: TimeSlotString[] = [
 ];
 
 export const LabSpaceModule: React.FC = () => {
-  const { rooms, bookings, currentUser, setActiveTab } = useLabPulse();
+  const { rooms, bookings, currentUser, createBooking, joinWaitlist, setActiveTab } = useLabPulse();
 
-  const [selectedCategory, setSelectedCategory] = useState<'All' | LabCategory>('All');
-  const [searchQuery, setSearchQuery] = useState('');
+  // Selected space and date
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(rooms[0]?.id || 'lab-ai-1');
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
-  const [viewMode, setViewMode] = useState<'cards' | 'matrix'>('cards');
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Booking modal state
-  const [activeModalRoom, setActiveModalRoom] = useState<LabRoom | null>(null);
-  const [preselectedSlot, setPreselectedSlot] = useState<TimeSlotString | undefined>(undefined);
+  // Booking drawer/form state
+  const [bookingSlot, setBookingSlot] = useState<TimeSlotString | null>(null);
+  const [purpose, setPurpose] = useState('');
+  const [isFYP, setIsFYP] = useState(false);
 
-  // Filtered rooms
-  const filteredRooms = rooms.filter((room) => {
-    const matchesCategory = selectedCategory === 'All' || room.category === selectedCategory;
-    const matchesQuery =
-      room.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      room.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      room.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      room.amenities.some((a) => a.toLowerCase().includes(searchQuery.toLowerCase()));
-    return matchesCategory && matchesQuery;
-  });
+  // Active selected room
+  const selectedRoom = rooms.find((r) => r.id === selectedRoomId) || rooms[0];
 
-  const getSlotBookingInfo = (roomId: string, slot: TimeSlotString) => {
+  // Helper dates
+  const todayStr = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = tomorrow.toISOString().split('T')[0];
+
+  // Filtered rooms list
+  const filteredRooms = rooms.filter((r) => 
+    r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Get booking info for a slot in the active room on the selected date
+  const getSlotBooking = (slot: TimeSlotString) => {
     return bookings.find(
       (b) =>
-        b.roomId === roomId &&
+        b.roomId === selectedRoom.id &&
         b.date === selectedDate &&
         b.slot === slot &&
-        (b.status === 'Approved' || b.status === 'Active')
+        (b.status === 'Approved' || b.status === 'Active' || b.status === 'Pending Approval')
     );
   };
 
-  const handleOpenBooking = (room: LabRoom, slot?: TimeSlotString) => {
-    setActiveModalRoom(room);
-    setPreselectedSlot(slot);
+  const handleBookSlotClick = (slot: TimeSlotString) => {
+    setBookingSlot(slot);
+    setPurpose('');
+    setIsFYP(selectedRoom.highResource);
+  };
+
+  const handleSubmitBooking = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bookingSlot || !purpose.trim()) return;
+
+    createBooking({
+      roomId: selectedRoom.id,
+      date: selectedDate,
+      slot: bookingSlot,
+      purpose: purpose.trim(),
+      isFYP,
+      supervisorName: isFYP ? 'Prof. Madya Dr. Amir Rudin' : undefined,
+      supervisorEmail: isFYP ? 'amirrudin@um.edu.my' : undefined,
+    });
+
+    setBookingSlot(null);
+  };
+
+  const handleJoinSlotWaitlist = (slot: TimeSlotString) => {
+    joinWaitlist('room', selectedRoom.id, selectedRoom.name, `${selectedDate} (${slot})`, selectedDate);
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 max-w-6xl mx-auto">
       
-      {/* Top Banner & Control Bar */}
-      <div className="bento-card rounded-3xl p-5 sm:p-7 border border-slate-200/90 relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/80 text-[#002B7F] text-xs font-semibold mb-2">
-              <Building2 className="w-3.5 h-3.5" />
-              <span>Universiti Malaya • FCSIT Computer Labs</span>
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Laboratory Space Reservation & Conflict Engine
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
-              Real-time slot reservation across Block A, B, and C with automated concurrency conflict detection, 15-minute grace period enforcement, and FYP supervisor endorsement routing.
-            </p>
-          </div>
-
-          {/* Quick Date & View Mode */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="flex items-center gap-1.5 px-3 py-2 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <input
-                type="date"
-                value={selectedDate}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="bg-transparent font-semibold text-slate-800 focus:outline-none cursor-pointer"
-              />
-            </div>
-
-            <div className="flex items-center p-1 rounded-2xl bg-slate-100 border border-slate-200">
-              <button
-                onClick={() => setViewMode('cards')}
-                className={`p-1.5 rounded-xl transition-all ${
-                  viewMode === 'cards' ? 'bg-white shadow-sm text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-800'
-                }`}
-                title="Bento Card View"
-              >
-                <Grid3X3 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('matrix')}
-                className={`p-1.5 rounded-xl transition-all ${
-                  viewMode === 'matrix' ? 'bg-white shadow-sm text-slate-900 font-bold' : 'text-slate-500 hover:text-slate-800'
-                }`}
-                title="Timetable Matrix View"
-              >
-                <Table2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+      {/* Top Minimal Control Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900">Lab Spaces</h1>
+          <p className="text-xs text-slate-500">Select a space to view its complete daily schedule.</p>
         </div>
 
-        {/* Filter Pills & Search */}
-        <div className="mt-6 pt-5 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  selectedCategory === cat
-                    ? 'bg-[#002B7F] text-white shadow-sm'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-900'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Search Bar */}
-          <div className="relative sm:w-72">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Minimal Date Selector */}
+        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border border-slate-200">
+          <button
+            onClick={() => setSelectedDate(todayStr)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              selectedDate === todayStr ? 'bg-slate-900 text-white font-semibold' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Today
+          </button>
+          <button
+            onClick={() => setSelectedDate(tomorrowStr)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
+              selectedDate === tomorrowStr ? 'bg-slate-900 text-white font-semibold' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Tomorrow
+          </button>
+          <div className="flex items-center gap-1 pl-1 pr-2 border-l border-slate-100">
+            <Calendar className="w-3.5 h-3.5 text-slate-400" />
             <input
-              type="text"
-              placeholder="Search lab, RTX 4090, Cisco..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 placeholder:text-slate-400"
+              type="date"
+              value={selectedDate}
+              min={todayStr}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="text-xs font-medium bg-transparent text-slate-700 focus:outline-none cursor-pointer"
             />
           </div>
         </div>
       </div>
 
-      {/* MATRIX VIEW (Schedule Matrix across all labs) */}
-      {viewMode === 'matrix' ? (
-        <div className="bento-card rounded-3xl p-5 border border-slate-200/90 overflow-x-auto">
-          <div className="flex items-center justify-between mb-4">
+      {/* Clean 2-Column Layout: Spaces List (Left) & Full Day Timetable (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+        
+        {/* LEFT COLUMN: Clean Spaces Selector (4 cols) */}
+        <div className="lg:col-span-4 space-y-2">
+          
+          {/* Quick Filter */}
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Filter spaces..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-slate-400"
+            />
+          </div>
+
+          {/* Spaces List */}
+          <div className="space-y-2">
+            {filteredRooms.map((room) => {
+              const isSelected = room.id === selectedRoom.id;
+              
+              // Count available slots today
+              const bookedSlotsCount = TIME_SLOTS.filter((s) => {
+                return bookings.some(
+                  (b) => b.roomId === room.id && b.date === selectedDate && b.slot === s && (b.status === 'Approved' || b.status === 'Active')
+                );
+              }).length;
+              const freeSlots = TIME_SLOTS.length - bookedSlotsCount;
+
+              return (
+                <div
+                  key={room.id}
+                  onClick={() => {
+                    setSelectedRoomId(room.id);
+                    setBookingSlot(null);
+                  }}
+                  className={`p-3.5 rounded-2xl cursor-pointer transition-all border ${
+                    isSelected
+                      ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900'
+                      : 'bg-white border-slate-200/80 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className={`text-xs font-bold ${isSelected ? 'text-slate-900' : 'text-slate-700'}`}>
+                        {room.name}
+                      </h3>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        {room.code} • {room.floor}, {room.block}
+                      </div>
+                    </div>
+                    
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
+                      freeSlots > 0 
+                        ? 'bg-emerald-50 text-emerald-700' 
+                        : 'bg-rose-50 text-rose-700'
+                    }`}>
+                      {freeSlots} free
+                    </span>
+                  </div>
+
+                  <div className="mt-2.5 flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-50">
+                    <span>{room.capacity} seats</span>
+                    {room.highResource ? (
+                      <span className="text-amber-700 font-medium">Supervisor signoff</span>
+                    ) : (
+                      <span className="text-slate-400">Instant book</span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Full Schedule Timetable for Selected Space (8 cols) */}
+        <div className="lg:col-span-8 bg-white rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm space-y-5">
+          
+          {/* Timetable Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
             <div>
-              <h3 className="font-bold text-slate-900 text-base">FCSIT Daily Laboratory Schedule Matrix</h3>
-              <p className="text-xs text-slate-500">Showing 2-hour operational blocks for {selectedDate}</p>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  {selectedRoom.code}
+                </span>
+                <span className="text-xs text-slate-400">•</span>
+                <span className="text-xs text-slate-500">{selectedRoom.floor}, {selectedRoom.block}</span>
+              </div>
+              <h2 className="text-lg font-bold text-slate-900 mt-0.5">{selectedRoom.name}</h2>
             </div>
-            <div className="flex items-center gap-3 text-xs">
-              <span className="flex items-center gap-1.5 text-slate-600">
-                <span className="w-3 h-3 rounded-md bg-emerald-100 border border-emerald-300"></span> Free
+
+            <div className="text-left sm:text-right">
+              <span className="text-xs font-semibold text-slate-800">
+                Schedule for {selectedDate === todayStr ? 'Today' : selectedDate}
               </span>
-              <span className="flex items-center gap-1.5 text-slate-600">
-                <span className="w-3 h-3 rounded-md bg-rose-100 border border-rose-300"></span> Booked
-              </span>
-              <span className="flex items-center gap-1.5 text-slate-600">
-                <span className="w-3 h-3 rounded-md bg-blue-100 border border-blue-300"></span> My Slot
-              </span>
+              <div className="text-[11px] text-slate-400">Operational Hours: 08:00 – 18:00</div>
             </div>
           </div>
 
-          <table className="w-full text-xs text-left border-collapse min-w-[700px]">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-600 font-semibold">
-                <th className="p-3 rounded-l-xl">Laboratory</th>
-                {TIME_SLOTS.map((slot) => (
-                  <th key={slot} className="p-3 text-center">
-                    {slot}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredRooms.map((room) => (
-                <tr key={room.id} className="hover:bg-slate-50/60 transition-colors">
-                  <td className="p-3 font-medium text-slate-900">
-                    <div className="font-bold">{room.name}</div>
-                    <div className="text-[10px] text-slate-500">{room.code} • {room.capacity} pax</div>
-                  </td>
-                  {TIME_SLOTS.map((slot) => {
-                    const booking = getSlotBookingInfo(room.id, slot);
-                    const isMyBooking = booking?.userId === currentUser.id;
+          {/* SCHEDULE TIMETABLE GRID */}
+          <div className="space-y-2.5">
+            {TIME_SLOTS.map((slot) => {
+              const booking = getSlotBooking(slot);
+              const isMine = booking?.userId === currentUser.id;
+              const isOccupied = !!booking;
+              const isSelectedForBooking = bookingSlot === slot;
 
-                    return (
-                      <td key={slot} className="p-2 text-center">
-                        {booking ? (
-                          <div
-                            onClick={() => {
-                              if (isMyBooking) setActiveTab('my-passes');
-                              else handleOpenBooking(room, slot);
-                            }}
-                            className={`p-2 rounded-xl border text-[11px] cursor-pointer transition-all ${
-                              isMyBooking
-                                ? 'bg-blue-50 border-blue-300 text-blue-900 font-bold shadow-sm'
-                                : 'bg-rose-50/90 border-rose-200 text-rose-800'
-                            }`}
-                            title={`Booked by ${booking.userName}: ${booking.purpose}`}
-                          >
-                            <div className="font-semibold truncate">{isMyBooking ? 'You' : booking.userName}</div>
-                            <div className="text-[9px] opacity-75 truncate">{booking.status}</div>
-                          </div>
-                        ) : (
-                          <button
-                            onClick={() => handleOpenBooking(room, slot)}
-                            className="w-full p-2 rounded-xl border border-dashed border-slate-200 text-slate-500 hover:border-blue-400 hover:bg-blue-50/50 hover:text-blue-700 transition-all font-medium"
-                          >
-                            + Book
-                          </button>
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        /* CARD / BENTO GRID VIEW */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {filteredRooms.map((room) => {
-            // Count free slots today
-            const bookedCount = TIME_SLOTS.filter((s) => getSlotBookingInfo(room.id, s)).length;
-            const freeSlotsCount = TIME_SLOTS.length - bookedCount;
-
-            return (
-              <div
-                key={room.id}
-                className="bento-card rounded-3xl overflow-hidden border border-slate-200/90 flex flex-col justify-between group"
-              >
-                <div>
-                  {/* Image Cover & Tag Badges */}
-                  <div className="relative h-44 overflow-hidden bg-slate-100">
-                    <img
-                      src={room.imageUrl}
-                      alt={room.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent" />
+              return (
+                <div
+                  key={slot}
+                  className={`rounded-2xl p-3.5 transition-all border ${
+                    isSelectedForBooking
+                      ? 'border-blue-600 bg-blue-50/40 ring-1 ring-blue-600'
+                      : isMine
+                      ? 'border-blue-200 bg-blue-50/20'
+                      : isOccupied
+                      ? 'border-slate-100 bg-slate-50/60'
+                      : 'border-slate-200/80 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     
-                    {/* Top status badges */}
-                    <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold tracking-wide uppercase bg-black/60 backdrop-blur-md text-white border border-white/20">
-                        {room.code}
-                      </span>
-                      {room.highResource && (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/90 backdrop-blur-md text-slate-950 flex items-center gap-1">
-                          <Cpu className="w-3 h-3" />
-                          High-Resource
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="absolute top-3 right-3">
-                      <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold backdrop-blur-md border ${
-                        freeSlotsCount > 0 
-                          ? 'bg-emerald-500/90 text-white border-emerald-400' 
-                          : 'bg-rose-500/90 text-white border-rose-400'
-                      }`}>
-                        {freeSlotsCount > 0 ? `${freeSlotsCount} Slots Open` : 'Fully Booked'}
-                      </span>
-                    </div>
-
-                    {/* Bottom overlay info */}
-                    <div className="absolute bottom-3 left-3 right-3 text-white">
-                      <h3 className="font-bold text-base leading-tight drop-shadow-sm">{room.name}</h3>
-                      <div className="flex items-center gap-2 text-xs text-slate-200 mt-1">
-                        <span>{room.floor}, {room.block}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1">
-                          <Users className="w-3 h-3 text-blue-300" />
-                          {room.capacity} Seats
-                        </span>
+                    {/* Time Slot Badge & Icon */}
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-slate-100 text-slate-700">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900">{slot}</div>
+                        <div className="text-[11px] text-slate-400">2-Hour Lab Session</div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Body Specs & Amenities */}
-                  <div className="p-5">
-                    <p className="text-xs text-slate-600 leading-relaxed line-clamp-2">{room.description}</p>
-
-                    {/* Tech specs bullet highlights */}
-                    <div className="mt-3.5 space-y-1.5">
-                      {room.specs.gpus && (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50/80 px-2.5 py-1 rounded-xl">
-                          <Cpu className="w-3.5 h-3.5 text-indigo-600" />
-                          <span>{room.specs.gpus}</span>
+                    {/* Middle: Slot Status */}
+                    <div className="flex-1 sm:px-4">
+                      {isOccupied ? (
+                        <div className="text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                            <span className="font-semibold text-slate-800">
+                              {isMine ? 'You booked this slot' : `Booked by ${booking.userName}`}
+                            </span>
+                            <span className="text-[10px] text-slate-400">({booking.status})</span>
+                          </div>
+                          <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                            {booking.purpose}
+                          </p>
                         </div>
-                      )}
-                      {room.specs.networkingGear && (
-                        <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-xl">
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>{room.specs.networkingGear}</span>
+                      ) : (
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                          <span>Available for reservation</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Amenities tags */}
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {room.amenities.map((amenity, idx) => (
-                        <span
-                          key={idx}
-                          className="text-[10px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-lg"
+                    {/* Action Button */}
+                    <div className="self-end sm:self-center">
+                      {isMine ? (
+                        <button
+                          onClick={() => setActiveTab('my-passes')}
+                          className="px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors"
                         >
-                          {amenity}
-                        </span>
-                      ))}
-                    </div>
-
-                    {/* Interactive 2-Hour Slot Bar */}
-                    <div className="mt-4 pt-4 border-t border-slate-100">
-                      <div className="flex items-center justify-between text-[11px] font-semibold text-slate-500 mb-2">
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-blue-600" />
-                          Select Slot ({selectedDate})
-                        </span>
-                        <span>08:00 - 18:00</span>
-                      </div>
-
-                      <div className="grid grid-cols-5 gap-1">
-                        {TIME_SLOTS.map((slot) => {
-                          const booking = getSlotBookingInfo(room.id, slot);
-                          const isMine = booking?.userId === currentUser.id;
-
-                          return (
-                            <button
-                              key={slot}
-                              onClick={() => {
-                                if (isMine) setActiveTab('my-passes');
-                                else handleOpenBooking(room, slot);
-                              }}
-                              className={`py-1.5 px-0.5 text-center rounded-xl text-[10px] font-bold transition-all border ${
-                                isMine
-                                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                                  : booking
-                                  ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700'
-                              }`}
-                              title={
-                                booking
-                                  ? `Reserved: ${booking.userName} (${slot}). Click to join waitlist.`
-                                  : `Available for ${slot}. Click to reserve.`
-                              }
-                            >
-                              <div>{slot.split(' - ')[0]}</div>
-                              <div className="text-[8px] font-normal opacity-80 truncate">
-                                {isMine ? 'You' : booking ? 'Busy' : 'Open'}
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
+                          View Pass
+                        </button>
+                      ) : isOccupied ? (
+                        <button
+                          onClick={() => handleJoinSlotWaitlist(slot)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition-colors"
+                        >
+                          Join Waitlist
+                        </button>
+                      ) : isSelectedForBooking ? (
+                        <button
+                          onClick={() => setBookingSlot(null)}
+                          className="px-3 py-1.5 rounded-xl bg-slate-200 text-slate-700 text-xs font-medium"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleBookSlotClick(slot)}
+                          className="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-1 transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>Book</span>
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Card Action Footer */}
-                <div className="p-5 pt-0">
-                  <button
-                    onClick={() => handleOpenBooking(room)}
-                    className="w-full py-2.5 px-4 rounded-2xl bg-slate-900 hover:bg-blue-900 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors shadow-sm"
-                  >
-                    <span>Reserve Space & Slot</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
+                  {/* Clean Inline Booking Form */}
+                  {isSelectedForBooking && (
+                    <form onSubmit={handleSubmitBooking} className="mt-3.5 pt-3.5 border-t border-blue-100 space-y-3">
+                      <div>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          Reservation Purpose
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. FYP Deep Learning benchmark or practical coursework..."
+                          value={purpose}
+                          onChange={(e) => setPurpose(e.target.value)}
+                          className="w-full text-xs px-3 py-2 bg-white rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600"
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+                        <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+                          <input
+                            type="checkbox"
+                            checked={isFYP}
+                            onChange={(e) => setIsFYP(e.target.checked)}
+                            className="rounded text-blue-600 focus:ring-blue-500 w-4 h-4"
+                          />
+                          <span>FYP / High-resource session (Requires supervisor endorsement)</span>
+                        </label>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setBookingSlot(null)}
+                            className="px-3 py-1.5 rounded-xl text-xs text-slate-500 hover:bg-slate-100"
+                          >
+                            Discard
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-4 py-1.5 rounded-xl bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold shadow-sm transition-colors"
+                          >
+                            Confirm Reservation
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  )}
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          {/* Space Facilities Footer - Simple & Clean */}
+          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+            <div className="flex items-center gap-2">
+              <span>Amenities:</span>
+              <span className="text-slate-600 font-medium">
+                {selectedRoom.amenities.slice(0, 3).join(' • ')}
+              </span>
+            </div>
+            <span>FCSIT Universiti Malaya</span>
+          </div>
         </div>
-      )}
-
-      {/* Booking Modal */}
-      {activeModalRoom && (
-        <BookingModal
-          room={activeModalRoom}
-          initialDate={selectedDate}
-          initialSlot={preselectedSlot}
-          onClose={() => {
-            setActiveModalRoom(null);
-            setPreselectedSlot(undefined);
-          }}
-        />
-      )}
+      </div>
     </div>
   );
 };
-

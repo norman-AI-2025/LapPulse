@@ -4,38 +4,45 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-800 antialiased;
+    @apply bg-[#F9FAFB] text-slate-800 antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-/* Glassmorphism & Apple Bento effects */
-.bento-card {
-  background: rgba(255, 255, 255, 0.94);
+/* Apple-style minimalist card */
+.clean-card {
+  background: #ffffff;
+  border: 1px solid #E5E7EB;
+  border-radius: 1.25rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  transition: all 0.18s ease-in-out;
+}
+
+.clean-card:hover {
+  border-color: #D1D5DB;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.clean-card-selected {
+  background: #ffffff;
+  border: 2px solid #002B7F;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 14px 0 rgba(0, 43, 127, 0.08);
+}
+
+/* Minimalist floating nav */
+.clean-nav {
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
 }
 
-.bento-card:hover {
-  border-color: rgba(203, 213, 225, 1);
-  box-shadow: 0 10px 25px -3px rgba(15, 23, 42, 0.07), 0 4px 10px -2px rgba(15, 23, 42, 0.03);
-}
-
-.glass-pill {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08);
-}
-
-/* Custom scrollbars */
+/* Custom minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -43,44 +50,20 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #E5E7EB;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #CBD5E1;
 }
 
-/* Scan line animation */
-@keyframes scanline {
-  0% {
-    top: 0%;
-  }
-  50% {
-    top: 92%;
-  }
-  100% {
-    top: 0%;
-  }
+@keyframes laserScan {
+  0% { top: 4%; opacity: 0.8; }
+  50% { top: 92%; opacity: 1; }
+  100% { top: 4%; opacity: 0.8; }
 }
 
-.animate-scan {
-  animation: scanline 2.4s ease-in-out infinite;
+.scan-laser {
+  animation: laserScan 2.2s ease-in-out infinite;
 }
-
-/* Pulse badge */
-@keyframes softPulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.75;
-    transform: scale(0.98);
-  }
-}
-
-.pulse-soft {
-  animation: softPulse 2.5s ease-in-out infinite;
-}
-
