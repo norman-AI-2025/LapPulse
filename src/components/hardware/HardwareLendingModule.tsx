@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
 import { HardwareCategory, HardwareItem } from '../../types';
-import { EquipmentPassportModal } from './EquipmentPassportModal';
-import { LoanRequestModal } from './LoanRequestModal';
+import { HardwareCalendarView } from './HardwareCalendarView';
 import { 
   Cpu, 
   Search, 
   Activity, 
-  ShieldCheck, 
-  PackageCheck,
-  Plus
+  MapPin, 
+  Calendar, 
+  ChevronRight, 
+  Sparkles,
+  Users
 } from 'lucide-react';
 
 const CATEGORIES: ('All' | HardwareCategory)[] = [
@@ -21,14 +22,24 @@ const CATEGORIES: ('All' | HardwareCategory)[] = [
 ];
 
 export const HardwareLendingModule: React.FC = () => {
-  const { hardware, joinWaitlist } = useLabPulse();
+  const { hardware, loans, waitlist } = useLabPulse();
 
+  const [selectedHardwareId, setSelectedHardwareId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<'All' | HardwareCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modals
-  const [passportItem, setPassportItem] = useState<HardwareItem | null>(null);
-  const [loanItem, setLoanItem] = useState<HardwareItem | null>(null);
+  const selectedItem = hardware.find((h) => h.id === selectedHardwareId);
+
+  // If a hardware item's status is clicked into, show its dedicated interactive calendar view!
+  if (selectedItem) {
+    return (
+      <HardwareCalendarView
+        item={selectedItem}
+        onBack={() => setSelectedHardwareId(null)}
+        onSelectItem={(id) => setSelectedHardwareId(id)}
+      />
+    );
+  }
 
   const filteredHardware = hardware.filter((item) => {
     const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
@@ -40,13 +51,17 @@ export const HardwareLendingModule: React.FC = () => {
   });
 
   return (
-    <div className="space-y-4 max-w-6xl mx-auto">
+    <div className="space-y-4 max-w-6xl mx-auto pb-12 animate-in fade-in duration-200">
       
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Hardware Vault</h1>
-          <p className="text-xs text-slate-500">Available dev kits, measurement tools, and IoT sensors.</p>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
+            FCSIT Hardware Vault
+          </h1>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Click any hardware status to view its borrowing history calendar, queue list, and schedule loans.
+          </p>
         </div>
 
         {/* Search */}
@@ -62,7 +77,7 @@ export const HardwareLendingModule: React.FC = () => {
         </div>
       </div>
 
-      {/* Minimal Category Tabs */}
+      {/* Category Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
         {CATEGORIES.map((cat) => (
           <button
@@ -70,7 +85,7 @@ export const HardwareLendingModule: React.FC = () => {
             onClick={() => setSelectedCategory(cat)}
             className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
               selectedCategory === cat
-                ? 'bg-slate-900 text-white font-semibold'
+                ? 'bg-slate-900 text-white font-semibold shadow-sm'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -79,116 +94,103 @@ export const HardwareLendingModule: React.FC = () => {
         ))}
       </div>
 
-      {/* Clean Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* HARDWARE CONTAINERS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredHardware.map((item) => {
           const isOutOfStock = item.availableUnits <= 0;
           const isMaintenance = item.status === 'Under Maintenance';
 
+          // Count waitlist queue
+          const queueCount = waitlist.filter((w) => w.targetId === item.id && w.status === 'waiting').length;
+
           return (
             <div
               key={item.id}
-              className="bg-white rounded-2xl p-4 border border-slate-200 hover:border-slate-300 transition-all flex flex-col justify-between"
+              onClick={() => setSelectedHardwareId(item.id)}
+              className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 hover:border-slate-400/80 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
             >
               <div>
-                {/* Image */}
-                <div className="relative h-36 bg-slate-100 rounded-xl overflow-hidden mb-3">
+                {/* 1. Hardware Image Container */}
+                <div className="relative h-44 bg-slate-100 overflow-hidden">
                   <img
                     src={item.imageUrl}
                     alt={item.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute top-2.5 left-2.5">
-                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/90 text-slate-900 shadow-sm">
+                  
+                  {/* Tag badge */}
+                  <div className="absolute top-3 left-3">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/90 text-slate-900 backdrop-blur-md shadow-sm">
                       {item.tag}
                     </span>
                   </div>
-                  <div className="absolute top-2.5 right-2.5">
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm ${
-                      isMaintenance
-                        ? 'bg-amber-100 text-amber-800'
+
+                  {/* Top-Right Stock Status Pill */}
+                  <div className="absolute top-3 right-3">
+                    <span
+                      className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full shadow-sm backdrop-blur-md ${
+                        isMaintenance
+                          ? 'bg-amber-100 text-amber-800'
+                          : isOutOfStock
+                          ? 'bg-rose-100 text-rose-800'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {isMaintenance
+                        ? 'Maintenance'
                         : isOutOfStock
-                        ? 'bg-rose-100 text-rose-800'
-                        : 'bg-emerald-100 text-emerald-800'
-                    }`}>
-                      {isMaintenance ? 'Maintenance' : isOutOfStock ? '0 Available' : `${item.availableUnits} Available`}
+                        ? 'On Loan (0 Free)'
+                        : `${item.availableUnits} Available`}
                     </span>
                   </div>
                 </div>
 
-                {/* Details */}
-                <h3 className="text-xs font-bold text-slate-900 leading-snug">{item.name}</h3>
-                <div className="flex items-center gap-2 mt-1 text-[11px] text-slate-400">
-                  <span>Serial: {item.serialNumber}</span>
-                  <span>•</span>
-                  <span>{item.location}</span>
-                </div>
+                {/* 2. Hardware Name & Metadata */}
+                <div className="p-4 sm:p-5">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug">
+                    {item.name}
+                  </h3>
 
-                {/* Health & Specs */}
-                <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                  <div className="flex items-center gap-1.5 text-slate-600">
-                    <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>Health: <strong>{item.healthPercentage}%</strong></span>
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    <span>{item.location} (SN: {item.serialNumber})</span>
                   </div>
-                  <span className="text-slate-400">{item.totalUnits} Units Total</span>
+
+                  {/* Health score & Queue summary */}
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-slate-600">
+                      <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Health: <strong>{item.healthPercentage}%</strong></span>
+                    </div>
+
+                    {queueCount > 0 ? (
+                      <span className="text-amber-700 font-semibold text-[11px] bg-amber-50 px-2 py-0.5 rounded-md">
+                        {queueCount} in Queue
+                      </span>
+                    ) : (
+                      <span className="text-slate-400 text-[11px]">{item.totalUnits} Units Total</span>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="mt-4 pt-3 border-t border-slate-100 grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setPassportItem(item)}
-                  className="py-1.5 px-3 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 text-xs font-medium transition-colors text-center"
-                >
-                  Passport
-                </button>
-
-                {isOutOfStock ? (
-                  <button
-                    onClick={() => {
-                      joinWaitlist('hardware', item.id, item.name, item.tag, new Date().toISOString().split('T')[0]);
-                    }}
-                    className="py-1.5 px-3 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs font-medium transition-colors text-center"
-                  >
-                    Join Queue
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setLoanItem(item)}
-                    disabled={isMaintenance}
-                    className={`py-1.5 px-3 rounded-xl text-white text-xs font-semibold transition-colors text-center ${
-                      isMaintenance ? 'bg-slate-300 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800'
-                    }`}
-                  >
-                    Request Loan
-                  </button>
-                )}
+              {/* 3. Replaced "Passport" and "Request Loan" with prominent "Status & Calendar" Action */}
+              <div className="px-4 pb-4 sm:px-5 sm:pb-5">
+                <div className="w-full py-2.5 px-3.5 rounded-xl bg-slate-50 group-hover:bg-slate-900 group-hover:text-white text-slate-800 text-xs font-semibold flex items-center justify-between transition-colors shadow-sm">
+                  <span className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-600 group-hover:text-white" />
+                    <span>Check Status & Calendar</span>
+                  </span>
+                  <span className="flex items-center gap-1 text-[11px] text-slate-400 group-hover:text-slate-300">
+                    <span>Borrow Schedule</span>
+                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </div>
               </div>
             </div>
           );
         })}
       </div>
-
-      {/* Equipment Passport Modal */}
-      {passportItem && (
-        <EquipmentPassportModal
-          item={passportItem}
-          onClose={() => setPassportItem(null)}
-          onRequestLoan={() => {
-            const item = passportItem;
-            setPassportItem(null);
-            setLoanItem(item);
-          }}
-        />
-      )}
-
-      {/* Loan Request Modal */}
-      {loanItem && (
-        <LoanRequestModal
-          item={loanItem}
-          onClose={() => setLoanItem(null)}
-        />
-      )}
     </div>
   );
 };

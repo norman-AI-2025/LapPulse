@@ -82,6 +82,7 @@ interface LabPulseContextType {
     hardwareId: string;
     purpose: string;
     dueDate: string;
+    requestDate?: string;
   }) => { success: boolean; message: string; loan?: HardwareLoan };
   approveLoan: (loanId: string) => void;
   rejectLoan: (loanId: string, reason?: string) => void;
@@ -624,6 +625,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     hardwareId: string;
     purpose: string;
     dueDate: string;
+    requestDate?: string;
   }) => {
     const item = hardware.find((h) => h.id === data.hardwareId);
     if (!item) return { success: false, message: 'Hardware item not found.' };
@@ -643,7 +645,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
       hardwareName: item.name,
       hardwareTag: item.tag,
       serialNumber: item.serialNumber,
-      requestDate: getTodayDateString(),
+      requestDate: data.requestDate || getTodayDateString(),
       dueDate: data.dueDate,
       purpose: data.purpose,
       status: 'Pending Approval',
