@@ -341,48 +341,6 @@ export const OfficerScanStation: React.FC = () => {
         </div>
       </div>
 
-      {/* SCAN STATUS OUTCOME BANNER (SUCCESS / FAILED) */}
-      {scanOutcome && (
-        <div
-          className={`p-4 rounded-3xl border transition-all animate-in fade-in slide-in-from-top-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-            scanOutcome.status === 'success'
-              ? 'bg-emerald-50/90 border-emerald-300 text-emerald-950 shadow-sm'
-              : 'bg-rose-50/90 border-rose-300 text-rose-950 shadow-sm'
-          }`}
-        >
-          <div className="flex items-start gap-3">
-            {scanOutcome.status === 'success' ? (
-              <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
-            ) : (
-              <XCircle className="w-6 h-6 text-rose-600 flex-shrink-0 mt-0.5" />
-            )}
-            <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-bold text-sm">
-                  {scanOutcome.status === 'success' ? 'Scan Successful' : 'Scan Failed'}
-                </span>
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white/80 border border-slate-200">
-                  {scanOutcome.code}
-                </span>
-                <span className="text-[10px] opacity-75">{scanOutcome.timestamp}</span>
-              </div>
-              <p className="text-xs mt-0.5 leading-relaxed opacity-90">
-                {scanOutcome.message}
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            onClick={() => setScanOutcome(null)}
-            className="p-1 rounded-lg hover:bg-black/5 text-slate-500 hover:text-slate-800 self-start sm:self-auto"
-            title="Dismiss notification"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
         
         {/* Scanner Viewfinder Column (5 cols) */}
@@ -505,6 +463,49 @@ export const OfficerScanStation: React.FC = () => {
             />
           </div>
 
+          {/* DEMO BUTTONS SECTION: SUCCESS & FAIL SIMULATION */}
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-500" />
+                <span>Instant Demo Simulator</span>
+              </span>
+              <span className="text-[10px] text-slate-400">1-click test</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+              <button
+                type="button"
+                onClick={() => processDecodedCode('LP-7842')}
+                className="px-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
+                title="Demo Space Check-In (Lab AI-1)"
+              >
+                <Check className="w-3 h-3" />
+                <span>Demo Success (Space)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => processDecodedCode('LP-3829')}
+                className="px-2 py-2 bg-[#002B7F] hover:bg-blue-800 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
+                title="Demo Hardware Borrow/Return (Jetson Orin Nano)"
+              >
+                <Check className="w-3 h-3" />
+                <span>Demo Success (Hardware)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => processDecodedCode('LP-INVALID-999')}
+                className="px-2 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
+                title="Demo Failed / Unrecognized QR Pass"
+              >
+                <X className="w-3 h-3" />
+                <span>Demo Fail</span>
+              </button>
+            </div>
+          </div>
+
           {/* Manual Code Entry */}
           <div className="space-y-1.5 pt-2 border-t border-slate-100">
             <label className="text-xs font-semibold text-slate-700 block">
@@ -531,7 +532,7 @@ export const OfficerScanStation: React.FC = () => {
 
           {/* Quick Codes for Immediate Testing */}
           <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] text-slate-400 mr-1">Quick Test:</span>
+            <span className="text-[11px] text-slate-400 mr-1">Quick:</span>
             {sampleTokens.map((code) => (
               <button
                 key={code}
@@ -542,88 +543,224 @@ export const OfficerScanStation: React.FC = () => {
                 {code}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={() => processDecodedCode('LP-INVALID-999')}
-              className="font-mono text-[11px] px-2 py-0.5 bg-rose-50 hover:bg-rose-100 rounded-lg text-rose-700 transition-colors"
-              title="Test invalid scan failure"
-            >
-              Test Invalid
-            </button>
           </div>
         </div>
 
-        {/* Verification & Checklist Column (7 cols) */}
-        <div className="md:col-span-7 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm min-h-[360px]">
-          {selectedScanResult ? (
-            <div className="space-y-4 animate-in fade-in">
-              
-              {/* Scan Info Header */}
-              <div className="flex items-start justify-between pb-3 border-b border-slate-100">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-2 py-0.5 rounded-md">
-                      {selectedScanResult.data.tokenCode}
+        {/* ============================================================== */}
+        {/* RIGHT CONTAINER: SCAN SUCCESSFUL / SCAN FAILED & DETAILS/STATUS */}
+        {/* ============================================================== */}
+        <div className="md:col-span-7 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm min-h-[380px]">
+          
+          {/* CASE 1: SCAN FAILED IN RIGHT CONTAINER */}
+          {scanOutcome?.status === 'failed' && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+              {/* Failed Status Card */}
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-950 flex items-start gap-3">
+                <XCircle className="w-6 h-6 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-bold text-sm text-rose-900">Scan Failed</span>
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-rose-200 text-rose-900">
+                      {scanOutcome.code}
                     </span>
-                    <span className="text-xs font-semibold text-slate-400 uppercase">
-                      {selectedScanResult.type === 'booking' ? 'Space Pass' : 'Hardware Loan'}
-                    </span>
+                    <span className="text-[10px] text-rose-600">{scanOutcome.timestamp}</span>
                   </div>
-                  <h3 className="text-base font-bold text-slate-900 mt-1">
-                    {selectedScanResult.type === 'booking'
-                      ? selectedScanResult.data.roomName
-                      : selectedScanResult.data.hardwareName}
-                  </h3>
-                  <div className="text-xs text-slate-500 mt-0.5">
-                    Student: <strong>{selectedScanResult.data.userName}</strong> ({selectedScanResult.data.userMatric})
+                  <p className="text-xs text-rose-800 leading-relaxed">
+                    {scanOutcome.message}
+                  </p>
+                </div>
+              </div>
+
+              {/* Security & Verification Warning Box */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2.5 text-xs text-slate-600">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Turnstile Security Diagnostic
+                </span>
+                <ul className="space-y-1.5 text-[11px]">
+                  <li className="flex items-center gap-2 text-rose-700">
+                    <X className="w-3.5 h-3.5 text-rose-500 flex-shrink-0" />
+                    <span>No active reservation or approved loan found in FCSIT registry.</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-slate-600">
+                    <AlertCircle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                    <span>QR pass may be expired, cancelled, or issued by an external system.</span>
+                  </li>
+                  <li className="flex items-center gap-2 text-slate-600">
+                    <ShieldCheck className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                    <span>Access gate locked. Physical equipment release blocked.</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Action Buttons to retry or test valid pass */}
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScanOutcome(null);
+                    setSelectedScanResult(null);
+                  }}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors"
+                >
+                  Clear Screen
+                </button>
+                <button
+                  type="button"
+                  onClick={() => processDecodedCode('LP-7842')}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Test Valid Space Pass</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* CASE 2: SCAN SUCCESSFUL IN RIGHT CONTAINER (DETAILS + STATUS) */}
+          {scanOutcome?.status === 'success' && selectedScanResult && (
+            <div className="space-y-4 animate-in fade-in slide-in-from-top-1">
+              
+              {/* Scan Successful Header Banner */}
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-950 flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3">
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-bold text-sm text-emerald-900">Scan Successful</span>
+                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-white border border-emerald-200 text-emerald-900">
+                        {selectedScanResult.data.tokenCode}
+                      </span>
+                      <span className="text-[10px] text-emerald-700">{scanOutcome.timestamp}</span>
+                    </div>
+                    <p className="text-xs text-emerald-800 mt-0.5 leading-relaxed">
+                      {scanOutcome.message}
+                    </p>
                   </div>
                 </div>
 
-                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border flex-shrink-0 ${
                   selectedScanResult.data.status === 'Active' || selectedScanResult.data.status === 'Active / Issued'
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                    ? 'bg-emerald-500 text-white border-emerald-600'
                     : selectedScanResult.data.status === 'Approved'
-                    ? 'bg-blue-50 text-blue-800 border-blue-200'
-                    : selectedScanResult.data.status === 'Overdue'
-                    ? 'bg-rose-50 text-rose-800 border-rose-200'
+                    ? 'bg-blue-600 text-white border-blue-700'
                     : 'bg-slate-100 text-slate-700 border-slate-200'
                 }`}>
                   {selectedScanResult.data.status}
                 </span>
               </div>
 
-              {/* Space Booking Flow */}
-              {selectedScanResult.type === 'booking' && (
-                <div className="space-y-3 pt-1">
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-2 text-xs">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Date & Slot</span>
-                      <span className="font-semibold text-slate-800">{selectedScanResult.data.date}</span>
-                      <span className="font-mono text-slate-600 block mt-0.5">{selectedScanResult.data.slot}</span>
+              {/* DETAILS OF SPACE / HARDWARE */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 block">
+                      {selectedScanResult.type === 'booking' ? 'Laboratory Space Details' : 'Hardware Asset Details'}
+                    </span>
+                    <h3 className="text-base font-bold text-slate-900 mt-0.5">
+                      {selectedScanResult.type === 'booking'
+                        ? selectedScanResult.data.roomName
+                        : selectedScanResult.data.hardwareName}
+                    </h3>
+                    <div className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
+                      <span className="font-mono font-semibold text-slate-700">
+                        {selectedScanResult.type === 'booking'
+                          ? selectedScanResult.data.roomCode
+                          : selectedScanResult.data.hardwareTag}
+                      </span>
+                      {selectedScanResult.type === 'loan' && (
+                        <>
+                          <span>•</span>
+                          <span>SN: {selectedScanResult.data.serialNumber}</span>
+                        </>
+                      )}
                     </div>
+                  </div>
+                </div>
+
+                {/* Requester Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-200/70">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase text-slate-400 block">Requester / Student</span>
+                    <span className="font-bold text-slate-900">{selectedScanResult.data.userName}</span>
+                    <span className="font-mono text-slate-600 block text-[11px] mt-0.5">
+                      Matric: {selectedScanResult.data.userMatric}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-bold uppercase text-slate-400 block">
+                      {selectedScanResult.type === 'booking' ? 'Reserved Date & Slot' : 'Loan Period'}
+                    </span>
+                    <span className="font-semibold text-slate-800">
+                      {selectedScanResult.type === 'booking'
+                        ? `${selectedScanResult.data.date} (${selectedScanResult.data.slot})`
+                        : `${selectedScanResult.data.requestDate} → ${selectedScanResult.data.dueDate}`}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Reason & Purpose */}
+                <div className="pt-1 text-xs">
+                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Project Reason</span>
+                  <p className="text-slate-800 font-medium leading-relaxed bg-white p-2.5 rounded-xl border border-slate-100">
+                    &ldquo;{selectedScanResult.data.purpose}&rdquo;
+                  </p>
+                </div>
+              </div>
+
+              {/* ============================================================== */}
+              {/* STATUS & ACTIONS: CHECK-IN / CHECK-OUT (SPACE) OR BORROW/RETURN (HARDWARE) */}
+              {/* ============================================================== */}
+              
+              {/* SPACE PASS: CHECK-IN / CHECK-OUT FLOW */}
+              {selectedScanResult.type === 'booking' && (
+                <div className="p-4 rounded-2xl border border-blue-100 bg-blue-50/30 space-y-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Physical Check-In</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                        Space Turnstile Status
+                      </span>
+                      <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                        {selectedScanResult.data.status === 'Approved'
+                          ? 'Status: Ready for Check-In'
+                          : selectedScanResult.data.status === 'Active'
+                          ? 'Status: Currently In-Session (Ready for Check-Out)'
+                          : `Status: Session Completed`}
+                      </span>
+                    </div>
+
+                    <span className={`text-xs font-bold px-3 py-1 rounded-xl ${
+                      selectedScanResult.data.status === 'Approved'
+                        ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                        : selectedScanResult.data.status === 'Active'
+                        ? 'bg-emerald-500 text-white'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}>
+                      {selectedScanResult.data.status === 'Approved' ? 'Pending Check-In' : selectedScanResult.data.status === 'Active' ? 'Check-Out Stage' : 'Completed'}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Check-In Time</span>
                       <span className="font-semibold text-slate-800">
-                        {selectedScanResult.data.checkInTime ? `Checked in at ${selectedScanResult.data.checkInTime}` : 'Pending Turnstile Scan'}
+                        {selectedScanResult.data.checkInTime ? `${selectedScanResult.data.date} at ${selectedScanResult.data.checkInTime}` : 'Awaiting Check-In Confirmation'}
+                      </span>
+                    </div>
+                    <div className="p-2.5 bg-white rounded-xl border border-slate-100">
+                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Supposed Check-Out Time</span>
+                      <span className="font-semibold text-slate-800">
+                        {selectedScanResult.data.checkOutTime || `${selectedScanResult.data.date} at ${selectedScanResult.data.slot.split(' - ')[1] || selectedScanResult.data.slot}`}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-3 bg-white rounded-xl border border-slate-100 text-xs">
-                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Project Reason</span>
-                    <p className="text-slate-800 font-medium">{selectedScanResult.data.purpose}</p>
-                  </div>
-
-                  <div className="pt-2 flex items-center justify-between">
-                    <div className="text-xs text-slate-500">
-                      Officer Action:
-                    </div>
-
+                  {/* Action Buttons for Space Check-In / Check-Out */}
+                  <div className="pt-2 flex items-center justify-end">
                     {selectedScanResult.data.status === 'Approved' ? (
                       <button
                         type="button"
                         onClick={handleCheckIn}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
                       >
                         <Check className="w-4 h-4" />
                         <span>Confirm Physical Check-In</span>
@@ -632,33 +769,48 @@ export const OfficerScanStation: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleCheckOut}
-                        className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
                       >
                         <Clock className="w-4 h-4" />
                         <span>Confirm Check-Out (Complete Session)</span>
                       </button>
                     ) : (
-                      <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                        Session Closed / Verified
+                      <span className="text-xs font-bold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
+                        Session Verified & Concluded
                       </span>
                     )}
                   </div>
                 </div>
               )}
 
-              {/* Hardware Loan Condition Checklist Flow */}
+              {/* HARDWARE LOAN: BORROW / RETURN FLOW */}
               {selectedScanResult.type === 'loan' && (
-                <div className="space-y-3 pt-1">
-                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-2 text-xs">
+                <div className="p-4 rounded-2xl border border-indigo-100 bg-indigo-50/30 space-y-3">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Asset Tag & Serial</span>
-                      <span className="font-mono font-bold text-slate-800">{selectedScanResult.data.hardwareTag}</span>
-                      <span className="text-slate-500 block text-[11px] mt-0.5">SN: {selectedScanResult.data.serialNumber}</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                        Hardware Lending Status
+                      </span>
+                      <span className="text-sm font-bold text-slate-900 mt-0.5 block">
+                        {selectedScanResult.data.status === 'Pending Approval' || selectedScanResult.data.status === 'Approved'
+                          ? 'Status: Ready for Borrow (Physical Issue)'
+                          : selectedScanResult.data.status === 'Active / Issued' || selectedScanResult.data.status === 'Overdue'
+                          ? 'Status: On Loan (Ready for Return & Condition Audit)'
+                          : `Status: Equipment Returned`}
+                      </span>
                     </div>
-                    <div>
-                      <span className="text-[10px] font-bold uppercase text-slate-400 block">Due Return Date</span>
-                      <span className="font-semibold text-slate-800">{selectedScanResult.data.dueDate}</span>
-                    </div>
+
+                    <span className={`text-xs font-bold px-3 py-1 rounded-xl ${
+                      selectedScanResult.data.status === 'Pending Approval' || selectedScanResult.data.status === 'Approved'
+                        ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                        : selectedScanResult.data.status === 'Active / Issued'
+                        ? 'bg-emerald-500 text-white'
+                        : selectedScanResult.data.status === 'Overdue'
+                        ? 'bg-rose-500 text-white'
+                        : 'bg-slate-200 text-slate-700'
+                    }`}>
+                      {selectedScanResult.data.status === 'Pending Approval' ? 'Borrow Stage' : selectedScanResult.data.status === 'Active / Issued' ? 'Return Stage' : selectedScanResult.data.status}
+                    </span>
                   </div>
 
                   {/* Mandatory Condition Checklist */}
@@ -700,10 +852,10 @@ export const OfficerScanStation: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Return grading */}
-                  {selectedScanResult.data.status === 'Active / Issued' && (
-                    <div className="pt-1">
-                      <span className="text-[11px] font-semibold text-slate-600 block mb-1">
+                  {/* Return grading (when returning) */}
+                  {(selectedScanResult.data.status === 'Active / Issued' || selectedScanResult.data.status === 'Overdue') && (
+                    <div className="p-3 bg-white rounded-2xl border border-slate-200 space-y-1.5">
+                      <span className="text-[11px] font-semibold text-slate-600 block">
                         Return Physical Condition Assessment
                       </span>
                       <div className="grid grid-cols-4 gap-1.5">
@@ -725,43 +877,46 @@ export const OfficerScanStation: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Action buttons */}
-                  <div className="pt-3 border-t border-slate-100 flex justify-end">
-                    {selectedScanResult.data.status === 'Pending Approval' ? (
+                  {/* Action buttons for Hardware Borrow / Return */}
+                  <div className="pt-2 flex items-center justify-end">
+                    {selectedScanResult.data.status === 'Pending Approval' || selectedScanResult.data.status === 'Approved' ? (
                       <button
                         type="button"
                         onClick={handleIssueHardware}
-                        className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
                       >
-                        <ShieldCheck className="w-4 h-4" />
-                        <span>Verify & Issue Hardware</span>
+                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                        <span>Confirm Borrow (Issue Hardware)</span>
                       </button>
                     ) : selectedScanResult.data.status === 'Active / Issued' || selectedScanResult.data.status === 'Overdue' ? (
                       <button
                         type="button"
                         onClick={handleReturnHardware}
-                        className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
                       >
                         <Check className="w-4 h-4" />
-                        <span>Confirm Return & Update Passport</span>
+                        <span>Confirm Return & Restore Asset</span>
                       </button>
                     ) : (
-                      <span className="text-xs font-semibold text-slate-400 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-                        Asset Already Returned
+                      <span className="text-xs font-bold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
+                        Asset Returned & Verified in Locker
                       </span>
                     )}
                   </div>
                 </div>
               )}
             </div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 min-h-[300px]">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
-                <Scan className="w-6 h-6" />
+          )}
+
+          {/* CASE 3: AWAITING SCAN / IDLE STATE IN RIGHT CONTAINER */}
+          {!scanOutcome && !selectedScanResult && (
+            <div className="h-full flex flex-col items-center justify-center text-center p-8 text-slate-400 min-h-[340px]">
+              <div className="w-14 h-14 rounded-3xl bg-slate-100 border border-slate-200 flex items-center justify-center mx-auto mb-3 text-slate-400">
+                <Scan className="w-7 h-7" />
               </div>
-              <div className="text-xs font-semibold text-slate-700">Awaiting QR Scan</div>
-              <div className="text-[11px] text-slate-400 max-w-xs mt-1">
-                Point camera at a digital pass generated by LabPulse, upload a QR image, or enter a token code to begin physical verification.
+              <div className="text-sm font-bold text-slate-700">Awaiting QR Pass Scan</div>
+              <div className="text-xs text-slate-400 max-w-sm mt-1.5 leading-relaxed">
+                Point camera at a digital pass generated by LabPulse, upload a QR file, or click any demo button on the left to test success and failure workflows.
               </div>
             </div>
           )}
