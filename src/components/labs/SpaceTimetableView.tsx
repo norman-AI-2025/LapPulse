@@ -81,6 +81,36 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
   const [purpose, setPurpose] = useState('');
   const [isFYP, setIsFYP] = useState(room.highResource);
+  const [duration, setDuration] = useState('1 Hour');
+
+  const calculateSlotWithDuration = (startBlock: string, durationStr: string) => {
+    try {
+      const startTime = startBlock.split(' - ')[0].trim();
+      const [timePart, modifier] = startTime.split(' ');
+      let [hours, minutes] = timePart.split(':').map(Number);
+      if (modifier === 'pm' && hours < 12) hours += 12;
+      if (modifier === 'am' && hours === 12) hours = 0;
+
+      let addMinutes = 60;
+      if (durationStr === '30 Mins') addMinutes = 30;
+      if (durationStr === '1 Hour') addMinutes = 60;
+      if (durationStr === '2 Hours') addMinutes = 120;
+      if (durationStr === '3 Hours') addMinutes = 180;
+      if (durationStr === '4 Hours (Half-Day)') addMinutes = 240;
+
+      const totalMinutes = hours * 60 + minutes + addMinutes;
+      let endHours = Math.floor(totalMinutes / 60);
+      const endMinutes = totalMinutes % 60;
+      const endModifier = endHours >= 12 ? 'pm' : 'am';
+      let displayEndHours = endHours > 12 ? endHours - 12 : endHours;
+      if (displayEndHours === 0) displayEndHours = 12;
+
+      const endTimeStr = `${String(displayEndHours).padStart(2, '0')}:${String(endMinutes).padStart(2, '0')} ${endModifier}`;
+      return `${startTime} - ${endTimeStr}`;
+    } catch {
+      return startBlock;
+    }
+  };
 
   // Base reference date is 2026-11-10 (Tuesday)
   const getWeekDays = (offset: number): DayInfo[] => {
@@ -244,10 +274,12 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     e.preventDefault();
     if (!activeBookingSlot || !purpose.trim()) return;
 
+    const finalSlot = calculateSlotWithDuration(activeBookingSlot.timeBlock, duration);
+
     createBooking({
       roomId: room.id,
       date: activeBookingSlot.date,
-      slot: activeBookingSlot.timeBlock,
+      slot: finalSlot,
       purpose: purpose.trim(),
       isFYP,
       supervisorName: isFYP ? 'Prof. Madya Dr. Amir Rudin' : undefined,
@@ -597,6 +629,32 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                   onChange={(e) => setPurpose(e.target.value)}
                   className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600"
                 />
+              </div>
+
+              {/* Duration Selector */}
+              <div>
+                <label className="block font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Session Duration</span>
+                  <span className="text-[10px] text-blue-700 font-mono font-bold">
+                    {calculateSlotWithDuration(activeBookingSlot.timeBlock, duration)}
+                  </span>
+                </label>
+                <div className="grid grid-cols-4 gap-1.5">
+                  {['30 Mins', '1 Hour', '2 Hours', '3 Hours'].map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDuration(d)}
+                      className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all ${
+                        duration === d
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {d}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* FYP Checkbox */}
