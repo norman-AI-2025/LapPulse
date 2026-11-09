@@ -40,12 +40,7 @@ export interface LabRoom {
   activeNotice?: string;
 }
 
-export type TimeSlotString = 
-  | '08:00 - 10:00'
-  | '10:00 - 12:00'
-  | '12:00 - 14:00'
-  | '14:00 - 16:00'
-  | '16:00 - 18:00';
+export type TimeSlotString = string;
 
 export type BookingStatus = 
   | 'Pending Endorsement'
