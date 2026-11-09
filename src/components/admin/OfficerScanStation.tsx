@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
+import { sounds } from '../../utils/audio';
 import { 
   Camera, 
   Scan, 
   CheckCircle2, 
   CheckSquare, 
   Square,
-  Sparkles
+  Sparkles,
+  Volume2
 } from 'lucide-react';
 
 export const OfficerScanStation: React.FC = () => {
@@ -44,16 +46,19 @@ export const OfficerScanStation: React.FC = () => {
 
     const booking = bookings.find((b) => b.tokenCode.toUpperCase() === code);
     if (booking) {
+      sounds.playSuccessChime();
       setSelectedScanResult({ type: 'booking', data: booking });
       return;
     }
 
     const loan = loans.find((l) => l.tokenCode.toUpperCase() === code);
     if (loan) {
+      sounds.playSuccessChime();
       setSelectedScanResult({ type: 'loan', data: loan });
       return;
     }
 
+    sounds.playErrorBuzzer();
     setSelectedScanResult(null);
   };
 
