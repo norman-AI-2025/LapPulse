@@ -343,8 +343,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
             {/* Table Header: Days of the Week */}
             <thead>
               <tr className="border-b border-slate-200 bg-[#0F4C5C] text-white">
-                {/* Empty top-left time header */}
-                <th className="p-3 w-40 text-center font-bold text-[11px] border-r border-teal-800/40 bg-[#0B3A46]">
+                {/* Sticky top-left time header */}
+                <th className="sticky left-0 z-20 p-3 w-40 text-center font-bold text-[11px] border-r border-teal-800/40 bg-[#0B3A46] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
                   Time Slot
                 </th>
 
@@ -372,8 +372,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               {TIME_BLOCKS.map((timeBlock, rowIndex) => (
                 <tr key={timeBlock} className="hover:bg-slate-50/40 transition-colors">
                   
-                  {/* Time Block Label Column */}
-                  <td className="p-2.5 font-mono text-[11px] font-semibold text-slate-600 bg-slate-50/80 border-r border-slate-200 text-center whitespace-nowrap">
+                  {/* Sticky Time Block Label Column */}
+                  <td className="sticky left-0 z-10 p-2.5 font-mono text-[11px] font-semibold text-slate-700 bg-slate-50 border-r border-slate-200 text-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]">
                     {timeBlock}
                   </td>
 
@@ -655,3 +655,4 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     </div>
   );
 };
+
