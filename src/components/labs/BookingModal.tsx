@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
 import { LabRoom, TimeSlotString } from '../../types';
+import { isSlotWithin2Hours, getEarliestBookingTimeStr } from '../../utils/timeUtils';
 import { 
   X, 
   Calendar, 
@@ -53,6 +54,18 @@ export const BookingModal: React.FC<BookingModalProps> = ({
   const [supervisorName, setSupervisorName] = useState<string>('Prof. Madya Dr. Amir Rudin');
   const [supervisorEmail, setSupervisorEmail] = useState<string>('amirrudin@um.edu.my');
 
+  // Auto-switch to first available slot if current slot is within 2 hours of current time
+  useEffect(() => {
+    if (isSlotWithin2Hours(date, slot)) {
+      const validSlot = TIME_SLOTS.find((s) => !isSlotWithin2Hours(date, s));
+      if (validSlot) {
+        setSlot(validSlot);
+      }
+    }
+  }, [date]);
+
+  const isTooSoon = isSlotWithin2Hours(date, slot);
+
   // Check real-time conflict
   const conflict = checkConflict(room.id, date, slot);
 
@@ -63,7 +76,7 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!purpose.trim()) return;
+    if (!purpose.trim() || isTooSoon) return;
 
     const result = createBooking({
       roomId: room.id,
@@ -168,42 +181,67 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 onChange={(e) => setSlot(e.target.value as TimeSlotString)}
                 className="w-full text-xs font-medium px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600"
               >
-                {TIME_SLOTS.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+                {TIME_SLOTS.map((s) => {
+                  const slotTooSoon = isSlotWithin2Hours(date, s);
+                  return (
+                    <option key={s} value={s} disabled={slotTooSoon}>
+                      {s} {slotTooSoon ? '• (Unavailable - < 2h notice)' : ''}
+                    </option>
+                  );
+                })}
               </select>
             </div>
           </div>
 
           {/* Quick Slot Selector Pills */}
           <div>
-            <div className="text-[11px] font-semibold text-slate-500 mb-1.5">Quick Time Slot Picker:</div>
+            <div className="text-[11px] font-semibold text-slate-500 mb-1.5 flex items-center justify-between">
+              <span>Quick Time Slot Picker:</span>
+              <span className="text-[10px] text-slate-400 font-mono">Requires 2h advance notice</span>
+            </div>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {TIME_SLOTS.map((s) => {
                 const isSelected = slot === s;
+                const slotTooSoon = isSlotWithin2Hours(date, s);
                 const slotConflict = checkConflict(room.id, date, s);
                 return (
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setSlot(s)}
+                    disabled={slotTooSoon}
+                    onClick={() => !slotTooSoon && setSlot(s)}
                     className={`px-2 py-1.5 rounded-xl text-[11px] font-medium border text-center transition-all ${
                       isSelected
                         ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                        : slotTooSoon
+                        ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
                         : slotConflict.hasConflict
                         ? 'bg-rose-50 text-rose-700 border-rose-200'
                         : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                     }`}
                   >
                     <div className="font-bold">{s.split(' - ')[0]}</div>
-                    <div className="text-[9px] opacity-80">{slotConflict.hasConflict ? 'Occupied' : 'Free'}</div>
+                    <div className="text-[9px] opacity-80">
+                      {slotTooSoon ? '< 2h' : slotConflict.hasConflict ? 'Occupied' : 'Free'}
+                    </div>
                   </button>
                 );
               })}
             </div>
           </div>
+
+          {/* 2-Hour Advance Notice Alert Banner */}
+          {isTooSoon && (
+            <div className="rounded-2xl p-3.5 bg-amber-50 border border-amber-200 text-amber-900 text-xs animate-in fade-in flex items-start gap-2.5">
+              <Clock className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <div className="font-bold">2-Hour Advance Notice Required</div>
+                <p className="text-[11px] text-amber-800 mt-0.5">
+                  Spaces must be booked at least 2 hours in advance. Earliest slot today starts at <strong>{getEarliestBookingTimeStr()}</strong>. Please choose a slot starting at or after this time, or select a future date.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Concurrency Conflict Alert Banner */}
           {conflict.hasConflict && (
@@ -346,6 +384,15 @@ export const BookingModal: React.FC<BookingModalProps> = ({
                 className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-200 text-slate-500 cursor-not-allowed flex items-center gap-1.5"
               >
                 Under Repair • Bookings Disabled
+              </button>
+            ) : isTooSoon ? (
+              <button
+                type="button"
+                disabled
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-200 text-slate-500 cursor-not-allowed flex items-center gap-1.5"
+                title={`Advance notice required. Earliest slot today starts at ${getEarliestBookingTimeStr()}.`}
+              >
+                Requires 2h Advance Notice
               </button>
             ) : (
               <button

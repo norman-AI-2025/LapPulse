@@ -301,10 +301,10 @@ export const AuthPage: React.FC = () => {
                     onChange={(e) => setLoginIdentifier(e.target.value)}
                     placeholder={
                       selectedRole === 'student'
-                        ? 'e.g., student, 25005870, or student@siswa.um.edu.my'
+                        ? 'e.g., 25005870 or student@siswa.um.edu.my'
                         : selectedRole === 'lecturer'
-                        ? 'e.g., staff, UM-STAFF-19842, or staff@um.edu.my'
-                        : 'e.g., officer, UM-OFFICER-0419, or officer@um.edu.my'
+                        ? 'e.g., UM-STAFF-19842 or staff@um.edu.my'
+                        : 'e.g., UM-OFFICER-0419 or officer@um.edu.my'
                     }
                     className="w-full pl-9 pr-3 py-2.5 text-xs font-medium bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-500 text-slate-900 placeholder:text-slate-400"
                   />

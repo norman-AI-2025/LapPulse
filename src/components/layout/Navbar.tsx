@@ -33,6 +33,12 @@ export const Navbar: React.FC = () => {
   const getNavLinks = () => {
     if (currentRole === 'admin') {
       return [
+        { 
+          id: 'messages', 
+          label: 'Messages', 
+          icon: Inbox,
+          badge: pendingOfficerApprovalCount > 0 ? pendingOfficerApprovalCount : undefined
+        },
         { id: 'telemetry', label: 'Analytics', icon: BarChart3 },
         { id: 'labs', label: 'Spaces', icon: Building2 },
         { id: 'hardware', label: 'Hardware', icon: Cpu },
@@ -47,12 +53,6 @@ export const Navbar: React.FC = () => {
           label: 'Reports', 
           icon: Wrench,
           badge: pendingReportsCount > 0 ? pendingReportsCount : undefined
-        },
-        { 
-          id: 'messages', 
-          label: 'Messages', 
-          icon: Inbox,
-          badge: unreadNotificationsCount > 0 ? unreadNotificationsCount : undefined
         },
       ];
     }
@@ -98,7 +98,7 @@ export const Navbar: React.FC = () => {
         {/* Brand */}
         <div 
           className="flex items-center gap-2 cursor-pointer select-none" 
-          onClick={() => setActiveTab(currentRole === 'admin' ? 'telemetry' : 'labs')}
+          onClick={() => setActiveTab(currentRole === 'admin' ? 'messages' : 'labs')}
         >
           <div className="w-8 h-8 rounded-xl bg-slate-900 flex items-center justify-center text-white font-bold text-sm">
             LP

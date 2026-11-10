@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
 import { PulseNotification } from '../../types';
 import QRCode from 'qrcode';
+import { OfficerOperationsHub } from '../admin/OfficerOperationsHub';
 import { 
   Bell, 
   Inbox, 
@@ -47,19 +48,20 @@ interface PreviewPassData {
 }
 
 export const MessagesModule: React.FC = () => {
+  const { currentRole } = useLabPulse();
+
+  if (currentRole === 'admin') {
+    return <OfficerOperationsHub />;
+  }
+
   const {
     notifications,
-    currentRole,
     currentUser,
     bookings,
     loans,
     markNotificationAsRead,
     markAllNotificationsAsRead,
     dismissNotification,
-    simulate10MinWarning,
-    simulateDueHardware,
-    trigger15MinSpaceReminder,
-    trigger1DayHardwareReminder,
     clearAllNotifications,
     setActiveTab,
     addToast
@@ -69,7 +71,6 @@ export const MessagesModule: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<'ALL' | 'UNREAD' | 'SPACE' | 'HARDWARE' | 'ENDORSEMENT'>('ALL');
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [showSimulator, setShowSimulator] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [copiedToken, setCopiedToken] = useState(false);
 
@@ -248,24 +249,6 @@ export const MessagesModule: React.FC = () => {
 
         {/* Global Toolbar Actions */}
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <button
-            onClick={() => trigger15MinSpaceReminder()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 text-xs font-semibold shadow-xs transition-all cursor-pointer"
-            title="Send reminder for 15 minutes before space checkout"
-          >
-            <Clock className="w-3.5 h-3.5 text-amber-600" />
-            <span>15m Space Reminder</span>
-          </button>
-
-          <button
-            onClick={() => trigger1DayHardwareReminder()}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-900 border border-rose-200 text-xs font-semibold shadow-xs transition-all cursor-pointer"
-            title="Send reminder for 1 day before hardware return date"
-          >
-            <Cpu className="w-3.5 h-3.5 text-rose-600" />
-            <span>1d Hardware Reminder</span>
-          </button>
-
           {unreadCount > 0 && (
             <button
               onClick={() => {

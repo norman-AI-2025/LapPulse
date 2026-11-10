@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
 import { LabRoom } from '../../types';
+import { isSlotWithin2Hours, getEarliestBookingTimeStr } from '../../utils/timeUtils';
 import { 
   ArrowLeft, 
   ChevronLeft, 
@@ -80,7 +81,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     addRoomReport, 
     updateRoomReportStatus, 
     joinWaitlist, 
-    setActiveTab 
+    setActiveTab,
+    addToast 
   } = useLabPulse();
 
   const isOfficer = currentUser.role === 'admin';
@@ -293,6 +295,24 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       return;
     }
 
+    // Block reservation if within 2 hours advance notice window (student & staff)
+    if (!isOfficer && isSlotWithin2Hours(day.dateStr, timeBlock)) {
+      if (existingBooking) {
+        setInspectSlot({
+          booking: existingBooking,
+          date: day.displayDate,
+          timeBlock
+        });
+      } else {
+        addToast(
+          '2-Hour Advance Notice Required',
+          `Spaces must be booked at least 2 hours in advance. Earliest available slot today is ${getEarliestBookingTimeStr()}.`,
+          'info'
+        );
+      }
+      return;
+    }
+
     // Toggle unselect if clicking the already open booking slot
     if (activeBookingSlot && activeBookingSlot.date === day.dateStr && activeBookingSlot.timeBlock === timeBlock) {
       setActiveBookingSlot(null);
@@ -344,6 +364,15 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   const handleConfirmBooking = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeBookingSlot || !purpose.trim()) return;
+
+    if (isSlotWithin2Hours(activeBookingSlot.date, activeBookingSlot.timeBlock)) {
+      addToast(
+        '2-Hour Advance Notice Required',
+        `Spaces must be booked at least 2 hours in advance. Earliest slot today starts at ${getEarliestBookingTimeStr()}.`,
+        'warning'
+      );
+      return;
+    }
 
     const finalSlot = calculateSlotWithDuration(activeBookingSlot.timeBlock, duration);
 
@@ -663,6 +692,24 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       );
                     }
 
+                    // CASE 4.2: WITHIN 2 HOURS FROM NOW (Advance Notice Required)
+                    if (!isOfficer && isSlotWithin2Hours(day.dateStr, timeBlock)) {
+                      return (
+                        <td
+                          key={day.dateStr}
+                          onClick={() => handleCellClick(day, timeBlock)}
+                          className="p-1 border-r border-b border-white bg-slate-100/90 text-slate-400 text-center cursor-not-allowed select-none transition-colors"
+                          title={`Advance Notice Required: Earliest booking starts at ${getEarliestBookingTimeStr()} (< 2 hours from now)`}
+                        >
+                          <div className="h-5 flex items-center justify-center">
+                            <span className="text-[9px] font-medium text-slate-400/90 tracking-tight">
+                              &lt; 2h Notice
+                            </span>
+                          </div>
+                        </td>
+                      );
+                    }
+
                     // CASE 4.5: UNDER REPAIR (Bookings Disabled)
                     if (isUnderRepair) {
                       return (
@@ -736,12 +783,17 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               <span className="w-5 h-4 rounded-xs bg-[#002B7F] inline-block shadow-xs" />
               <span className="text-blue-900 font-bold">My Booking</span>
             </div>
+
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-4 rounded-xs bg-slate-100 border border-slate-300 inline-block shadow-xs" />
+              <span className="text-slate-500">&lt; 2h Notice</span>
+            </div>
           </div>
 
-          <div className="text-[11px] text-slate-400">
+          <div className="text-[11px] text-slate-500 font-medium">
             {isOfficer 
               ? 'Officer Mode: Schedule is read-only. Manage Queue, History & Reports below.' 
-              : 'Click any cell to reserve slot or inspect details'}
+              : `Advance Notice Policy: Reservations must be booked at least 2 hours in advance (Earliest available slot today: ${getEarliestBookingTimeStr()})`}
           </div>
         </div>
       </div>
@@ -1258,6 +1310,19 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                 </div>
               </label>
 
+              {/* 2-Hour Advance Notice Warning if applicable */}
+              {isSlotWithin2Hours(activeBookingSlot.date, activeBookingSlot.timeBlock) && (
+                <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-xs flex items-start gap-2">
+                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  <div>
+                    <span className="font-bold block">2-Hour Advance Notice Required</span>
+                    <span className="text-[11px] text-amber-800">
+                      Spaces must be booked at least 2 hours in advance. Earliest available slot today starts at {getEarliestBookingTimeStr()}.
+                    </span>
+                  </div>
+                </div>
+              )}
+
               {/* User info */}
               <div className="text-[11px] text-slate-400">
                 Reserving as: <strong className="text-slate-700">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
@@ -1274,7 +1339,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors cursor-pointer"
+                  disabled={isSlotWithin2Hours(activeBookingSlot.date, activeBookingSlot.timeBlock)}
+                  className="px-5 py-2 bg-[#002B7F] hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-xl shadow-sm transition-colors cursor-pointer"
                 >
                   Submit for Staff Approval
                 </button>

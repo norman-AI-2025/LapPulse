@@ -77,8 +77,6 @@ export const OfficerScanStation: React.FC = () => {
   const [returnCondition, setReturnCondition] = useState<'Excellent' | 'Good' | 'Minor Scratches' | 'Needs Service'>('Excellent');
   const [notes, setNotes] = useState('');
 
-  const sampleTokens = ['LP-7842', 'LP-3829', 'LP-4190', 'LP-8812'];
-
   // Process a detected QR code string with AUTOMATIC confirmation on scan
   const processDecodedCode = useCallback((rawCode: string) => {
     const now = Date.now();
@@ -338,11 +336,6 @@ export const OfficerScanStation: React.FC = () => {
     processDecodedCode(code);
   };
 
-  const handleQuickToken = (code: string) => {
-    setInputToken(code);
-    processDecodedCode(code);
-  };
-
   const handleCheckIn = () => {
     if (!selectedScanResult) return;
     const res = checkInBooking(selectedScanResult.data.tokenCode);
@@ -539,26 +532,11 @@ export const OfficerScanStation: React.FC = () => {
               <button
                 type="button"
                 onClick={() => handleLookup()}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition-colors cursor-pointer"
               >
                 Lookup
               </button>
             </div>
-          </div>
-
-          {/* Quick Codes for Immediate Testing */}
-          <div className="pt-2 border-t border-slate-100 flex items-center gap-1.5 flex-wrap">
-            <span className="text-[11px] text-slate-400 mr-1">Quick:</span>
-            {sampleTokens.map((code) => (
-              <button
-                key={code}
-                type="button"
-                onClick={() => handleQuickToken(code)}
-                className="font-mono text-[11px] px-2 py-0.5 bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700 transition-colors"
-              >
-                {code}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -608,7 +586,7 @@ export const OfficerScanStation: React.FC = () => {
                 </ul>
               </div>
 
-              {/* Action Buttons to retry or test valid pass */}
+              {/* Action Buttons to reset */}
               <div className="flex items-center gap-2 pt-2">
                 <button
                   type="button"
@@ -616,17 +594,9 @@ export const OfficerScanStation: React.FC = () => {
                     setScanOutcome(null);
                     setSelectedScanResult(null);
                   }}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors"
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors cursor-pointer"
                 >
                   Clear Screen
-                </button>
-                <button
-                  type="button"
-                  onClick={() => processDecodedCode('LP-7842')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-                >
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Test Valid Space Pass</span>
                 </button>
               </div>
             </div>

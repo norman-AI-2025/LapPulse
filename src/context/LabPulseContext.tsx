@@ -33,6 +33,7 @@ import {
   INITIAL_MAINTENANCE_REPORTS,
   getTodayDateString 
 } from '../data/initialData';
+import { isSlotWithin2Hours, getEarliestBookingTimeStr } from '../utils/timeUtils';
 import {
   supabase,
   isSupabaseConfigured,
@@ -75,7 +76,6 @@ interface LabPulseContextType {
   login: (credentials: { identifier: string; password?: string; role?: UserRole }) => { success: boolean; message: string };
   signup: (data: { name: string; role: UserRole; matricOrStaffId: string; email: string; department: string; password?: string }) => { success: boolean; message: string };
   logout: () => void;
-  quickLogin: (role: UserRole) => void;
 
   // Navigation
   activeTab: string;
@@ -151,8 +151,6 @@ interface LabPulseContextType {
   markNotificationAsRead: (id: string) => void;
   markAllNotificationsAsRead: () => void;
   dismissNotification: (id: string) => void;
-  simulate10MinWarning: () => void;
-  simulateDueHardware: () => void;
   trigger15MinSpaceReminder: (bookingId?: string) => void;
   trigger1DayHardwareReminder: (loanId?: string) => void;
   clearAllNotifications: () => void;
@@ -182,7 +180,6 @@ interface LabPulseContextType {
   flagSpaceFromReport: (reportId: string) => void;
 
   // Utilities
-  resetToDemoData: () => void;
   addAuditLog: (action: string, details: string, category: 'booking' | 'hardware' | 'checkin' | 'waitlist' | 'system') => void;
 }
 
@@ -262,7 +259,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.ROLE);
-    if (saved === 'admin') return 'telemetry';
+    if (saved === 'admin') return 'messages';
     if (saved === 'lecturer') return 'supervisor';
     return 'labs';
   });
@@ -670,57 +667,21 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (role === 'lecturer') {
       setActiveTab('supervisor');
     } else if (role === 'admin') {
-      setActiveTab('telemetry');
+      setActiveTab('messages');
     } else {
       setActiveTab('labs');
     }
-  };
-
-  // Quick One-Click Demo Access
-  const quickLogin = (role: UserRole) => {
-    const user = USERS[role] || USERS.student;
-    setCurrentUser(user);
-    setCurrentRole(role);
-    setIsAuthenticated(true);
-    localStorage.setItem(STORAGE_KEYS.ROLE, role);
-    localStorage.setItem(STORAGE_KEYS.ACTIVE_USER, JSON.stringify(user));
-    localStorage.setItem(STORAGE_KEYS.AUTH, 'true');
-
-    if (role === 'lecturer') {
-      setActiveTab('supervisor');
-    } else if (role === 'admin') {
-      setActiveTab('telemetry');
-    } else {
-      setActiveTab('labs');
-    }
-
-    try {
-      sounds.playApplePaySuccess();
-    } catch {}
-
-    addToast('Authenticated', `Signed in as ${user.name} [${role.toUpperCase()}]`, 'success');
-    addAuditLog('User Login', `Quick demo login as ${user.name} (${role})`, 'system');
   };
 
   // Standard Login Authentication
   const login = (credentials: { identifier: string; password?: string; role?: UserRole }) => {
     const idClean = credentials.identifier.trim().toLowerCase();
     
-    // Match against usersRecord by email, matric/staff ID, name, id, or direct alias (student, staff, officer)
-    let matching = Object.values(usersRecord).find((u) => 
+    // Match against usersRecord strictly by email or matric/staff ID
+    const matching = Object.values(usersRecord).find((u) => 
       u.email.toLowerCase() === idClean || 
-      u.matricOrStaffId.toLowerCase() === idClean ||
-      u.name.toLowerCase() === idClean ||
-      u.id.toLowerCase() === idClean ||
-      (idClean === 'student' && u.role === 'student') ||
-      ((idClean === 'staff' || idClean === 'lecturer') && u.role === 'lecturer') ||
-      ((idClean === 'officer' || idClean === 'admin') && u.role === 'admin')
+      u.matricOrStaffId.toLowerCase() === idClean
     );
-
-    // If no exact match and role was provided, match against default persona for that role
-    if (!matching && credentials.role) {
-      matching = USERS[credentials.role];
-    }
 
     if (!matching) {
       return { 
@@ -738,7 +699,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     }
 
     // Password verification
-    if (matching.password && credentials.password && matching.password !== credentials.password) {
+    if (matching.password && credentials.password !== matching.password) {
       return { 
         success: false, 
         message: 'Invalid password. Please check your credentials and try again.' 
@@ -755,7 +716,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (matching.role === 'lecturer') {
       setActiveTab('supervisor');
     } else if (matching.role === 'admin') {
-      setActiveTab('telemetry');
+      setActiveTab('messages');
     } else {
       setActiveTab('labs');
     }
@@ -833,7 +794,7 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (newUser.role === 'lecturer') {
       setActiveTab('supervisor');
     } else if (newUser.role === 'admin') {
-      setActiveTab('telemetry');
+      setActiveTab('messages');
     } else {
       setActiveTab('labs');
     }
@@ -906,6 +867,20 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (data.date < today) {
       addToast('Invalid Date', 'Cannot book space for a past date. Only current and future dates are allowed.', 'warning');
       return { success: false, message: 'Cannot book space for a past date.' };
+    }
+
+    // Block booking if within 2 hours advance notice window (student and staff)
+    if (isSlotWithin2Hours(data.date, data.slot)) {
+      const earliestTime = getEarliestBookingTimeStr();
+      addToast(
+        '2-Hour Advance Notice Required',
+        `Space reservations require at least 2 hours advance notice. Earliest available slot today is ${earliestTime}.`,
+        'warning'
+      );
+      return {
+        success: false,
+        message: `Space reservations require at least 2 hours advance notice. Earliest available slot today is ${earliestTime}.`
+      };
     }
 
     // Check concurrency conflict
@@ -1940,9 +1915,6 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     sounds.playApplePaySuccess();
   };
 
-  const simulate10MinWarning = () => trigger15MinSpaceReminder();
-  const simulateDueHardware = () => trigger1DayHardwareReminder();
-
   const clearAllNotifications = () => {
     setNotifications([]);
     setSentReminders(new Set());
@@ -2169,32 +2141,6 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     [reports, updateReportStatus, addToast]
   );
 
-  // Reset to Demo Data
-  const resetToDemoData = () => {
-    localStorage.removeItem(STORAGE_KEYS.ROOMS);
-    localStorage.removeItem(STORAGE_KEYS.HARDWARE);
-    localStorage.removeItem(STORAGE_KEYS.BOOKINGS);
-    localStorage.removeItem(STORAGE_KEYS.LOANS);
-    localStorage.removeItem(STORAGE_KEYS.WAITLIST);
-    localStorage.removeItem(STORAGE_KEYS.AUDIT);
-    localStorage.removeItem(STORAGE_KEYS.NOTIFICATIONS);
-    localStorage.removeItem(STORAGE_KEYS.REPORTS);
-    localStorage.removeItem(STORAGE_KEYS.ROLE);
-
-    setRooms(INITIAL_ROOMS);
-    setHardware(INITIAL_HARDWARE);
-    setBookings(INITIAL_BOOKINGS);
-    setLoans(INITIAL_LOANS);
-    setWaitlist(INITIAL_WAITLIST);
-    setAuditLogs(INITIAL_AUDIT_LOGS);
-    setNotifications(INITIAL_NOTIFICATIONS);
-    setReports(INITIAL_MAINTENANCE_REPORTS);
-    setCurrentRole('student');
-    setActiveTab('labs');
-
-    addToast('Demo Data Reset', 'All laboratories, hardware passports, bookings, and logs restored to initial UM seed state.', 'info');
-  };
-
   return (
     <LabPulseContext.Provider
       value={{
@@ -2206,7 +2152,6 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
         login,
         signup,
         logout,
-        quickLogin,
         activeTab,
         setActiveTab,
         rooms,
@@ -2246,8 +2191,6 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
         markNotificationAsRead,
         markAllNotificationsAsRead,
         dismissNotification,
-        simulate10MinWarning,
-        simulateDueHardware,
         trigger15MinSpaceReminder,
         trigger1DayHardwareReminder,
         clearAllNotifications,
@@ -2263,7 +2206,6 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
         updateReportStatus,
         flagHardwareFromReport,
         flagSpaceFromReport,
-        resetToDemoData,
         addAuditLog
       }}
     >

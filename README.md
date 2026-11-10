@@ -4,93 +4,183 @@
 
 ---
 
-## 🏛️ System Overview
-**LabPulse** is a responsive web application designed specifically for the Faculty of Computer Science & Information Technology (FCSIT) at Universiti Malaya. It modernizes computer lab reservation, physical attendance verification, and high-value hardware asset lending (such as NVIDIA Jetson Orin Nano kits and Rigol oscilloscopes).
+## 📋 Overview
+**LabPulse** is a responsive web application designed specifically for the Faculty of Computer Science & Information Technology (FCSIT) at Universiti Malaya (UM). It automates and unifies laboratory space reservations, physical attendance verification via turnstiles, and high-value hardware asset lending (such as NVIDIA Jetson Orin Nano kits and Rigol oscilloscopes).
 
-### 🌟 Key Design & Aesthetics
-- **Apple Bento Grid Layout**: Minimalist cards with rounded borders (`rounded-2xl` / `rounded-3xl`), soft ambient blur, high-contrast typography, and subtle shadows.
-- **Dynamic Island / Pill Navigation**: Floating navbar featuring live active session indicators, role switcher, and quick status badges.
-- **Responsive Architecture**: Fluid layout tested across mobile viewports, tablets, and desktop workstations.
+Designed with Apple-grade Bento aesthetics, real-time Concurrency Conflict Detection, live 15-minute grace period watchdog timers, and dedicated Officer Scanner Stations.
 
 ---
 
-## 👥 User Roles & Role-Based Access Control (RBAC)
-Quickly toggle between preconfigured UM profiles via the navbar dropdown:
+## 🚀 Quick Start Guide (When Pulling from GitHub)
 
-1. **Student** — *Norman Lee Weng Hong (Matric: 25005870)*
-   - Browse FCSIT labs & filter by category (AI, Networking, SE, IoT).
-   - Reserve 2-hour lab slots with instant concurrency conflict detection.
-   - Borrow hardware dev kits with digital equipment passports.
-   - View dynamic cryptographic QR passes with 6-character fallback codes (e.g. `LP-7842`).
-   - Monitor the 15-minute physical check-in grace period countdown timer.
-   - Join waitlists for fully booked slots.
+Follow these steps to set up and run the project locally after cloning the repository.
 
-2. **Lecturer / Supervisor** — *Prof. Madya Dr. Amir Rudin*
-   - Review pending coursework & Final Year Project (FYP) high-resource reservation requests (e.g., RTX 4090 GPU nodes in Lab AI-1).
-   - 1-Click "Endorse" or "Decline" with supervisor remarks.
-   - Audit historical FYP endorsements.
+### 1. Prerequisites
+Ensure you have the following installed on your machine:
+- **Node.js**: `v18.0.0` or higher (Recommended: `v20.x` LTS)
+- **npm**: `v9.0.0` or higher (bundled with Node.js)
+- **Git**
 
-3. **Laboratory Technical Officer (Admin)** — *En. Faizal (FCSIT Lab Admin)*
-   - **Scan & Verify Station**: Camera viewfinder animation & instant 6-character code verification.
-   - **Mandatory Condition Audit Checklist**:
-     - `[x] Chassis & Ports Intact`
-     - `[x] Accessories & Cables Included`
-     - `[x] Powers on without error`
-   - Real-time condition grading (`Excellent`, `Good`, `Minor Scratches`, `Needs Service`) directly updating equipment health scores.
-   - Live space utilization heatmaps, peak traffic distribution (08:00 - 18:00), and incident management.
-
----
-
-## 🧩 Core Functional Modules
-
-### Module A: Smart Laboratory Space Booking & Conflict Engine
-- **Concurrency Validation**: Automatically checks slot availability (`08:00 - 10:00`, `10:00 - 12:00`, etc.) and prevents double-booking of any slot marked `Approved` or `Active`.
-- **Conflict Warning Banner**: Alerts users in real-time if a slot is already taken, displaying current occupant details and offering a 1-click "Join Waitlist for this Slot" option.
-- **FYP Endorsement Pipeline**: High-resource facilities route directly to the academic supervisor dashboard.
-
-### Module B: Hardware Lending & Digital Equipment Passports
-- **FCSIT Hardware Vault**: Real-time stock counts for NVIDIA Jetson Orin Nano Kits, Raspberry Pi 4B Labs, Rigol DS1054Z Digital Oscilloscopes, Intel RealSense cameras, and ESP32 IoT Nodes.
-- **Equipment Passports**: Detailed modal displaying Serial Numbers, Operational Health Ratings (e.g. 98%), Loan Count, Active Borrower, Maintenance Logs, and Reported Defects.
-- **Turnkey FYP Bundles**: Pre-configured hardware stacks:
-  - *AI Vision Edge Kit* (Jetson Orin + RealSense Cam)
-  - *Smart Campus IoT Kit* (Raspberry Pi 4 + ESP32 Node)
-  - *Hardware Signal Debugging Kit* (Rigol Oscilloscope + Arduino Mega Starter Pack)
-
-### Module C: Dynamic QR Verification & Physical Condition Auditing
-- **Dynamic QR Passes**: Generates cryptographic QR codes containing session metadata and a prominent 6-character alphanumeric code (`LP-XXXX`).
-- **Turnstile Check-In**: Officers verify codes to transition reservations from `Approved` to `Active`.
-- **Return Checklist**: Enforces mandatory physical condition checklist before hardware check-in or issuance.
-
-### Module D: Smart Waitlist & No-Show Management
-- **15-Minute Grace Period Countdown**: Active countdown watchdog. If physical QR check-in is not confirmed within 15 minutes of slot start, slots are surrendered.
-- **Dynamic Reallocation**: Automatically awards forfeited slots to the #1 waitlisted candidate, generating a new pass in real time.
-
-### Module E: Administrative Reporting & Telemetry
-- Weekly booking totals, asset utilization rate (%), active loans, and maintenance alerts.
-- Peak hours visual density chart across 8 AM - 6 PM traffic.
-- Actionable operational table with quick filters for `Pending Approval`, `Active In-Session`, `Overdue Loans`, and `Maintenance Alerts`.
-
----
-
-## 🛠️ Tech Stack
-- **Framework**: React 18 + TypeScript + Vite
-- **Styling**: Tailwind CSS with custom Apple Bento blur & glassmorphic utilities
-- **Icons**: Lucide React
-- **QR Engine**: `qrcode` (Vector canvas rendering)
-- **State & Persistence**: React Context API with persistent `localStorage` synchronization
-- **Feedback & Polish**: Canvas Confetti celebrations & floating toast notifications
-
----
-
-## 🚀 Running Locally
+Verify your versions:
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Start Vite dev server
-npm run dev
-
-# 3. Production build
-npm run build
+node -v
+npm -v
 ```
 
+---
+
+### 2. Clone the Repository
+```bash
+git clone https://github.com/normanleewenghong/LapPulse.git
+cd LapPulse
+```
+
+---
+
+### 3. Install Dependencies
+Install all required Node modules and type definitions:
+```bash
+npm install
+```
+
+---
+
+### 4. Configure Environment Variables
+Copy the template `.env.example` file to create your `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` in your editor and configure your Supabase project credentials:
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-or-publishable-key
+```
+
+> **Note:** If Supabase credentials are not provided or you are working offline, LabPulse will seamlessly fall back to client-side persistent storage (`localStorage`), allowing full offline functionality and end-to-end testing without breaking.
+
+---
+
+### 5. Setup Supabase Database (Optional for Cloud Sync)
+If you are deploying or connecting to a live Supabase backend:
+
+1. Log into your [Supabase Dashboard](https://supabase.com).
+2. Open the **SQL Editor** tab in your project.
+3. Open the [`supabase_schema.sql`](./supabase_schema.sql) file located in the project root.
+4. Copy and paste the entire script into the Supabase SQL editor and run it.
+5. This automatically provisions the required tables, Row-Level Security (RLS) policies, indexes, and initial FCSIT lab/hardware seeds.
+
+---
+
+### 6. Start the Development Server
+```bash
+npm run dev
+```
+
+The application will start locally at:
+👉 **`http://localhost:5173/`**
+
+---
+
+### 7. Production Build & Verification
+To test the production build locally:
+```bash
+# Type check and build bundle
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+---
+
+## 🔑 Default Persona & Test Accounts
+
+You can log in directly using the pre-configured FCSIT user personas:
+
+| Role | Name | Email / Matric / Staff ID | Default Password | Access Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Student** | Norman Lee Weng Hong | `25005870` or `norman@siswa.um.edu.my` | Any / `password123` | Book lab spaces, borrow dev kits, view QR passes, monitor 15m timer |
+| **Lecturer / Supervisor** | Prof. Madya Dr. Amir Rudin | `STAFF-FCSIT` or `amirrudin@um.edu.my` | Any / `password123` | Endorse coursework & FYP high-resource requests, reserve labs |
+| **Lab Technical Officer** | En. Faizal (FCSIT Lab Admin) | `OFFICER-FCSIT` or `faizal.admin@um.edu.my` | Any / `password123` | Operations Hub, Attention Queue, Scanner Station, Telemetry & Reports |
+
+---
+
+## 📂 Project Structure
+
+```
+LapPulse/
+├── public/                 # Static assets & icons
+├── src/
+│   ├── components/
+│   │   ├── admin/          # Officer Operations Hub & Scanner Station
+│   │   ├── audit/          # System audit trail logs
+│   │   ├── auth/           # Login & Registration authentication forms
+│   │   ├── common/         # Reusable Bento cards, gauges, QR cards, modals
+│   │   ├── hardware/       # Hardware lending vault & digital equipment passports
+│   │   ├── labs/           # 23 FCSIT lab spaces & interactive timetable schedules
+│   │   ├── layout/         # Dynamic Island navigation bar & breadcrumbs
+│   │   ├── notifications/  # Messages & system reminders module
+│   │   ├── reports/        # Equipment defect & maintenance reporting
+│   │   ├── student/        # My Passes, active countdown timers, token codes
+│   │   └── telemetry/      # Space utilization telemetry & analytics
+│   ├── context/
+│   │   └── LabPulseContext.tsx   # Centralized app state, RBAC, Supabase sync
+│   ├── lib/
+│   │   └── supabase.ts     # Supabase client initialization
+│   ├── types/              # TypeScript interfaces for labs, loans, bookings, users
+│   ├── utils/              # Audio chimes, date math, QR generator helpers
+│   ├── App.tsx             # Root application view router
+│   └── main.tsx            # Application entrypoint
+├── supabase_schema.sql     # PostgreSQL database migration script
+├── .env.example            # Environment variables template
+├── package.json            # Project dependencies & build scripts
+├── tailwind.config.js      # Tailwind styling & color tokens
+└── vite.config.ts          # Vite build config
+```
+
+---
+
+## 🌟 Key Workflows & Features
+
+1. **15-Minute Check-In Watchdog Timer**:
+   - When a booking's scheduled time begins, a 15-minute countdown starts automatically.
+   - Staff/students must present their personal QR pass at the entrance turnstile or scanner station within 15 minutes.
+   - If not scanned within the grace period, the slot is automatically cancelled and released to the waitlist candidate.
+
+2. **Camera-Based Officer Scanner Station**:
+   - Technical officers and counter turnstiles scan student/staff QR passes via web camera or manual token code entry (`LP-XXXX`).
+   - Verifies check-in, check-out, hardware loan pickup, and equipment return condition inspection.
+
+3. **Officer Operations Hub (Messages Tab)**:
+   - **Immediate Attention Queue**: Filters overdue hardware, grace-expired slots, and pending approvals with 1-click notice dispatch or revocation.
+   - **Reserved Spaces Directory**: Real-time view of lab occupancy and booked slots.
+   - **Booked & Issued Hardware Directory**: Light-themed tracking table of all active hardware loans.
+   - **Export Center**: Instant CSV export and printable operational audit reports.
+
+---
+
+## 🛠️ Common Scripts
+
+| Command | Action |
+| :--- | :--- |
+| `npm run dev` | Launch local development server with Hot Module Replacement (HMR) |
+| `npm run build` | Run TypeScript check (`tsc -b`) and generate optimized production bundle |
+| `npm run preview` | Spin up a local server to preview the built `dist/` directory |
+
+---
+
+## 💡 Troubleshooting
+
+- **Camera permissions blocked in Scanner Station**:
+  Ensure your browser has granted camera access to `localhost`. If using HTTPS/deployment, camera APIs require a secure context (`https://`). Alternatively, you can type the 6-character token code (e.g., `LP-7842`) into the input box to verify passes immediately.
+- **Port 5173 is already in use**:
+  Run `npx kill-port 5173` or Vite will automatically increment to the next open port (e.g., `5174`).
+- **Supabase credentials in `.gitignore`**:
+  Your actual `.env` file containing live secrets is protected by `.gitignore` and will never be committed to source control. Always share credentials securely or provision separate staging keys.
+
+---
+
+## 📄 License
+Developed for the **Faculty of Computer Science & Information Technology (FCSIT), Universiti Malaya**. All rights reserved.
