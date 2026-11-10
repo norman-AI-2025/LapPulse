@@ -72,6 +72,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   const { 
     rooms, 
     bookings, 
+    reports,
     currentUser, 
     createBooking, 
     approveBooking, 
@@ -84,6 +85,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
   const isOfficer = currentUser.role === 'admin';
   const currentRoom = rooms.find((r) => r.id === room.id) || room;
+  const isUnderRepair = currentRoom.status === 'Under Repair' || reports.some((r) => r.type === 'SPACE' && r.targetId === currentRoom.id && r.status === 'IN REPAIR');
 
   const [weekOffset, setWeekOffset] = useState<number>(0);
 
@@ -146,11 +148,11 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     }
   };
 
-  // Base reference date is 2026-11-10 (Tuesday)
+  // Follows real current system time and date
   const getWeekDays = (offset: number): DayInfo[] => {
-    // Current date is 2026-11-10
-    const today = new Date(2026, 10, 10); // Nov 10, 2026
-    const dayOfWeek = today.getDay(); // 0 is Sunday, 1 is Monday, 2 is Tuesday
+    // Real current date
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 is Sunday, 1 is Monday, ...
     
     // Calculate Monday of the week
     const monday = new Date(today);
@@ -159,6 +161,11 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const dayNames = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    const todayYear = today.getFullYear();
+    const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+    const todayDate = String(today.getDate()).padStart(2, '0');
+    const todayStr = `${todayYear}-${todayMonth}-${todayDate}`;
 
     const days: DayInfo[] = [];
 
@@ -171,11 +178,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       const date = String(d.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${date}`;
 
-      const isToday = offset === 0 && d.getDate() === 10 && d.getMonth() === 10 && d.getFullYear() === 2026;
-      const isPast = dateStr < '2026-11-10';
-      
-      // Monday 9 Nov 2026 is Hari Deepavali
-      const isHariDeepavali = d.getDate() === 9 && d.getMonth() === 10 && d.getFullYear() === 2026;
+      const isToday = offset === 0 && dateStr === todayStr;
+      const isPast = dateStr < todayStr;
       const isSunday = d.getDay() === 0;
 
       days.push({
@@ -184,9 +188,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         displayDate: `${d.getDate()} ${monthNames[d.getMonth()]}, ${year}`,
         isToday,
         isPast,
-        isHoliday: isHariDeepavali,
-        holidayName: isHariDeepavali ? 'HARI DEEPAVALI' : undefined,
-        isClosed: isHariDeepavali || isSunday,
+        isHoliday: false,
+        isClosed: isSunday,
       });
     }
 
@@ -194,6 +197,38 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
   };
 
   const weekDays = getWeekDays(weekOffset);
+
+  // Helper to parse time string like "08:00 am", "08:30 pm", "14:00", "10:00" to minutes from midnight
+  const parseTimeToMinutes = (tStr: string): number => {
+    const clean = tStr.trim().toLowerCase();
+    const isPM = clean.includes('pm');
+    const isAM = clean.includes('am');
+    const numPart = clean.replace(/[a-z]/g, '').trim();
+    const [hStr, mStr] = numPart.split(':');
+    let hours = parseInt(hStr, 10);
+    const minutes = mStr ? parseInt(mStr, 10) : 0;
+    if (isPM && hours < 12) hours += 12;
+    if (isAM && hours === 12) hours = 0;
+    return hours * 60 + minutes;
+  };
+
+  // Check if two time ranges [start1, end1] and [start2, end2] overlap
+  const isSlotOverlapping = (slotA: string, slotB: string): boolean => {
+    try {
+      const partsA = slotA.split('-');
+      const partsB = slotB.split('-');
+      if (partsA.length < 2 || partsB.length < 2) return false;
+
+      const startA = parseTimeToMinutes(partsA[0]);
+      const endA = parseTimeToMinutes(partsA[1]);
+      const startB = parseTimeToMinutes(partsB[0]);
+      const endB = parseTimeToMinutes(partsB[1]);
+
+      return startA < endB && endA > startB;
+    } catch {
+      return false;
+    }
+  };
 
   // Check if a time block is covered by an existing booking
   const getBookingForCell = (dateStr: string, timeBlock: string) => {
@@ -203,54 +238,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     for (const b of dateBookings) {
       if (b.status === 'Cancelled' || b.status === 'Rejected') continue;
 
-      // Check slot string format: either direct match or overlaps
-      if (b.slot.includes(timeBlock)) {
+      if (isSlotOverlapping(b.slot, timeBlock)) {
         return b;
       }
-
-      // Check standard 2-hour slots overlap
-      // e.g. "10:00 - 12:00" overlaps "10:00 am - 10:30 am", "10:30 am - 11:00 am", "11:00 am - 11:30 am", "11:30 am - 12:00 pm"
-      const slotRange = b.slot;
-      if (slotRange.includes('08:00') && slotRange.includes('10:00')) {
-        if (timeBlock.startsWith('08:') || timeBlock.startsWith('09:')) return b;
-      }
-      if (slotRange.includes('10:00') && slotRange.includes('12:00')) {
-        if (timeBlock.startsWith('10:') || timeBlock.startsWith('11:')) return b;
-      }
-      if (slotRange.includes('12:00') && slotRange.includes('14:00')) {
-        if (timeBlock.startsWith('12:') || timeBlock.startsWith('01:')) return b;
-      }
-      if (slotRange.includes('14:00') && slotRange.includes('16:00')) {
-        if (timeBlock.startsWith('02:') || timeBlock.startsWith('03:')) return b;
-      }
-      if (slotRange.includes('16:00') && slotRange.includes('18:00')) {
-        if (timeBlock.startsWith('04:') || timeBlock.startsWith('05:')) return b;
-      }
-    }
-
-    // Default seeded schedule items from the uploaded screenshot:
-    // Wednesday (11 Nov): 02:00 pm - 04:30 pm has ".: Persedi ..."
-    if (dateStr === '2026-11-11' && (timeBlock.startsWith('02:') || timeBlock.startsWith('03:') || timeBlock.startsWith('04:00'))) {
-      return {
-        id: 'bk-seeded-wed',
-        tokenCode: 'LP-3104',
-        userName: 'WIX2001 Workshop',
-        purpose: 'Persediaan Makmal & Ujian Rangkaian',
-        status: 'Approved' as const,
-        userId: 'system'
-      };
-    }
-
-    // Thursday (12 Nov): 08:00 am - 05:00 pm has ".: A Day w ..."
-    if (dateStr === '2026-11-12') {
-      return {
-        id: 'bk-seeded-thu',
-        tokenCode: 'LP-5521',
-        userName: 'FCSIT AI Workshop',
-        purpose: 'A Day with Edge AI & Robotics Workshop',
-        status: 'Approved' as const,
-        userId: 'system'
-      };
     }
 
     return null;
@@ -279,6 +269,18 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
     }
 
     // STUDENT USER FLOW:
+    // Block reservation if facility is under repair
+    if (!isOfficer && isUnderRepair) {
+      if (existingBooking) {
+        setInspectSlot({
+          booking: existingBooking,
+          date: day.displayDate,
+          timeBlock
+        });
+      }
+      return;
+    }
+
     // Block reservation on past dates
     if (day.isPast) {
       if (existingBooking) {
@@ -431,32 +433,73 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 text-right">
           <span className="text-xs font-medium text-slate-400">Timetable View</span>
           <span className={`text-xs font-bold px-2.5 py-1 rounded-full border mt-1 ${
-            isOfficer
+            isUnderRepair
+              ? 'text-rose-700 bg-rose-50 border-rose-200'
+              : isOfficer
               ? 'text-blue-800 bg-blue-50 border-blue-200/80'
               : 'text-emerald-700 bg-emerald-50 border-emerald-200/60'
           }`}>
-            {isOfficer ? 'Officer Mode: Schedule Read-Only' : 'Click any cell to book'}
+            {isUnderRepair
+              ? 'Under Repair • Bookings Disabled'
+              : isOfficer
+              ? 'Officer Mode: Schedule Read-Only'
+              : 'Click any cell to book'}
           </span>
         </div>
       </div>
 
-      {/* Week Navigation Header (Clean version of the uploaded screenshot) */}
-      <div className="bg-white rounded-2xl p-3 border border-slate-200 shadow-sm flex items-center justify-between">
+      {/* Under Repair Alert Banner */}
+      {isUnderRepair && (
+        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
+          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <Wrench className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900 uppercase">
+                Under Repair
+              </span>
+              <h3 className="text-xs sm:text-sm font-bold text-rose-950">
+                Facility Under Technical Maintenance
+              </h3>
+            </div>
+            <p className="text-xs text-rose-700 mt-1 leading-relaxed">
+              This space is currently marked as undergoing repair or inspection. Timetable reservations and new booking submissions are temporarily disabled for all students and academic staff until FCSIT lab administration resolves the ticket.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Week Navigation Header (Faithful to uploaded screenshot with Last Week ⬅ This Week ➡ Next Week) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-1 pb-1">
         <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-800">
+            Timetable Schedule: Week of {weekDays[0].displayDate} – {weekDays[6].displayDate}
+          </span>
+          {weekOffset === 0 && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
+              Current Week
+            </span>
+          )}
+        </div>
+
+        {/* Top-Right Navigation matching the screenshot */}
+        <div className="flex items-center gap-3 text-xs font-semibold self-end sm:self-auto">
           <button
             onClick={() => setWeekOffset((prev) => prev - 1)}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors"
+            className="text-sky-600 hover:text-sky-800 flex items-center gap-1 transition-colors cursor-pointer"
+            title="View previous week"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
             <span>Last Week</span>
+            <span className="text-sm font-bold">⬅</span>
           </button>
 
           <button
             onClick={() => setWeekOffset(0)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
+            className={`transition-colors cursor-pointer ${
               weekOffset === 0
-                ? 'bg-slate-900 text-white'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                ? 'text-sky-900 font-extrabold underline decoration-2 underline-offset-4'
+                : 'text-sky-600 hover:text-sky-800'
             }`}
           >
             This Week
@@ -464,44 +507,41 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
           <button
             onClick={() => setWeekOffset((prev) => prev + 1)}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-semibold text-slate-700 transition-colors"
+            className="text-sky-600 hover:text-sky-800 flex items-center gap-1 transition-colors cursor-pointer"
+            title="View next week"
           >
+            <span className="text-sm font-bold">➡</span>
             <span>Next Week</span>
-            <ChevronRight className="w-3.5 h-3.5" />
           </button>
-        </div>
-
-        <div className="text-xs font-bold text-slate-800">
-          Week of {weekDays[0].displayDate} – {weekDays[6].displayDate}
         </div>
       </div>
 
-      {/* THE INTERACTIVE TIMETABLE GRID (UPGRADED VERSION OF SCREENSHOT) */}
+      {/* THE INTERACTIVE TIMETABLE GRID (FAITHFUL TO FCSIT SCREENSHOT WITH APPLE-GRADE FINISH) */}
       <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
         
         {/* Scrollable Container */}
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left border-collapse min-w-[900px] select-none">
+          <table className="w-full text-xs text-left border-collapse min-w-[920px] select-none">
             
             {/* Table Header: Days of the Week */}
             <thead>
-              <tr className="border-b border-slate-200 bg-[#0F4C5C] text-white">
-                {/* Sticky top-left time header */}
-                <th className="sticky left-0 z-20 p-3 w-40 text-center font-bold text-[11px] border-r border-teal-800/40 bg-[#0B3A46] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
+              <tr className="bg-[#176B76] text-white">
+                {/* Sticky top-left empty header cell matching screenshot */}
+                <th className="sticky left-0 z-20 p-3 w-40 text-center font-bold text-[11px] border-r border-b border-white bg-[#176B76] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
                   Time Slot
                 </th>
 
                 {weekDays.map((day) => (
                   <th
                     key={day.dateStr}
-                    className={`p-3 text-center border-r border-teal-800/40 transition-colors ${
-                      day.isToday ? 'bg-[#009688] text-white font-extrabold' : ''
+                    className={`p-3 text-center border-r border-b border-white transition-colors ${
+                      day.isToday ? 'bg-[#22B2B2] text-white font-extrabold' : 'bg-[#176B76]'
                     }`}
                   >
                     <div className="font-bold text-xs">{day.dayName}</div>
-                    <div className="text-[10px] font-medium opacity-90 mt-0.5">{day.displayDate}</div>
+                    <div className="text-[10px] font-semibold opacity-95 mt-0.5">{day.displayDate}</div>
                     {day.isToday && (
-                      <span className="inline-block mt-1 text-[9px] uppercase tracking-wider bg-white/20 px-2 py-0.2 rounded-full font-bold">
+                      <span className="inline-block mt-1 text-[9px] uppercase tracking-wider bg-white/25 text-white px-2 py-0.2 rounded-full font-bold">
                         TODAY
                       </span>
                     )}
@@ -511,12 +551,12 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
             </thead>
 
             {/* Table Body: Time Blocks */}
-            <tbody className="divide-y divide-slate-100">
+            <tbody>
               {TIME_BLOCKS.map((timeBlock, rowIndex) => (
-                <tr key={timeBlock} className="hover:bg-slate-50/40 transition-colors">
+                <tr key={timeBlock} className="transition-colors">
                   
-                  {/* Sticky Time Block Label Column */}
-                  <td className="sticky left-0 z-10 p-2.5 font-mono text-[11px] font-semibold text-slate-700 bg-slate-50 border-r border-slate-200 text-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]">
+                  {/* Sticky Time Block Label Column: Deep Teal matching screenshot */}
+                  <td className="sticky left-0 z-10 p-2.5 font-sans text-[11px] font-bold text-white bg-[#176B76] border-r border-b border-white text-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
                     {timeBlock}
                   </td>
 
@@ -530,14 +570,14 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       return (
                         <td
                           key={day.dateStr}
-                          className="p-1 border-r border-slate-200/80 bg-[#8B1E22] text-white text-center cursor-not-allowed select-none transition-colors"
+                          className="p-1 border-r border-b border-white bg-[#801818] text-white text-center cursor-not-allowed select-none transition-colors"
                         >
                           {rowIndex === 0 ? (
-                            <div className="py-1 font-bold text-[11px] tracking-wide uppercase">
+                            <div className="py-1 font-extrabold text-[11px] tracking-wider uppercase text-white drop-shadow-xs">
                               {day.holidayName}
                             </div>
                           ) : (
-                            <div className="h-4" />
+                            <div className="h-5" />
                           )}
                         </td>
                       );
@@ -548,9 +588,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       return (
                         <td
                           key={day.dateStr}
-                          className="p-1 border-r border-slate-200/80 bg-slate-100/70 text-slate-400 text-center text-[10px]"
+                          className="p-1 border-r border-b border-white bg-[#E5E7EB] text-slate-400 text-center text-[10px]"
                         >
-                          {rowIndex === 0 && <span className="font-medium">Closed</span>}
+                          {rowIndex === 0 && <span className="font-semibold text-slate-500">Closed</span>}
                         </td>
                       );
                     }
@@ -558,30 +598,54 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                     // CASE 3: BOOKED CELL (Vibrant Cyan / Blue or Pending Yellow)
                     if (booking) {
                       const isPending = booking.status === 'Pending Endorsement' || booking.status === 'Pending Approval';
+                      const prevBooking = rowIndex > 0 ? getBookingForCell(day.dateStr, TIME_BLOCKS[rowIndex - 1]) : null;
+                      const isFirstSlot = !prevBooking || prevBooking.id !== booking.id;
+                      const nextBooking = rowIndex < TIME_BLOCKS.length - 1 ? getBookingForCell(day.dateStr, TIME_BLOCKS[rowIndex + 1]) : null;
+                      const isLastSlot = !nextBooking || nextBooking.id !== booking.id;
 
                       return (
                         <td
                           key={day.dateStr}
                           onClick={() => handleCellClick(day, timeBlock)}
-                          className={`p-1.5 border-r border-slate-200/80 cursor-pointer transition-all ${
+                          className={`p-1 border-r ${
+                            isLastSlot ? 'border-b border-b-white' : 'border-b border-b-white/20'
+                          } border-white cursor-pointer transition-all ${
                             isPending
-                              ? 'bg-[#FFEB3B] text-slate-900 hover:bg-yellow-300 font-semibold'
+                              ? 'bg-[#FFEB3B] text-slate-900 hover:bg-yellow-300'
                               : isMyBooking
-                              ? 'bg-[#002B7F] text-white hover:bg-blue-900 font-bold'
+                              ? 'bg-[#002B7F] text-white hover:bg-blue-900'
                               : 'bg-[#00B4D8] text-white hover:bg-[#0096C7]'
                           }`}
-                          title={`Booked: ${booking.purpose || booking.userName} (${booking.status})`}
+                          title={`Booked by ${booking.userName} (${booking.userMatric || 'ID'})\nPurpose: ${booking.purpose}\nStatus: ${booking.status}\nToken: ${booking.tokenCode}`}
                         >
-                          <div className="px-2 py-1 rounded-lg text-[10px] leading-tight truncate">
-                            {isMyBooking ? (
-                              <span className="flex items-center gap-1 font-bold">
-                                <Check className="w-3 h-3 text-amber-300" />
-                                <span>My Pass ({booking.tokenCode})</span>
-                              </span>
-                            ) : (
-                              <span>.: {booking.purpose || booking.userName}</span>
-                            )}
-                          </div>
+                          {isFirstSlot ? (
+                            <div className="p-1 rounded text-[10px] leading-tight flex flex-col justify-between h-full min-h-[44px]">
+                              <div className="flex items-center justify-between gap-1">
+                                <span className={`font-mono font-bold text-[9px] uppercase px-1 py-0.2 rounded ${
+                                  isPending
+                                    ? 'bg-slate-900 text-white'
+                                    : isMyBooking
+                                    ? 'bg-amber-400 text-slate-950 font-black'
+                                    : 'bg-white/25 text-white'
+                                }`}>
+                                  [{isMyBooking ? 'MY PASS' : isPending ? 'PENDING' : 'BOOKED'}]
+                                </span>
+                                <span className="font-mono text-[9px] opacity-80">
+                                  {booking.tokenCode}
+                                </span>
+                              </div>
+
+                              <div className="font-bold truncate text-[10px] mt-0.5">
+                                {booking.userName}
+                              </div>
+
+                              <div className="text-[9px] opacity-90 truncate italic">
+                                "{booking.purpose || 'Space Reservation'}"
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="h-5" />
+                          )}
                         </td>
                       );
                     }
@@ -591,7 +655,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       return (
                         <td
                           key={day.dateStr}
-                          className="p-1.5 border-r border-slate-200/60 bg-slate-100/40 text-slate-300 text-center cursor-not-allowed select-none"
+                          className="p-1 border-r border-b border-white bg-[#E5E7EB]/80 text-slate-300 text-center cursor-not-allowed select-none"
                           title="Past date - reservations closed"
                         >
                           <div className="h-5" />
@@ -599,16 +663,33 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       );
                     }
 
-                    // CASE 5: AVAILABLE CELL (Light Gray / White, Click to Book)
+                    // CASE 4.5: UNDER REPAIR (Bookings Disabled)
+                    if (isUnderRepair) {
+                      return (
+                        <td
+                          key={day.dateStr}
+                          className="p-1 border-r border-b border-white bg-rose-50/70 text-rose-700 text-center cursor-not-allowed select-none transition-colors"
+                          title="Facility Under Repair - Space bookings disabled"
+                        >
+                          <div className="h-5 flex items-center justify-center">
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-rose-600/80">
+                              Under Repair
+                            </span>
+                          </div>
+                        </td>
+                      );
+                    }
+
+                    // CASE 5: AVAILABLE CELL (Neutral Gray #E5E7EB matching screenshot, Click to Book)
                     return (
                       <td
                         key={day.dateStr}
                         onClick={() => handleCellClick(day, timeBlock)}
-                        className="p-1.5 border-r border-slate-200/70 bg-[#F1F3F5] hover:bg-emerald-100/60 transition-all cursor-pointer group text-center"
+                        className="p-1 border-r border-b border-white bg-[#E5E7EB] hover:bg-teal-100/70 transition-all cursor-pointer group text-center"
                       >
                         <div className="h-5 flex items-center justify-center">
-                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-emerald-800 flex items-center gap-0.5">
-                            <Plus className="w-3 h-3 text-emerald-700" />
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-teal-800 flex items-center gap-0.5">
+                            <Plus className="w-3 h-3 text-teal-700" />
                             <span>Book</span>
                           </span>
                         </div>
@@ -624,30 +705,35 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         {/* Legend Bar at Bottom (Exact match to uploaded screenshot layout) */}
         <div className="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs font-semibold">
           <div className="flex items-center gap-6">
-            <span className="text-slate-400 font-bold uppercase text-[10px]">Legend :</span>
+            <span className="text-slate-500 font-bold uppercase text-[11px] tracking-wide">Legend :</span>
             
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-md bg-[#F1F3F5] border border-slate-300 inline-block" />
-              <span className="text-slate-700">Available</span>
+              <span className="w-5 h-4 rounded-xs bg-[#E5E7EB] border border-slate-300 inline-block shadow-xs" />
+              <span className="text-slate-800">Available</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-md bg-[#00B4D8] inline-block shadow-sm" />
-              <span className="text-slate-700">Booked</span>
+              <span className="w-5 h-4 rounded-xs bg-rose-100 border border-rose-300 inline-block shadow-xs" />
+              <span className="text-rose-800">Under Repair</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-md bg-[#8B1E22] inline-block shadow-sm" />
-              <span className="text-slate-700">Close</span>
+              <span className="w-5 h-4 rounded-xs bg-[#00B4D8] inline-block shadow-xs" />
+              <span className="text-slate-800">Booked</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-md bg-[#FFEB3B] border border-amber-300 inline-block shadow-sm" />
-              <span className="text-slate-700">Pending</span>
+              <span className="w-5 h-4 rounded-xs bg-[#801818] inline-block shadow-xs" />
+              <span className="text-slate-800">Close</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="w-4 h-4 rounded-md bg-[#002B7F] inline-block shadow-sm" />
+              <span className="w-5 h-4 rounded-xs bg-[#FFEB3B] border border-amber-300 inline-block shadow-xs" />
+              <span className="text-slate-800">Pending</span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-4 rounded-xs bg-[#002B7F] inline-block shadow-xs" />
               <span className="text-blue-900 font-bold">My Booking</span>
             </div>
           </div>
@@ -655,7 +741,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
           <div className="text-[11px] text-slate-400">
             {isOfficer 
               ? 'Officer Mode: Schedule is read-only. Manage Queue, History & Reports below.' 
-              : 'Click any cell to reserve slot or join waitlist'}
+              : 'Click any cell to reserve slot or inspect details'}
           </div>
         </div>
       </div>
@@ -1188,9 +1274,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors"
+                  className="px-5 py-2 bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors cursor-pointer"
                 >
-                  Confirm Reservation
+                  Submit for Staff Approval
                 </button>
               </div>
             </form>
@@ -1315,7 +1401,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                   Slot Details
                 </span>
                 <h3 className="text-sm font-bold text-slate-900 mt-0.5">{room.name}</h3>
-                <p className="text-xs text-slate-400">{inspectSlot.date} • {inspectSlot.timeBlock}</p>
+                <p className="text-xs text-slate-400">
+                  {inspectSlot.date} • {inspectSlot.booking.slot || inspectSlot.timeBlock}
+                </p>
               </div>
               <button
                 onClick={() => setInspectSlot(null)}

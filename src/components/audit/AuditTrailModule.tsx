@@ -42,9 +42,6 @@ export const AuditTrailModule: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
               Cryptographic Audit Trail & Operations Log
             </h1>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-xl">
-              Chronological ledger documenting space reservations, physical QR turnstile verifications, supervisor endorsements, and hardware checklist handovers.
-            </p>
           </div>
 
           <div className="text-right">

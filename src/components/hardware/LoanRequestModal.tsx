@@ -9,7 +9,8 @@ interface LoanRequestModalProps {
 }
 
 export const LoanRequestModal: React.FC<LoanRequestModalProps> = ({ item, onClose }) => {
-  const { currentUser, requestLoan } = useLabPulse();
+  const { currentUser, requestLoan, reports } = useLabPulse();
+  const isUnderRepair = item.status === 'Under Maintenance' || reports.some(r => r.type === 'HARDWARE' && r.targetId === item.id && r.status === 'IN REPAIR');
 
   const defaultDueDate = () => {
     const d = new Date();
@@ -53,6 +54,12 @@ export const LoanRequestModal: React.FC<LoanRequestModalProps> = ({ item, onClos
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-3.5 text-xs">
+          {isUnderRepair && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs">
+              <span className="font-bold block">Asset Under Repair</span>
+              <span>This hardware unit is undergoing maintenance. Loan applications are temporarily closed.</span>
+            </div>
+          )}
           <div>
             <label className="block font-semibold text-slate-700 mb-1">Return Due Date</label>
             <input
@@ -92,9 +99,14 @@ export const LoanRequestModal: React.FC<LoanRequestModalProps> = ({ item, onClos
             </button>
             <button
               type="submit"
-              className="px-4 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-xl transition-colors"
+              disabled={isUnderRepair}
+              className={`px-4 py-1.5 font-semibold rounded-xl transition-colors ${
+                isUnderRepair
+                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                  : 'bg-slate-900 hover:bg-slate-800 text-white cursor-pointer'
+              }`}
             >
-              Submit Request
+              {isUnderRepair ? 'Under Repair • Disabled' : 'Submit for Staff Approval'}
             </button>
           </div>
         </form>

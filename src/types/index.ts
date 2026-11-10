@@ -9,12 +9,17 @@ export interface UserProfile {
   department: string;
   avatar: string;
   title?: string;
+  password?: string;
 }
 
 export type LabCategory = 
+  | 'Computer Laboratories'
+  | 'Specialized & AI'
+  | 'Networking & Security'
+  | 'Lecture & Classrooms'
+  | 'Student Amenities'
   | 'AI & Data Science'
   | 'Software Engineering'
-  | 'Networking & Security'
   | 'IoT & Robotics'
   | 'Meeting & Seminar';
 
@@ -53,6 +58,7 @@ export interface LabRoom {
   imageUrl: string;
   activeNotice?: string;
   reports?: RoomReportRecord[];
+  status?: 'Available' | 'Under Repair';
 }
 
 export type TimeSlotString = string;
@@ -87,6 +93,7 @@ export interface LabBooking {
   status: BookingStatus;
   checkInTime?: string;
   checkOutTime?: string;
+  checkInDeadline?: number; // Epoch timestamp in ms for 15-minute QR scan grace period
   createdAt: string;
   endorsementNote?: string;
   adminNote?: string;
@@ -201,6 +208,24 @@ export interface AuditLog {
   category: 'booking' | 'hardware' | 'checkin' | 'waitlist' | 'system';
 }
 
+export interface PulseNotification {
+  id: string;
+  category: 'SPACE CHECK-OUT' | 'HARDWARE LOAN' | 'SUPERVISOR ENDORSEMENT';
+  type: 'space' | 'hardware' | 'endorsement';
+  title: string;
+  severityTag: string;
+  severityColor: 'rose' | 'amber' | 'navy' | 'slate';
+  identifier: string;
+  dueOrEndTime: string;
+  locationOrDesk: string;
+  instruction?: string;
+  actionLabel: string;
+  actionTab: string;
+  targetRole?: UserRole;
+  timestamp: string;
+  isRead: boolean;
+}
+
 export interface HardwareBundleTemplate {
   id: string;
   title: string;
@@ -211,5 +236,45 @@ export interface HardwareBundleTemplate {
   description: string;
   iconName: string;
   recommendedFor: string;
+}
+
+export type ReportType = 'SPACE' | 'HARDWARE';
+export type ReportStatus = 'PENDING' | 'IN REPAIR' | 'RESOLVED' | 'DISMISSED';
+
+export type SpaceRepairCategory = 
+  | 'AIR CONDITIONING / VENTILATION'
+  | 'ELECTRICAL / POWER SOCKET'
+  | 'PROJECTOR / AUDIO VISUAL'
+  | 'FURNITURE / CHAIR / DESK'
+  | 'LIGHTING / FIXTURE'
+  | 'NETWORK / LAN PORT';
+
+export type HardwareDefectCategory = 
+  | 'POWER / BOOT FAILURE'
+  | 'PHYSICAL / CHASSIS DAMAGE'
+  | 'PORT / CONNECTOR DEFECT'
+  | 'MISSING ACCESSORY / CABLE'
+  | 'OVERHEATING / NOISE'
+  | 'SOFTWARE / OS CORRUPTION';
+
+export interface MaintenanceReport {
+  id: string; // e.g. REP-1042
+  timestamp: string; // e.g. '2026-11-10 10:45 AM'
+  type: ReportType; // 'SPACE' | 'HARDWARE'
+  targetId: string; // roomId or hardwareId
+  targetName: string; // e.g. 'Micro Lab [MM1]' or 'NVIDIA Jetson Orin Nano Developer Kit (8GB)'
+  targetCodeOrTag: string; // e.g. 'MM1' or 'FCSIT-HW-JET-01'
+  specificLocation?: string; // e.g. 'Workstation PC-14'
+  serialNumber?: string; // For hardware assets
+  category: SpaceRepairCategory | HardwareDefectCategory;
+  description: string;
+  photoUrl?: string; // Base64 or local URL
+  reportedBy: string; // User name
+  reporterMatric: string; // Matric number / staff ID
+  reporterRole: UserRole;
+  reporterEmail?: string;
+  status: ReportStatus; // 'PENDING' | 'IN REPAIR' | 'RESOLVED' | 'DISMISSED'
+  officerNotes?: string;
+  resolvedAt?: string;
 }
 

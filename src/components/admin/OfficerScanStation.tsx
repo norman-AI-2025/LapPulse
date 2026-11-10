@@ -29,6 +29,7 @@ interface ScanOutcome {
   code: string;
   message: string;
   type?: 'space' | 'hardware';
+  action?: 'checkin' | 'checkout' | 'borrow' | 'return' | 'completed' | 'returned';
   timestamp: string;
 }
 
@@ -78,7 +79,7 @@ export const OfficerScanStation: React.FC = () => {
 
   const sampleTokens = ['LP-7842', 'LP-3829', 'LP-4190', 'LP-8812'];
 
-  // Process a detected QR code string
+  // Process a detected QR code string with AUTOMATIC confirmation on scan
   const processDecodedCode = useCallback((rawCode: string) => {
     const now = Date.now();
     // 2-second debounce between scans
@@ -95,28 +96,89 @@ export const OfficerScanStation: React.FC = () => {
     const booking = bookings.find((b) => b.tokenCode.toUpperCase() === code);
     if (booking) {
       sounds.playSuccessChime();
-      setScanOutcome({
-        status: 'success',
-        code,
-        message: `Valid Space Pass verified for ${booking.roomName}`,
-        type: 'space',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      });
-      setSelectedScanResult({ type: 'booking', data: booking });
+      const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      if (booking.status === 'Approved' || booking.status === 'Pending Approval') {
+        // AUTOMATIC CHECK-IN CONFIRMED ON SCAN
+        checkInBooking(code);
+        const updatedBooking = { ...booking, status: 'Active' as const, checkInTime: timeStr };
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Check-in Confirmed: Physical access granted to ${booking.roomName}. Session is now ACTIVE.`,
+          type: 'space',
+          action: 'checkin',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'booking', data: updatedBooking });
+      } else if (booking.status === 'Active') {
+        // AUTOMATIC CHECK-OUT CONFIRMED ON SCAN
+        checkOutBooking(code);
+        const updatedBooking = { ...booking, status: 'Completed' as const, checkOutTime: timeStr };
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Check-out Confirmed: Session concluded for ${booking.roomName}. Turnstile exit recorded.`,
+          type: 'space',
+          action: 'checkout',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'booking', data: updatedBooking });
+      } else {
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Space Pass Verified: Session for ${booking.roomName} has already been concluded.`,
+          type: 'space',
+          action: 'completed',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'booking', data: booking });
+      }
       return;
     }
 
     const loan = loans.find((l) => l.tokenCode.toUpperCase() === code);
     if (loan) {
       sounds.playSuccessChime();
-      setScanOutcome({
-        status: 'success',
-        code,
-        message: `Valid Hardware Loan Pass verified for ${loan.hardwareName}`,
-        type: 'hardware',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      });
-      setSelectedScanResult({ type: 'loan', data: loan });
+
+      if (loan.status === 'Pending Approval') {
+        // AUTOMATIC BORROW CONFIRMED ON SCAN
+        verifyAndIssueLoan(code, { chassisIntact: true, accessoriesIncluded: true, powersOnWithoutError: true }, 'Automated turnstile scan issue');
+        const updatedLoan = { ...loan, status: 'Active / Issued' as const };
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Borrow Confirmed: ${loan.hardwareName} successfully issued to ${loan.userName}.`,
+          type: 'hardware',
+          action: 'borrow',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'loan', data: updatedLoan });
+      } else if (loan.status === 'Active / Issued' || loan.status === 'Overdue') {
+        // AUTOMATIC RETURN CONFIRMED ON SCAN
+        processReturn(code, 'Excellent', { chassisIntact: true, accessoriesIncluded: true, powersOnWithoutError: true }, 'Automated turnstile scan return');
+        const updatedLoan = { ...loan, status: 'Returned' as const };
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Return Confirmed: ${loan.hardwareName} successfully returned and restocked in inventory.`,
+          type: 'hardware',
+          action: 'return',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'loan', data: updatedLoan });
+      } else {
+        setScanOutcome({
+          status: 'success',
+          code,
+          message: `Hardware Pass Verified: ${loan.hardwareName} has already been returned and restocked.`,
+          type: 'hardware',
+          action: 'returned',
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+        });
+        setSelectedScanResult({ type: 'loan', data: loan });
+      }
       return;
     }
 
@@ -129,7 +191,7 @@ export const OfficerScanStation: React.FC = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     });
     setSelectedScanResult(null);
-  }, [bookings, loans]);
+  }, [bookings, loans, checkInBooking, checkOutBooking, verifyAndIssueLoan, processReturn]);
 
   // Frame processing loop with jsQR
   const tick = useCallback(() => {
@@ -331,9 +393,6 @@ export const OfficerScanStation: React.FC = () => {
           <h1 className="text-xl font-bold tracking-tight text-slate-900 mt-1">
             Officer QR Verification Station
           </h1>
-          <p className="text-xs text-slate-500">
-            Scan physical or digital QR passes generated by LabPulse to verify entry & device lending.
-          </p>
         </div>
         <div className="text-right">
           <span className="text-xs font-semibold text-slate-700 block">{currentUser.name}</span>
@@ -461,49 +520,6 @@ export const OfficerScanStation: React.FC = () => {
               className="hidden"
               onChange={handleImageUpload}
             />
-          </div>
-
-          {/* DEMO BUTTONS SECTION: SUCCESS & FAIL SIMULATION */}
-          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1">
-                <Sparkles className="w-3 h-3 text-amber-500" />
-                <span>Instant Demo Simulator</span>
-              </span>
-              <span className="text-[10px] text-slate-400">1-click test</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
-              <button
-                type="button"
-                onClick={() => processDecodedCode('LP-7842')}
-                className="px-2 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
-                title="Demo Space Check-In (Lab AI-1)"
-              >
-                <Check className="w-3 h-3" />
-                <span>Demo Success (Space)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => processDecodedCode('LP-3829')}
-                className="px-2 py-2 bg-[#002B7F] hover:bg-blue-800 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
-                title="Demo Hardware Borrow/Return (Jetson Orin Nano)"
-              >
-                <Check className="w-3 h-3" />
-                <span>Demo Success (Hardware)</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => processDecodedCode('LP-INVALID-999')}
-                className="px-2 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-bold transition-all shadow-sm flex items-center justify-center gap-1 text-center"
-                title="Demo Failed / Unrecognized QR Pass"
-              >
-                <X className="w-3 h-3" />
-                <span>Demo Fail</span>
-              </button>
-            </div>
           </div>
 
           {/* Manual Code Entry */}
@@ -754,31 +770,27 @@ export const OfficerScanStation: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Action Buttons for Space Check-In / Check-Out */}
-                  <div className="pt-2 flex items-center justify-end">
-                    {selectedScanResult.data.status === 'Approved' ? (
-                      <button
-                        type="button"
-                        onClick={handleCheckIn}
-                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>Confirm Physical Check-In</span>
-                      </button>
-                    ) : selectedScanResult.data.status === 'Active' ? (
-                      <button
-                        type="button"
-                        onClick={handleCheckOut}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-                      >
-                        <Clock className="w-4 h-4" />
-                        <span>Confirm Check-Out (Complete Session)</span>
-                      </button>
-                    ) : (
-                      <span className="text-xs font-bold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
-                        Session Verified & Concluded
+                  {/* Automated Turnstile Confirmation Status (Confirmed on Scan) */}
+                  <div className="pt-2">
+                    <div className="p-3 bg-white rounded-xl border border-emerald-200/90 shadow-xs flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                        <div>
+                          <div className="font-bold text-xs text-slate-900">
+                            {selectedScanResult.data.status === 'Active'
+                              ? 'Check-In Confirmed & Session Active'
+                              : 'Check-Out Confirmed & Session Concluded'}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            QR Pass scanned — verified and confirmed automatically.
+                          </div>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-bold font-mono uppercase px-2 py-0.5 rounded bg-emerald-100 text-emerald-900">
+                        {selectedScanResult.data.status === 'Active' ? '[CHECK-IN CONFIRMED]' : '[CHECK-OUT CONFIRMED]'}
                       </span>
-                    )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -877,31 +889,27 @@ export const OfficerScanStation: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Action buttons for Hardware Borrow / Return */}
-                  <div className="pt-2 flex items-center justify-end">
-                    {selectedScanResult.data.status === 'Pending Approval' || selectedScanResult.data.status === 'Approved' ? (
-                      <button
-                        type="button"
-                        onClick={handleIssueHardware}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-                      >
-                        <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                        <span>Confirm Borrow (Issue Hardware)</span>
-                      </button>
-                    ) : selectedScanResult.data.status === 'Active / Issued' || selectedScanResult.data.status === 'Overdue' ? (
-                      <button
-                        type="button"
-                        onClick={handleReturnHardware}
-                        className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
-                      >
-                        <Check className="w-4 h-4" />
-                        <span>Confirm Return & Restore Asset</span>
-                      </button>
-                    ) : (
-                      <span className="text-xs font-bold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200">
-                        Asset Returned & Verified in Locker
+                  {/* Automated Lending Confirmation Status (Confirmed on Scan) */}
+                  <div className="pt-2">
+                    <div className="p-3 bg-white rounded-xl border border-blue-200/90 shadow-xs flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle2 className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                        <div>
+                          <div className="font-bold text-xs text-slate-900">
+                            {selectedScanResult.data.status === 'Active / Issued'
+                              ? 'Borrow Confirmed & Hardware Issued'
+                              : 'Return Confirmed & Restocked in Locker'}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            QR Pass scanned — verified and confirmed automatically.
+                          </div>
+                        </div>
+                      </div>
+
+                      <span className="text-[10px] font-bold font-mono uppercase px-2 py-0.5 rounded bg-blue-100 text-blue-900">
+                        {selectedScanResult.data.status === 'Active / Issued' ? '[BORROW CONFIRMED]' : '[RETURN CONFIRMED]'}
                       </span>
-                    )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -916,7 +924,7 @@ export const OfficerScanStation: React.FC = () => {
               </div>
               <div className="text-sm font-bold text-slate-700">Awaiting QR Pass Scan</div>
               <div className="text-xs text-slate-400 max-w-sm mt-1.5 leading-relaxed">
-                Point camera at a digital pass generated by LabPulse, upload a QR file, or click any demo button on the left to test success and failure workflows.
+                Point device camera at a physical or digital QR pass, upload a QR code image, or enter a manual token code on the left to verify entry or equipment dispatch.
               </div>
             </div>
           )}

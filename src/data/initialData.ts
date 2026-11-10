@@ -6,203 +6,521 @@ import {
   HardwareLoan, 
   WaitlistEntry, 
   AuditLog, 
-  HardwareBundleTemplate 
+  HardwareBundleTemplate,
+  PulseNotification,
+  MaintenanceReport 
 } from '../types';
 
 export const USERS: Record<string, UserProfile> = {
   student: {
-    id: 'usr_student_01',
-    name: 'Norman Lee Weng Hong',
+    id: 'usr_student',
+    name: 'Student User',
     role: 'student',
     matricOrStaffId: '25005870',
-    email: '25005870@siswa.um.edu.my',
+    email: 'student@siswa.um.edu.my',
     department: 'Department of Software Engineering, FCSIT',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
-    title: 'Year 3 Software Engineering Undergrad'
+    title: 'FCSIT Undergraduate Student',
+    password: 'password123'
   },
   lecturer: {
-    id: 'usr_lecturer_01',
-    name: 'Prof. Madya Dr. Amir Rudin',
+    id: 'usr_staff',
+    name: 'Staff User',
     role: 'lecturer',
     matricOrStaffId: 'UM-STAFF-19842',
-    email: 'amirrudin@um.edu.my',
+    email: 'staff@um.edu.my',
     department: 'Department of Artificial Intelligence, FCSIT',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
-    title: 'Associate Professor & FYP Academic Coordinator'
+    title: 'Associate Professor & Academic Supervisor',
+    password: 'password123'
   },
   admin: {
-    id: 'usr_admin_01',
-    name: 'En. Faizal bin Ahmad',
+    id: 'usr_officer',
+    name: 'Officer User',
     role: 'admin',
-    matricOrStaffId: 'UM-TECH-0419',
-    email: 'faizal.fcsit@um.edu.my',
-    department: 'FCSIT Central Laboratory Operations Office',
+    matricOrStaffId: 'UM-OFFICER-0419',
+    email: 'officer@um.edu.my',
+    department: 'Central Laboratory Operations & Technical Management',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80',
-    title: 'Senior Laboratory Technical Officer'
+    title: 'Senior Laboratory Technical Officer',
+    password: 'password123'
   }
 };
 
 export const INITIAL_ROOMS: LabRoom[] = [
+  // 1. Micro Lab [MM1]
   {
-    id: 'lab-ai-1',
-    name: 'Lab AI-1 (High-Performance Compute)',
-    code: 'FCSIT-B2-AI01',
-    category: 'AI & Data Science',
-    capacity: 35,
-    floor: 'Level 2',
-    block: 'Block B',
-    description: 'Specialized deep learning laboratory equipped with multi-GPU workstations, dedicated CUDA clustering, and dual 4K presentation displays for vision experiments.',
-    amenities: ['12x NVIDIA RTX 4090 Workstations', 'Dual 85" Smart Touch Panels', 'Gigabit Ethernet', 'Air-Conditioned Climate Chamber'],
-    specs: {
-      workstations: 35,
-      gpus: '12x RTX 4090 (24GB VRAM) nodes',
-      screens: 'Dual Sony 85" 4K BRAVIA AirPlay Displays',
-      specialEquipment: 'Ubuntu Deep Learning Studio 24.04 LTS pre-installed'
-    },
-    highResource: true,
-    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
-    activeNotice: 'FYP & Master thesis deep learning training reservation requires Supervisor Endorsement.',
-    reports: [
-      {
-        id: 'rep-ai-01',
-        roomId: 'lab-ai-1',
-        date: '2026-11-09',
-        title: 'Workstation #07 GPU Thermal Throttling',
-        category: 'Workstations & PCs',
-        severity: 'Moderate',
-        status: 'In Progress',
-        reportedBy: 'Norman Lee Weng Hong',
-        reporterMatric: '25005870',
-        description: 'RTX 4090 node 07 fan bearing emits high-pitch rattle when CUDA load exceeds 85%. Thermal limiter triggers after 20 minutes of training.',
-        resolutionNotes: 'Technician scheduled fan shroud replacement on 11 Nov.'
-      },
-      {
-        id: 'rep-ai-02',
-        roomId: 'lab-ai-1',
-        date: '2026-11-04',
-        title: 'Wall Display HDMI 2 Loose Port',
-        category: 'Projector & AV',
-        severity: 'Minor',
-        status: 'Resolved',
-        reportedBy: 'En. Faizal bin Ahmad',
-        description: 'Primary presentation display port loose. Replaced with heavy-duty 8K gold-plated braided HDMI cable.',
-        resolutionNotes: 'Tested OK with 4K AirPlay presentation.'
-      }
-    ]
-  },
-  {
-    id: 'lab-se-2',
-    name: 'Software Engineering Lab 2',
-    code: 'FCSIT-A1-SE02',
-    category: 'Software Engineering',
-    capacity: 45,
+    id: 'lab-mm1',
+    name: 'Micro Lab [MM1]',
+    code: 'MM1',
+    category: 'Computer Laboratories',
+    capacity: 47,
     floor: 'Level 1',
     block: 'Block A',
-    description: 'Collaborative development studio configured for scrum sprint simulations, UI/UX prototyping, automated CI/CD pipeline sandboxes, and pair programming desks.',
-    amenities: ['Ergonomic Dual-Monitor Pods', 'Mobile Glass Whiteboards', 'DevOps Local Mirror Server', 'Focus Booths'],
+    description: 'This lab has 47 units of computer that are connected to Windows Active Directory servers and the Internet. The operating system for these PCs is Windows 10. This lab is opened to all FSKTM undergraduate students.',
+    amenities: ['47 Windows 10 Workstations', 'Windows Active Directory Domain', 'High-Speed Internet Access', 'Air-Conditioned'],
     specs: {
-      workstations: 45,
-      screens: '45x Dell 27" USB-C Hub Displays',
-      specialEquipment: 'Docker / Kubernetes Local Dev Sandbox'
+      workstations: 47,
+      screens: 'Dual Ceiling Mounted Projectors',
+      specialEquipment: 'Windows 10 Enterprise, Active Directory Server Integration'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 2. Micro Lab 2 [MM2]
+  {
+    id: 'lab-mm2',
+    name: 'Micro Lab 2 [MM2]',
+    code: 'MM2',
+    category: 'Computer Laboratories',
+    capacity: 37,
+    floor: 'Level 1',
+    block: 'Block A',
+    description: 'This lab has 37 units of computer that are connected to Windows Active Directory servers and the Internet. The operating system for these PCs is Windows 10. This lab is opened to all FSKTM undergraduate students.',
+    amenities: ['37 Windows 10 Workstations', 'Active Directory Domain Network', 'High-Speed Internet', 'Air-Conditioned'],
+    specs: {
+      workstations: 37,
+      screens: 'High-Lumen Presentation Display',
+      specialEquipment: 'Windows 10 Enterprise'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 3. Postgraduate Lab [ML]
+  {
+    id: 'lab-ml',
+    name: 'Postgraduate Lab [ML]',
+    code: 'ML',
+    category: 'Specialized & AI',
+    capacity: 33,
+    floor: 'Level 2',
+    block: 'Block A',
+    description: 'This lab has 33 units of computer. All the computers are connected to Windows Active Directory servers and the Internet. The operating system for these PCs is Windows 10. This lab is opened to all FSKTM postgraduate students.',
+    amenities: ['33 High-Performance Workstations', 'Active Directory Domain Servers', 'Research Software Suite', 'Air-Conditioned'],
+    specs: {
+      workstations: 33,
+      screens: 'Dual Wall Mounted Presentation Displays',
+      specialEquipment: 'Dedicated Postgraduate Research Sandbox'
+    },
+    highResource: true,
+    activeNotice: 'Postgraduate research environment: High-compute reservations require Supervisor Endorsement.',
+    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 4. CCNA Lab
+  {
+    id: 'lab-ccna',
+    name: 'CCNA Lab',
+    code: 'CCNA',
+    category: 'Networking & Security',
+    capacity: 41,
+    floor: 'Level 3',
+    block: 'Block B',
+    description: 'This lab has 41 units of computer. The operating system for these workstations is Windows 10. There are also 25 units of Cisco 1700 Series Router, 4 units Cisco 1760 Series Router and 12 units switch Cisco 2950 CATALYST Series. This lab is opened to all FSKTM students.',
+    amenities: ['41 Windows 10 Workstations', '25x Cisco 1700 Series Routers', '4x Cisco 1760 Series Routers', '12x Cisco 2950 Catalyst Switches'],
+    specs: {
+      workstations: 41,
+      networkingGear: '25x Cisco 1700, 4x Cisco 1760, 12x Cisco Catalyst 2950 Switches',
+      screens: 'Ceiling Mounted High-Lumen Display',
+      specialEquipment: 'Cisco IOS & Packet Tracer Hardware Patch Benches'
+    },
+    highResource: true,
+    activeNotice: 'Hardware router & switch patching lab: Follow laboratory safety protocols.',
+    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 5. Robotic Lab
+  {
+    id: 'lab-robotic',
+    name: 'Robotic Teaching Lab',
+    code: 'ROBOTIC',
+    category: 'Specialized & AI',
+    capacity: 25,
+    floor: 'Level 2',
+    block: 'Block B',
+    description: "The Robotic Teaching Lab @ FCSIT is part of the Department of Artificial Intelligence effort to provide conducive intelligent learning environment to students taking the 'Intelligent Robotics' course. Equipped with six mobile robots, the lab allows space for hands-on and robotic experiments designed to help students understand the concept of robotic intelligence and acquire the needful skills for the course.",
+    amenities: ['6x Mobile Autonomous Robots', 'Hands-On Robotics Arena', 'AI & Embedded Workstations', 'Sensor Interfacing Benches'],
+    specs: {
+      workstations: 25,
+      screens: 'Interactive Smart Board Display',
+      specialEquipment: '6 Mobile Robots, ROS2 Navigation Testbed, Sensor Interfacing Equipment'
+    },
+    highResource: true,
+    activeNotice: 'Robotics hardware space: Department of Artificial Intelligence endorsement required.',
+    imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 6. Lecture Room 1 [BK1]
+  {
+    id: 'lab-bk1',
+    name: 'Lecture Room 1 [BK1]',
+    code: 'BK1',
+    category: 'Lecture & Classrooms',
+    capacity: 30,
+    floor: 'Level 1',
+    block: 'Block B',
+    description: 'The Lecture Room 1 is a classroom that is equipped with the teaching aid facilites. The room capacity is 30 pax.',
+    amenities: ['Teaching Aid Facilities', 'High-Lumen Projector', 'Whiteboard Pods', 'Air-Conditioned'],
+    specs: {
+      workstations: 30,
+      screens: 'High-Lumen Presentation Projector'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 7. Lecture Room 2 [BK2]
+  {
+    id: 'lab-bk2',
+    name: 'Lecture Room 2 [BK2] (Erasmus Tech Space)',
+    code: 'BK2',
+    category: 'Specialized & AI',
+    capacity: 36,
+    floor: 'Level 1',
+    block: 'Block B',
+    description: 'The Lecture Room 2 is a classroom with a discussion 6 islands setting that is equipped with teaching facilities such as drones, 3D printer, laser cutter, PCB maker, raspberry pi, arduino and related sensors. This room is also known as Technology Enabled Learning Space where design thinking and active learning takes place. This equipment has been sponsored by the European Union under the Erasmus Grant. This lab is also open to students activities that use the related equipment.',
+    amenities: ['6 Discussion Islands', 'Drones & UAV Test Pod', '3D Printer & Laser Cutter', 'PCB Maker & Microcontroller Sensors', 'Erasmus Technology Enabled Space'],
+    specs: {
+      workstations: 36,
+      screens: 'Interactive Displays on Each Island',
+      specialEquipment: 'Erasmus Grant Drones, 3D Printer, Laser Cutter, PCB Maker, Arduino & Raspberry Pi Kits'
+    },
+    highResource: true,
+    activeNotice: 'Erasmus Technology Space: Rapid prototyping equipment requires officer sign-off.',
+    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 8. Micro Lab 3 [MM3]
+  {
+    id: 'lab-mm3',
+    name: 'Micro Lab 3 [MM3]',
+    code: 'MM3',
+    category: 'Computer Laboratories',
+    capacity: 61,
+    floor: 'Level 2',
+    block: 'Block A',
+    description: 'This lab has 61 units of computer that are connected to Windows Active Directory servers and the Internet. This lab is opened to undergraduate and postgraduate students.',
+    amenities: ['61 Windows 10 Workstations', 'Active Directory Domain', 'High-Speed Internet', 'Air-Conditioned'],
+    specs: {
+      workstations: 61,
+      screens: 'Dual Ceiling Projectors'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 9. Micro Lab 4 [MM4]
+  {
+    id: 'lab-mm4',
+    name: 'Micro Lab 4 [MM4]',
+    code: 'MM4',
+    category: 'Computer Laboratories',
+    capacity: 61,
+    floor: 'Level 2',
+    block: 'Block A',
+    description: 'This lab has 61 units of computer that are connected to Windows Active Directory servers and the Internet. This lab is opened to undergraduate and postgraduate students.',
+    amenities: ['61 Windows 10 Workstations', 'Active Directory Domain', 'High-Speed Internet', 'Air-Conditioned'],
+    specs: {
+      workstations: 61,
+      screens: 'Dual Ceiling Projectors'
     },
     highResource: false,
     imageUrl: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80',
-    reports: [
-      {
-        id: 'rep-se-01',
-        roomId: 'lab-se-2',
-        date: '2026-11-08',
-        title: 'Ceiling Air Conditioning Cassette #2 Water Dripping',
-        category: 'Air Conditioning',
-        severity: 'Moderate',
-        status: 'Open',
-        reportedBy: 'Siti Nur Aisyah',
-        reporterMatric: '24003211',
-        description: 'Condensation drain line dripping directly above workstation pod 14. Temporarily relocated student laptops.'
-      }
-    ]
+    reports: []
   },
+
+  // 10. iOS Application Development Lab
   {
-    id: 'lab-net-sys',
-    name: 'Network Systems & Cybersecurity Lab',
-    code: 'FCSIT-C3-NET01',
-    category: 'Networking & Security',
-    capacity: 30,
-    floor: 'Level 3',
-    block: 'Block C',
-    description: 'Isolated testbed environment for penetration testing, VLAN configurations, packet sniffing analysis, and hardware router rack patching.',
-    amenities: ['6x Cisco Catalyst 3850 Rack Pods', 'Air-gapped Malware Sandbox', 'Fiber Optic Termination Benches', 'Wireshark Sniffer Nodes'],
-    specs: {
-      workstations: 30,
-      networkingGear: 'Cisco 2900 Series Routers & Fortinet Firewall Rack',
-      screens: 'Ceiling Mounted High-Lumen Projector',
-      specialEquipment: 'Isolated air-gapped subnet with Kali Linux rigs'
-    },
-    highResource: true,
-    imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=800&q=80',
-    activeNotice: 'High-resource sandbox: Network penetration and packet flooding strictly regulated.',
-    reports: [
-      {
-        id: 'rep-net-01',
-        roomId: 'lab-net-sys',
-        date: '2026-11-07',
-        title: 'Cisco Rack 02 Patch Panel Port 16 Blinking Amber',
-        category: 'Electrical & Power',
-        severity: 'Minor',
-        status: 'Open',
-        reportedBy: 'Prof. Madya Dr. Amir Rudin',
-        description: 'PoE+ negotiation failed intermittently on port 16 connecting to the sniffer node.'
-      }
-    ]
-  },
-  {
-    id: 'lab-iot-box',
-    name: 'IoT Sandbox & Embedded Makerspace',
-    code: 'FCSIT-B1-IOT01',
-    category: 'IoT & Robotics',
-    capacity: 25,
-    floor: 'Level 1',
-    block: 'Block B',
-    description: 'Rapid prototyping workshop fitted with temperature-controlled Hakko soldering stations, 3D printers, digital multimeters, logic analyzers, and sensor calibration chambers.',
-    amenities: ['Hakko FX-888D Soldering Bays', 'Bambu Lab X1-Carbon 3D Printer', 'Fume Extractors', 'ESD-Safe Anti-Static Mats'],
-    specs: {
-      workstations: 25,
-      specialEquipment: 'Rigol Digital Oscilloscopes & DC Programmable Bench Supplies',
-      screens: 'Interactive Smart Board'
-    },
-    highResource: false,
-    imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=800&q=80',
-    reports: [
-      {
-        id: 'rep-iot-01',
-        roomId: 'lab-iot-box',
-        date: '2026-11-06',
-        title: 'Fume Extractor Unit 3 Filter Replacement Due',
-        category: 'Cleanliness',
-        severity: 'Minor',
-        status: 'Resolved',
-        reportedBy: 'En. Faizal bin Ahmad',
-        description: 'HEPA carbon active filter reached 200 hours operational threshold. Replaced with fresh OEM filter unit.',
-        resolutionNotes: 'Airflow suction calibrated to 180 m3/h.'
-      }
-    ]
-  },
-  {
-    id: 'lab-postgrad-sem',
-    name: 'Postgraduate Research Suite & Seminar Room',
-    code: 'FCSIT-A3-SEM01',
-    category: 'Meeting & Seminar',
+    id: 'lab-ios',
+    name: 'iOS Application Development Lab',
+    code: 'IOS-LAB',
+    category: 'Specialized & AI',
     capacity: 20,
     floor: 'Level 3',
     block: 'Block A',
-    description: 'Executive conference room with Polycom studio video conferencing bar, acoustic panelling, and boardroom conference table for thesis defenses and research meetings.',
-    amenities: ['Polycom Studio 4K Bar', 'Acoustic Soundproofing', 'Wireless Barco ClickShare Pod', 'Motorized Blackout Blinds'],
+    description: 'This lab has 15 units of Apple iMac 21.5" Intel Core i5 (2.96GHz) Processor, 1TB HDD and 8GB RAM and 5 units of Dell OptiPlex 3050. This computer is connected to Windows Active Directory servers and the Internet. The operating system is Mac OS and Windows. This lab is opened only for Multimedia students.',
+    amenities: ['15x Apple iMac 21.5" Core i5', '5x Dell OptiPlex 3050', 'macOS & Windows Dual-OS', 'Xcode & Swift Development Suite'],
     specs: {
       workstations: 20,
-      screens: 'Dual 75" Samsung Flip Interactive Whiteboards'
+      screens: 'Apple Retina Displays',
+      specialEquipment: 'Apple iMac 21.5" i5 Workstations, Dell OptiPlex 3050, macOS & Windows'
     },
     highResource: true,
-    imageUrl: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+    activeNotice: 'Apple iMac development studio: Priority reserved for Multimedia students.',
+    imageUrl: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 11. Micro Lab 6 [MM6]
+  {
+    id: 'lab-mm6',
+    name: 'Micro Lab 6 [MM6]',
+    code: 'MM6',
+    category: 'Computer Laboratories',
+    capacity: 45,
+    floor: 'Level 3',
+    block: 'Block A',
+    description: 'This lab has 45 units of computer that are connected to Windows Active Directory servers and the Internet. This lab is opened to all FSKTM students but priority is given to multimedia courses. Operating system – Windows 10',
+    amenities: ['45 Windows 10 Workstations', 'Active Directory Domain', 'Multimedia Software Priority', 'Air-Conditioned'],
+    specs: {
+      workstations: 45,
+      screens: 'Dual Wall Displays',
+      specialEquipment: 'Multimedia Software Suite, Windows 10'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 12. Stroustrup Lab 1
+  {
+    id: 'lab-stroustrup1',
+    name: 'Stroustrup Lab 1',
+    code: 'STR1',
+    category: 'Computer Laboratories',
+    capacity: 42,
+    floor: 'Level 2',
+    block: 'Block B',
+    description: 'This lab has 42 units of computer that are connected to the Internet. This lab is opened to undergraduate students. Operating system – Windows 10.',
+    amenities: ['42 Windows 10 Workstations', 'High-Speed Internet Access', 'Programming Compilers & IDEs', 'Air-Conditioned'],
+    specs: {
+      workstations: 42,
+      screens: 'High-Lumen Presentation Display'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 13. Tutorial Room 1-6
+  {
+    id: 'lab-tr1-6',
+    name: 'Tutorial Rooms 1-6',
+    code: 'TR1-6',
+    category: 'Lecture & Classrooms',
+    capacity: 30,
+    floor: 'Level 1 & 2',
+    block: 'Block B',
+    description: 'There are 6 tutorial rooms in Block B. Each room is equipped with the teaching aids and it is being used by all students.',
+    amenities: ['6 Dedicated Tutorial Rooms', 'Teaching Aids & Wall Projectors', 'Whiteboards', 'Flexible Classroom Seating'],
+    specs: {
+      workstations: 30,
+      screens: 'Wall Projectors'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 14. Lecture Hall 1 [DK1]
+  {
+    id: 'lab-dk1',
+    name: 'Lecture Hall 1 [DK1]',
+    code: 'DK1',
+    category: 'Lecture & Classrooms',
+    capacity: 300,
+    floor: 'Level 1',
+    block: 'Block A',
+    description: 'This lecture hall can accomodate up to 300 pax at one time. It is equipped with the teaching aids and a comfortable space and environment for the users.',
+    amenities: ['300 Pax Tiered Auditorium', 'Dual Cinema Projectors', 'Professional Sound & Microphone System', 'Lectern Display'],
+    specs: {
+      workstations: 300,
+      screens: 'Dual Cinema Projection Screens'
+    },
+    highResource: true,
+    activeNotice: 'Faculty Auditorium: Reservation requires administrative approval.',
+    imageUrl: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 15. Lecture Hall 2 [DK2]
+  {
+    id: 'lab-dk2',
+    name: 'Lecture Hall 2 [DK2]',
+    code: 'DK2',
+    category: 'Lecture & Classrooms',
+    capacity: 300,
+    floor: 'Level 2',
+    block: 'Block A',
+    description: 'This lecture hall can accomodate up to 300 pax at one time. It is equipped with the teaching aids and a comfortable space and environment for the users.',
+    amenities: ['300 Pax Tiered Auditorium', 'Dual Cinema Projectors', 'Professional Sound & Microphone System', 'Lectern Display'],
+    specs: {
+      workstations: 300,
+      screens: 'Dual Cinema Projection Screens'
+    },
+    highResource: true,
+    activeNotice: 'Faculty Auditorium: Reservation requires administrative approval.',
+    imageUrl: 'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 16. Surau
+  {
+    id: 'facility-surau',
+    name: 'Surau (Block A)',
+    code: 'SURAU',
+    category: 'Student Amenities',
+    capacity: 50,
+    floor: 'Level 1 (Women) & Level 2 (Men)',
+    block: 'Block A',
+    description: 'Air-conditioned prayer rooms (surau) (one for Men, and the other for Women) are provided in Block A for Muslims to pray. The surau for Men is located at the second floor and surau for women is located at the first floor in the building. Users are not allowed to sleep and eat in the surau. Users are also responsible for the cleanliness of the surau.',
+    amenities: ['Ablution Facilities (Wudhu)', 'Air-Conditioned', 'Prayer Mats & Quran Racks', 'Separate Men & Women Floors'],
+    specs: {
+      workstations: 0,
+      screens: 'Digital Prayer Time Callout'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 17. Cafeteria
+  {
+    id: 'facility-cafe',
+    name: 'Faculty Cafeteria',
+    code: 'CAFE',
+    category: 'Student Amenities',
+    capacity: 100,
+    floor: 'Ground Floor',
+    block: 'Block A (Rear)',
+    description: 'Cafeteria is located at the back of Block A.',
+    amenities: ['Food & Beverage Stalls', 'Spacious Seating', 'Outdoor Garden Ambience', 'Handwashing Stations'],
+    specs: {
+      workstations: 0,
+      screens: 'Menu & Order Callout Displays'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 18. Postgraduate Lounge
+  {
+    id: 'lab-pg-lounge',
+    name: 'Postgraduate Lounge',
+    code: 'PG-LOUNGE',
+    category: 'Student Amenities',
+    capacity: 25,
+    floor: 'Level 2',
+    block: 'Block A',
+    description: 'Space provided for student to relaxing their mind, having informal discussion and make a small gathering. A few facilities such as sofas, computers, discussion rooms and pantry are ready to use.',
+    amenities: ['Relaxing Sofas', 'Discussion Pods', 'Pantry & Coffee Machine', 'Dedicated Computer Desks'],
+    specs: {
+      workstations: 6,
+      screens: 'Smart TV Screen'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 19. The Cube
+  {
+    id: 'lab-the-cube',
+    name: 'The Cube',
+    code: 'THE-CUBE',
+    category: 'Lecture & Classrooms',
+    capacity: 30,
+    floor: 'Level 1',
+    block: 'Block A',
+    description: 'The CUBE is a multipurpose room that is equipped with the teaching aid facilites such as a set of desktop computer,a multimedia projector, foldable table and chairs. The capacity of the room is 30 pax at one time. The room is fully air conditioned.',
+    amenities: ['Desktop Computer Set', 'Multimedia Projector', 'Foldable Tables & Chairs', 'Fully Air-Conditioned'],
+    specs: {
+      workstations: 1,
+      screens: 'Multimedia Presentation Projector'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1517502884422-41eaead166d4?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 20. Discussion Room
+  {
+    id: 'lab-discussion-rm',
+    name: 'Discussion Room',
+    code: 'DISCUSS-RM',
+    category: 'Student Amenities',
+    capacity: 12,
+    floor: 'Level 1',
+    block: 'Block A',
+    description: 'Discussion Room is located at the first Floor of Block A. This room is for students to do a group discussion at any time.',
+    amenities: ['Group Discussion Table', 'Ergonomic Chairs', 'Glass Whiteboard', 'Power Sockets'],
+    specs: {
+      workstations: 0,
+      screens: 'Wall Mounted Presentation Screen'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 21. Parking
+  {
+    id: 'facility-parking',
+    name: 'Faculty Parking Lots',
+    code: 'PARKING',
+    category: 'Student Amenities',
+    capacity: 195,
+    floor: 'Ground / Outdoor',
+    block: 'Block A (Rear)',
+    description: 'The Faculty also provides parking lots for students to park their car or motorbike. Students can park their car or motorbike at the back of Block A. There are 150 parking lots for the motorbike and 45 for the car. Students are not allowed to park their car in front of both buildings because the parking lots are reserved for the faculty staff and visitors.',
+    amenities: ['150 Motorbike Parking Lots', '45 Car Parking Lots', 'CCTV Security Coverage', 'Illuminated Night Lighting'],
+    specs: {
+      workstations: 0,
+      screens: 'Parking Lot Guidance Board'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1506521781263-d8422e82f27a?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 22. Internet Access
+  {
+    id: 'facility-wifi',
+    name: 'Internet Access (WiFi Infrastructure)',
+    code: 'WIFI-ACCESS',
+    category: 'Networking & Security',
+    capacity: 500,
+    floor: 'All Floors',
+    block: 'Block A & Block B',
+    description: 'There are WIFI Internet Access provided to students at every floor in each building. Students must obey the rules and regulations during the usage of these facilities',
+    amenities: ['Campus-Wide High-Speed Wi-Fi', 'Dual-Band 2.4GHz / 5GHz', '802.1X Enterprise Authentication', 'Coverage across Block A & B'],
+    specs: {
+      workstations: 0,
+      screens: 'Network Operations Telemetry'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1544197150-b99a580bb7a8?auto=format&fit=crop&w=800&q=80',
+    reports: []
+  },
+
+  // 23. Vending Machine
+  {
+    id: 'facility-vending',
+    name: 'Vending Machine Kiosks',
+    code: 'VENDING',
+    category: 'Student Amenities',
+    capacity: 10,
+    floor: 'Ground Floor & Lobbies',
+    block: 'Block A & B',
+    description: 'Vending machines are provided across faculty lobbies and student rest zones for chilled beverages and refreshments.',
+    amenities: ["Cashless QR Payment / Touch 'n Go", 'Chilled Drinks & Quick Snacks', '24/7 Availability'],
+    specs: {
+      workstations: 0,
+      screens: 'Digital Pricing Panel'
+    },
+    highResource: false,
+    imageUrl: 'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?auto=format&fit=crop&w=800&q=80',
     reports: []
   }
 ];
@@ -216,8 +534,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-NV-ORIN-9421',
     category: 'Edge AI & Dev Kits',
     totalUnits: 5,
-    availableUnits: 3,
-    healthPercentage: 98,
+    availableUnits: 5,
+    healthPercentage: 100,
     status: 'Available',
     specs: [
       'Ampere GPU w/ 1024 CUDA Cores',
@@ -227,26 +545,7 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     ],
     location: 'Locker B2-Cabinet 3',
     defects: [],
-    loanHistory: [
-      {
-        id: 'hist-1',
-        borrower: 'Norman Lee Weng Hong',
-        matric: '25005870',
-        fromDate: '2026-10-15',
-        toDate: '2026-10-22',
-        returnCondition: 'Excellent',
-        notes: 'Used for YOLOv8 edge inference benchmark'
-      },
-      {
-        id: 'hist-2',
-        borrower: 'Siti Nur Aisyah',
-        matric: '24003211',
-        fromDate: '2026-09-10',
-        toDate: '2026-09-24',
-        returnCondition: 'Good',
-        notes: 'Clean return with acrylic casing'
-      }
-    ],
+    loanHistory: [],
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80',
     bundleTag: 'AI Vision Edge Kit'
   },
@@ -258,8 +557,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-RPI4-8G-1049',
     category: 'Microcontrollers',
     totalUnits: 12,
-    availableUnits: 7,
-    healthPercentage: 94,
+    availableUnits: 12,
+    healthPercentage: 100,
     status: 'Available',
     specs: [
       'Broadcom BCM2711 Quad-core Cortex-A72',
@@ -268,27 +567,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
       'Official USB-C 15.3W Power Adapter included'
     ],
     location: 'Locker B1-Rack 1',
-    defects: [
-      {
-        id: 'def-1',
-        date: '2026-08-14',
-        issue: 'MicroSD slot spring slightly loose, still clicks firmly',
-        reportedBy: 'En. Faizal (Officer)',
-        severity: 'Minor',
-        status: 'Resolved'
-      }
-    ],
-    loanHistory: [
-      {
-        id: 'hist-3',
-        borrower: 'Tan Kai Wen',
-        matric: '23004812',
-        fromDate: '2026-10-01',
-        toDate: '2026-10-14',
-        returnCondition: 'Good',
-        notes: 'Micro-HDMI adapter returned intact'
-      }
-    ],
+    defects: [],
+    loanHistory: [],
     imageUrl: 'https://images.unsplash.com/photo-1629654297299-c8506221ca97?auto=format&fit=crop&w=600&q=80',
     bundleTag: 'Embedded IoT Kit'
   },
@@ -300,8 +580,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-RIGOL-4412-MY',
     category: 'Testing & Measurement',
     totalUnits: 6,
-    availableUnits: 2,
-    healthPercentage: 99,
+    availableUnits: 6,
+    healthPercentage: 100,
     status: 'Available',
     specs: [
       '50 MHz Bandwidth, 4 Analog Channels',
@@ -311,17 +591,7 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     ],
     location: 'Cabinet T-04 (Locked)',
     defects: [],
-    loanHistory: [
-      {
-        id: 'hist-4',
-        borrower: 'Muhammad Harith',
-        matric: '22009411',
-        fromDate: '2026-09-01',
-        toDate: '2026-09-15',
-        returnCondition: 'Excellent',
-        notes: 'Calibrated before loan'
-      }
-    ],
+    loanHistory: [],
     imageUrl: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=600&q=80'
   },
   {
@@ -332,8 +602,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-INTEL-RS-3021',
     category: 'Sensors & Bundles',
     totalUnits: 4,
-    availableUnits: 1,
-    healthPercentage: 91,
+    availableUnits: 4,
+    healthPercentage: 100,
     status: 'Available',
     specs: [
       'Stereo Depth Technology with Active IR Projector',
@@ -342,27 +612,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
       'High-flex USB-C 3.1 1.5m Cable'
     ],
     location: 'Locker B2-Cabinet 2',
-    defects: [
-      {
-        id: 'def-2',
-        date: '2026-10-02',
-        issue: 'Tripod leg tightening screw minor threading resistance',
-        reportedBy: 'Norman Lee Weng Hong',
-        severity: 'Minor',
-        status: 'Investigating'
-      }
-    ],
-    loanHistory: [
-      {
-        id: 'hist-5',
-        borrower: 'Chew Mei Ling',
-        matric: '24001928',
-        fromDate: '2026-10-10',
-        toDate: '2026-10-24',
-        returnCondition: 'Minor Scratches',
-        notes: 'Surface scratch on metal housing; optical lens flawless.'
-      }
-    ],
+    defects: [],
+    loanHistory: [],
     imageUrl: 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=600&q=80',
     bundleTag: 'AI Vision Edge Kit'
   },
@@ -374,8 +625,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-ARD-MEGA-0881',
     category: 'Microcontrollers',
     totalUnits: 15,
-    availableUnits: 9,
-    healthPercentage: 96,
+    availableUnits: 15,
+    healthPercentage: 100,
     status: 'Available',
     specs: [
       '54 Digital I/O Pins (15 PWM outputs)',
@@ -396,9 +647,9 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
     serialNumber: 'SN-ESP32-IOT-9943',
     category: 'Sensors & Bundles',
     totalUnits: 10,
-    availableUnits: 0,
-    healthPercentage: 75,
-    status: 'Under Maintenance',
+    availableUnits: 10,
+    healthPercentage: 100,
+    status: 'Available',
     currentBorrower: undefined,
     specs: [
       'Tensilica Xtensa Dual-Core 32-bit LX6 Microprocessor',
@@ -406,17 +657,8 @@ export const INITIAL_HARDWARE: HardwareItem[] = [
       'BME280 Temperature, Humidity & Barometric Pressure',
       'SX1276 915MHz LoRa Transceiver'
     ],
-    location: 'Maintenance Bench M-02',
-    defects: [
-      {
-        id: 'def-3',
-        date: '2026-11-04',
-        issue: 'OLED I2C display intermittent flickering; re-soldering header pin required',
-        reportedBy: 'En. Faizal (Officer)',
-        severity: 'Moderate',
-        status: 'Pending Parts'
-      }
-    ],
+    location: 'Locker B1-Bin 6',
+    defects: [],
     loanHistory: [],
     imageUrl: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=600&q=80',
     bundleTag: 'Embedded IoT Kit'
@@ -432,256 +674,21 @@ export const getTodayDateString = (): string => {
   return `${year}-${month}-${day}`;
 };
 
-export const INITIAL_BOOKINGS: LabBooking[] = [
-  {
-    id: 'bk-7842',
-    tokenCode: 'LP-7842',
-    userId: 'usr_student_01',
-    userName: 'Norman Lee Weng Hong',
-    userMatric: '25005870',
-    userEmail: '25005870@siswa.um.edu.my',
-    roomId: 'lab-ai-1',
-    roomName: 'Lab AI-1 (High-Performance Compute)',
-    roomCode: 'FCSIT-B2-AI01',
-    date: getTodayDateString(),
-    slot: '10:00 - 12:00',
-    purpose: 'Final Year Project: Distributed LLM Fine-Tuning & Quantization on Dual RTX 4090 Rigs',
-    courseCode: 'WIF3001 Final Year Project',
-    isFYP: true,
-    supervisorName: 'Prof. Madya Dr. Amir Rudin',
-    supervisorEmail: 'amirrudin@um.edu.my',
-    status: 'Approved',
-    createdAt: '2026-11-08 09:30 AM',
-    endorsementNote: 'Endorsed. Norman is conducting approved GPU training sessions for FYP benchmark.'
-  },
-  {
-    id: 'bk-4190',
-    tokenCode: 'LP-4190',
-    userId: 'usr_student_02',
-    userName: 'Siti Nur Aisyah',
-    userMatric: '24003211',
-    userEmail: '24003211@siswa.um.edu.my',
-    roomId: 'lab-se-2',
-    roomName: 'Software Engineering Lab 2',
-    roomCode: 'FCSIT-A1-SE02',
-    date: getTodayDateString(),
-    slot: '08:00 - 10:00',
-    purpose: 'Agile Team Sprint 3 Review & Flutter Mock Testing',
-    courseCode: 'WIE2002 Software Architecture',
-    isFYP: false,
-    status: 'Active',
-    checkInTime: '08:05 AM',
-    createdAt: '2026-11-07 02:15 PM'
-  },
-  {
-    id: 'bk-9031',
-    tokenCode: 'LP-9031',
-    userId: 'usr_student_01',
-    userName: 'Norman Lee Weng Hong',
-    userMatric: '25005870',
-    userEmail: '25005870@siswa.um.edu.my',
-    roomId: 'lab-net-sys',
-    roomName: 'Network Systems & Cybersecurity Lab',
-    roomCode: 'FCSIT-C3-NET01',
-    date: getTodayDateString(),
-    slot: '14:00 - 16:00',
-    purpose: 'Cybersecurity Capstone: Snort IDS Signature Testing and Packet Capturing',
-    courseCode: 'WIX3002 Network Security',
-    isFYP: true,
-    supervisorName: 'Prof. Madya Dr. Amir Rudin',
-    supervisorEmail: 'amirrudin@um.edu.my',
-    status: 'Pending Endorsement',
-    createdAt: '2026-11-09 11:20 AM'
-  },
-  {
-    id: 'bk-6120',
-    tokenCode: 'LP-6120',
-    userId: 'usr_student_03',
-    userName: 'Arun Kumar a/l Rajan',
-    userMatric: '23008129',
-    userEmail: '23008129@siswa.um.edu.my',
-    roomId: 'lab-ai-1',
-    roomName: 'Lab AI-1 (High-Performance Compute)',
-    roomCode: 'FCSIT-B2-AI01',
-    date: getTodayDateString(),
-    slot: '14:00 - 16:00',
-    purpose: 'Computer Vision Facial Feature Segmentation on PyTorch',
-    courseCode: 'WIA3001 Artificial Intelligence',
-    isFYP: true,
-    supervisorName: 'Prof. Madya Dr. Amir Rudin',
-    supervisorEmail: 'amirrudin@um.edu.my',
-    status: 'Pending Approval',
-    endorsementNote: 'Endorsed. Please grant access.',
-    createdAt: '2026-11-08 04:45 PM'
-  },
-  {
-    id: 'bk-7740',
-    tokenCode: 'LP-7740',
-    userId: 'usr_student_02',
-    userName: 'Siti Nur Aisyah',
-    userMatric: '24003211',
-    userEmail: '24003211@siswa.um.edu.my',
-    roomId: 'lab-se-2',
-    roomName: 'Software Engineering Lab 2',
-    roomCode: 'FCSIT-A1-SE02',
-    date: '2026-11-11',
-    slot: '10:00 - 12:00',
-    purpose: 'Agile Sprint User Acceptance Testing with industry mentors',
-    courseCode: 'WIE2002 Software Architecture',
-    isFYP: false,
-    status: 'Pending Approval',
-    createdAt: '2026-11-09 05:10 PM'
-  }
-];
+export const INITIAL_BOOKINGS: LabBooking[] = [];
 
-export const INITIAL_LOANS: HardwareLoan[] = [
-  {
-    id: 'loan-3829',
-    tokenCode: 'LP-3829',
-    userId: 'usr_student_01',
-    userName: 'Norman Lee Weng Hong',
-    userMatric: '25005870',
-    hardwareId: 'hw-jetson-orin-01',
-    hardwareName: 'NVIDIA Jetson Orin Nano Developer Kit (8GB)',
-    hardwareTag: 'FCSIT-HW-JET-01',
-    serialNumber: 'SN-NV-ORIN-9421',
-    requestDate: '2026-11-08',
-    dueDate: '2026-11-22',
-    purpose: 'FYP Real-Time Object Detection Edge Pipeline deployment',
-    status: 'Active / Issued',
-    conditionOut: 'Mint condition, official power supply + 128GB NVMe attached',
-    checklist: {
-      chassisIntact: true,
-      accessoriesIncluded: true,
-      powersOnWithoutError: true
-    },
-    createdAt: '2026-11-08 10:12 AM'
-  },
-  {
-    id: 'loan-7714',
-    tokenCode: 'LP-7714',
-    userId: 'usr_student_03',
-    userName: 'Arun Kumar a/l Rajan',
-    userMatric: '23008129',
-    hardwareId: 'hw-jetson-orin-01',
-    hardwareName: 'NVIDIA Jetson Orin Nano Developer Kit (8GB)',
-    hardwareTag: 'FCSIT-HW-JET-01',
-    serialNumber: 'SN-NV-ORIN-9421',
-    requestDate: '2026-11-12',
-    dueDate: '2026-11-19',
-    purpose: 'Autonomous drone obstacle avoidance with TensorRT on Jetson Orin',
-    status: 'Pending Approval',
-    createdAt: '2026-11-09 04:30 PM'
-  },
-  {
-    id: 'loan-5120',
-    tokenCode: 'LP-5120',
-    userId: 'usr_student_04',
-    userName: 'Lee Zhi Hao',
-    userMatric: '24009918',
-    hardwareId: 'hw-rigol-osc-03',
-    hardwareName: 'Rigol DS1054Z 50MHz Digital Oscilloscope (4 Channels)',
-    hardwareTag: 'FCSIT-HW-OSC-02',
-    serialNumber: 'SN-RIGOL-4412-MY',
-    requestDate: '2026-11-01',
-    dueDate: '2026-11-08',
-    purpose: 'Robotics sensor PWM signal waveform ripple evaluation',
-    status: 'Overdue',
-    conditionOut: 'Calibrated, 4x probes and power lead included',
-    checklist: {
-      chassisIntact: true,
-      accessoriesIncluded: true,
-      powersOnWithoutError: true
-    },
-    createdAt: '2026-11-01 11:00 AM'
-  },
-  {
-    id: 'loan-8812',
-    tokenCode: 'LP-8812',
-    userId: 'usr_student_01',
-    userName: 'Norman Lee Weng Hong',
-    userMatric: '25005870',
-    hardwareId: 'hw-realsense-04',
-    hardwareName: 'Intel RealSense D435i Depth Camera + Mini Tripod',
-    hardwareTag: 'FCSIT-HW-CAM-03',
-    serialNumber: 'SN-INTEL-RS-3021',
-    requestDate: '2026-11-09',
-    dueDate: '2026-11-23',
-    purpose: 'Stereo depth point-cloud registration for indoor SLAM navigation',
-    status: 'Pending Approval',
-    createdAt: '2026-11-09 03:20 PM'
-  }
-];
+export const INITIAL_LOANS: HardwareLoan[] = [];
 
-export const INITIAL_WAITLIST: WaitlistEntry[] = [
-  {
-    id: 'wt-01',
-    targetType: 'room',
-    targetId: 'lab-ai-1',
-    targetName: 'Lab AI-1 (High-Performance Compute)',
-    slotOrDetails: '10:00 - 12:00',
-    date: getTodayDateString(),
-    userId: 'usr_student_05',
-    userName: 'Kavitha Devi a/p Mohan',
-    userMatric: '25001249',
-    userEmail: '25001249@siswa.um.edu.my',
-    position: 1,
-    status: 'waiting',
-    createdAt: '2026-11-09 08:30 AM'
-  },
-  {
-    id: 'wt-02',
-    targetType: 'hardware',
-    targetId: 'hw-esp32-node-06',
-    targetName: 'ESP32-WROOM Dual Core IoT Sensor Node',
-    slotOrDetails: 'FCSIT-HW-ESP-12',
-    date: getTodayDateString(),
-    userId: 'usr_student_06',
-    userName: 'Zulhilmi bin Rosli',
-    userMatric: '24005510',
-    userEmail: '24005510@siswa.um.edu.my',
-    position: 1,
-    status: 'waiting',
-    createdAt: '2026-11-08 03:00 PM'
-  }
-];
+export const INITIAL_WAITLIST: WaitlistEntry[] = [];
 
 export const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
-    id: 'log-101',
-    timestamp: '2026-11-09 08:30 AM',
-    actor: 'System Engine',
-    actorRole: 'System',
-    action: 'Grace Period Monitor Activated',
-    details: 'Initiated 15-minute physical QR attendance watchdog for morning laboratory blocks.',
+    id: 'log-001',
+    timestamp: 'System Initialization',
+    actor: 'LabPulse Security Engine',
+    actorRole: 'system',
+    action: 'System Initialized',
+    details: 'Production laboratory resource management environment initialized with clean state.',
     category: 'system'
-  },
-  {
-    id: 'log-102',
-    timestamp: '2026-11-08 10:15 AM',
-    actor: 'En. Faizal bin Ahmad',
-    actorRole: 'admin',
-    action: 'Hardware Loan Physical Check-out',
-    details: 'Verified token LP-3829 for Norman Lee (25005870). Condition inspection passed: Jetson Orin Nano issued.',
-    category: 'hardware'
-  },
-  {
-    id: 'log-103',
-    timestamp: '2026-11-08 09:40 AM',
-    actor: 'Prof. Madya Dr. Amir Rudin',
-    actorRole: 'lecturer',
-    action: 'Supervisor Endorsement Granted',
-    details: 'Endorsed FYP high-resource booking LP-7842 for Lab AI-1 (10:00 - 12:00).',
-    category: 'booking'
-  },
-  {
-    id: 'log-104',
-    timestamp: '2026-11-07 02:15 PM',
-    actor: 'Siti Nur Aisyah',
-    actorRole: 'student',
-    action: 'Space Reservation Submitted',
-    details: 'Requested Software Engineering Lab 2 for 08:00 - 10:00 session.',
-    category: 'booking'
   }
 ];
 
@@ -720,4 +727,9 @@ export const HARDWARE_TEMPLATES: HardwareBundleTemplate[] = [
     recommendedFor: 'Firmware engineers, hardware PCB signal timing verification, and motor controller PWM tuning'
   }
 ];
+
+export const INITIAL_NOTIFICATIONS: PulseNotification[] = [];
+
+export const INITIAL_MAINTENANCE_REPORTS: MaintenanceReport[] = [];
+
 

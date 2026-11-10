@@ -39,8 +39,11 @@ export const BookingModal: React.FC<BookingModalProps> = ({
     checkConflict, 
     createBooking, 
     joinWaitlist,
-    bookings 
+    bookings,
+    reports
   } = useLabPulse();
+
+  const isUnderRepair = room.status === 'Under Repair' || reports.some(r => r.type === 'SPACE' && r.targetId === room.id && r.status === 'IN REPAIR');
 
   const [date, setDate] = useState<string>(initialDate || new Date().toISOString().split('T')[0]);
   const [slot, setSlot] = useState<TimeSlotString>(initialSlot || '10:00 - 12:00');
@@ -124,6 +127,19 @@ export const BookingModal: React.FC<BookingModalProps> = ({
 
         {/* Booking Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
+          
+          {/* Under Repair Notice */}
+          {isUnderRepair && (
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs flex items-start gap-2.5">
+              <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold block">Facility Under Repair</span>
+                <span className="text-rose-700">
+                  This room is currently marked as under repair. Space bookings cannot be submitted until maintenance has concluded.
+                </span>
+              </div>
+            </div>
+          )}
           
           {/* Date & Slot Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -323,14 +339,22 @@ export const BookingModal: React.FC<BookingModalProps> = ({
               >
                 Join Waitlist Queue
               </button>
+            ) : isUnderRepair ? (
+              <button
+                type="button"
+                disabled
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-slate-200 text-slate-500 cursor-not-allowed flex items-center gap-1.5"
+              >
+                Under Repair • Bookings Disabled
+              </button>
             ) : (
               <button
                 type="submit"
                 disabled={isUserAlreadyBooked}
-                className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-[#002B7F] hover:bg-blue-800 text-white transition-colors shadow-sm flex items-center gap-1.5"
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold bg-[#002B7F] hover:bg-blue-800 text-white transition-colors shadow-sm flex items-center gap-1.5 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                {isFYP ? 'Submit for Supervisor Endorsement' : 'Confirm Instant Reservation'}
+                <span>Submit for Staff Approval</span>
               </button>
             )}
           </div>

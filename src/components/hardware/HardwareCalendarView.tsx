@@ -41,6 +41,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
     hardware, 
     loans, 
     waitlist, 
+    reports,
     currentUser, 
     requestLoan, 
     approveLoan,
@@ -48,29 +49,52 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
     reportDefect,
     updateHardwareDefectStatus,
     joinWaitlist, 
-    leaveWaitlist 
+    leaveWaitlist,
+    setActiveTab 
   } = useLabPulse();
 
   const isOfficer = currentUser.role === 'admin';
   const currentHardware = hardware.find((h) => h.id === item.id) || item;
+  const isUnderRepair = currentHardware.status === 'Under Maintenance' || reports.some(r => r.type === 'HARDWARE' && r.targetId === currentHardware.id && r.status === 'IN REPAIR');
 
   // Officer Subtab State
   const [officerTab, setOfficerTab] = useState<'queue' | 'history' | 'reports'>('queue');
   const [expandedLoanId, setExpandedLoanId] = useState<string | null>(null);
   const [expandedDefectId, setExpandedDefectId] = useState<string | null>(null);
 
+  // Inspected loan popup
+  const [inspectLoan, setInspectLoan] = useState<any | null>(null);
+
   // Defect Modal State
   const [isDefectModalOpen, setIsDefectModalOpen] = useState(false);
   const [defectIssue, setDefectIssue] = useState('');
   const [defectSeverity, setDefectSeverity] = useState<'Minor' | 'Moderate' | 'Critical'>('Moderate');
 
-  // Current calendar viewing month (Year: 2026, Month: 10 = November, 0-indexed)
-  const [currentYear, setCurrentYear] = useState<number>(2026);
-  const [currentMonth, setCurrentMonth] = useState<number>(10); // November (0-indexed: 10)
+  // Helper to format date as YYYY-MM-DD
+  const formatISO = (y: number, m: number, d: number) => {
+    const mm = String(m + 1).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    return `${y}-${mm}-${dd}`;
+  };
 
-  // Interactive user date selection
-  const [borrowDate, setBorrowDate] = useState<string>('2026-11-10');
-  const [returnDate, setReturnDate] = useState<string>('2026-11-17');
+  const getRealTodayStr = () => {
+    const now = new Date();
+    return formatISO(now.getFullYear(), now.getMonth(), now.getDate());
+  };
+
+  const getRealDefaultReturnStr = () => {
+    const next = new Date();
+    next.setDate(next.getDate() + 7);
+    return formatISO(next.getFullYear(), next.getMonth(), next.getDate());
+  };
+
+  // Current calendar viewing month (defaults to real current month & year)
+  const [currentYear, setCurrentYear] = useState<number>(() => new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState<number>(() => new Date().getMonth());
+
+  // Interactive user date selection (defaults to real today and +7 days)
+  const [borrowDate, setBorrowDate] = useState<string>(() => getRealTodayStr());
+  const [returnDate, setReturnDate] = useState<string>(() => getRealDefaultReturnStr());
   const [hoverDate, setHoverDate] = useState<string | null>(null);
   const [purpose, setPurpose] = useState<string>('');
 
@@ -118,17 +142,11 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
   };
 
   const handleResetToday = () => {
-    setCurrentYear(2026);
-    setCurrentMonth(10); // November 2026
-    setBorrowDate('2026-11-10');
-    setReturnDate('2026-11-17');
-  };
-
-  // Helper to format date as YYYY-MM-DD
-  const formatISO = (y: number, m: number, d: number) => {
-    const mm = String(m + 1).padStart(2, '0');
-    const dd = String(d).padStart(2, '0');
-    return `${y}-${mm}-${dd}`;
+    const now = new Date();
+    setCurrentYear(now.getFullYear());
+    setCurrentMonth(now.getMonth());
+    setBorrowDate(getRealTodayStr());
+    setReturnDate(getRealDefaultReturnStr());
   };
 
   // Build the 35 or 42 calendar grid cells for current month
@@ -157,10 +175,13 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
       });
     }
 
+    const realToday = new Date();
+    const realTodayStr = formatISO(realToday.getFullYear(), realToday.getMonth(), realToday.getDate());
+
     // Current month days
     for (let d = 1; d <= totalDaysInMonth; d++) {
       const dateStr = formatISO(currentYear, currentMonth, d);
-      const isToday = currentYear === 2026 && currentMonth === 10 && d === 10;
+      const isToday = dateStr === realTodayStr;
       cells.push({
         dateStr,
         dayNumber: d,
@@ -233,13 +254,25 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
   // Handle clicking a calendar cell date to pick or toggle range
   const handleDateClick = (dateStr: string) => {
+    // If clicking on an already booked loan date, inspect the loan details!
+    const loanInfo = getCellLoanInfo(dateStr);
+    if (loanInfo && (loanInfo as any).loan) {
+      setInspectLoan((loanInfo as any).loan);
+      return;
+    }
+
     // If officer, booking range selection is disabled
     if (isOfficer) {
       return;
     }
 
+    // If equipment is under repair, loan date selection is disabled
+    if (isUnderRepair) {
+      return;
+    }
+
     // 0. Do not allow selecting past dates
-    const today = '2026-11-10';
+    const today = getRealTodayStr();
     if (dateStr < today) {
       return;
     }
@@ -303,7 +336,11 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
       purpose: purpose.trim()
     });
 
+    // Clear user selection range so the newly created loan immediately renders and fills on the calendar!
+    setBorrowDate('');
+    setReturnDate('');
     setPurpose('');
+    setHoverDate(null);
   };
 
   const handleDefectSubmit = (e: React.FormEvent) => {
@@ -389,20 +426,42 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 text-right">
           <span className="text-xs text-slate-400">Current Stock Status</span>
           <span className={`text-xs font-bold px-3 py-1 rounded-full mt-1 border ${
-            item.status === 'Under Maintenance'
-              ? 'bg-amber-50 text-amber-800 border-amber-200'
-              : item.availableUnits > 0
+            isUnderRepair
+              ? 'bg-rose-50 text-rose-800 border-rose-300'
+              : currentHardware.availableUnits > 0
               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
               : 'bg-rose-50 text-rose-800 border-rose-200'
           }`}>
-            {item.status === 'Under Maintenance'
-              ? 'Under Maintenance'
-              : item.availableUnits > 0
-              ? `${item.availableUnits} of ${item.totalUnits} Units Available`
+            {isUnderRepair
+              ? 'Under Repair • Out of Service'
+              : currentHardware.availableUnits > 0
+              ? `${currentHardware.availableUnits} of ${currentHardware.totalUnits} Units Available`
               : 'All Units Currently On Loan'}
           </span>
         </div>
       </div>
+
+      {/* Under Repair Alert Banner */}
+      {isUnderRepair && (
+        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
+          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+            <Wrench className="w-5 h-5" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900 uppercase">
+                Under Repair
+              </span>
+              <h3 className="text-xs sm:text-sm font-bold text-rose-950">
+                Equipment Under Technical Maintenance
+              </h3>
+            </div>
+            <p className="text-xs text-rose-700 mt-1 leading-relaxed">
+              This hardware unit is currently flagged as under repair or calibration. New loan applications and calendar date reservations are disabled until maintenance work is finalized by the FCSIT lab officer.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Main 2-Column Layout: Calendar (Left) & Borrow / Queue Panel (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
@@ -485,23 +544,60 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                 }
                 // 2. Active Loan / Borrowed Range
                 else if (loanInfo) {
-                  if (loanInfo.type === 'start') {
-                    cellBg = 'bg-[#00B4D8] text-white font-bold rounded-l-xl';
-                    indicator = <span className="text-[9px] block leading-none opacity-90 truncate">Start</span>;
-                  } else if (loanInfo.type === 'end') {
-                    cellBg = 'bg-[#0077B6] text-white font-bold rounded-r-xl';
-                    indicator = <span className="text-[9px] block leading-none opacity-90 truncate">Due</span>;
-                  } else if (loanInfo.type === 'between') {
-                    cellBg = 'bg-[#E0F2FE] text-sky-900 font-medium';
-                  } else if (loanInfo.type === 'single') {
-                    cellBg = 'bg-[#00B4D8] text-white font-bold rounded-xl';
-                    indicator = <span className="text-[9px] block leading-none">Loan</span>;
-                  } else if (loanInfo.type === 'hist-start' || loanInfo.type === 'hist-end' || loanInfo.type === 'hist-between') {
-                    cellBg = 'bg-slate-100 text-slate-500';
+                  const loan = (loanInfo as any).loan;
+                  const isMyLoan = loan?.userId === currentUser.id;
+                  const isPending = loan?.status === 'Pending Approval';
+
+                  if (isMyLoan) {
+                    cellBg = isPending 
+                      ? 'bg-amber-400 text-slate-950 font-bold border-2 border-amber-500 shadow-xs' 
+                      : 'bg-[#002B7F] text-white font-bold border-2 border-blue-400 shadow-xs';
+                  } else if (isPending) {
+                    cellBg = 'bg-[#FFEB3B] text-slate-950 font-semibold border border-yellow-400';
+                  } else {
+                    if (loanInfo.type === 'start') {
+                      cellBg = 'bg-[#00B4D8] text-white font-bold rounded-l-xl';
+                    } else if (loanInfo.type === 'end') {
+                      cellBg = 'bg-[#0077B6] text-white font-bold rounded-r-xl';
+                    } else if (loanInfo.type === 'between') {
+                      cellBg = 'bg-[#00B4D8]/90 text-white font-medium';
+                    } else if (loanInfo.type === 'single') {
+                      cellBg = 'bg-[#00B4D8] text-white font-bold rounded-xl';
+                    } else {
+                      cellBg = 'bg-slate-100 text-slate-500';
+                    }
                   }
+
+                  const statusTag = isMyLoan ? 'MY PASS' : isPending ? 'PENDING' : 'BOOKED';
+                  const phaseTag = loanInfo.type === 'start' ? 'Start' : loanInfo.type === 'end' ? 'Due' : loanInfo.type === 'single' ? '1 Day' : 'Reserved';
+
+                  indicator = (
+                    <div className="space-y-0.5 mt-1 text-left">
+                      <div className="flex items-center justify-between gap-0.5">
+                        <span className={`text-[8px] font-mono font-black uppercase px-1 py-0.2 rounded leading-tight ${
+                          isMyLoan ? 'bg-amber-300 text-slate-950' : isPending ? 'bg-slate-900 text-white' : 'bg-white/25 text-white'
+                        }`}>
+                          [{statusTag}]
+                        </span>
+                        <span className="text-[8px] font-mono opacity-80">
+                          {phaseTag}
+                        </span>
+                      </div>
+                      {loan && (
+                        <>
+                          <div className="font-bold truncate text-[9px] leading-tight mt-0.5">
+                            {loan.userName}
+                          </div>
+                          <div className="text-[8px] opacity-90 truncate italic leading-tight">
+                            "{loan.purpose || 'Hardware Loan'}"
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  );
                 }
 
-                const isPast = cell.dateStr < '2026-11-10';
+                const isPast = cell.dateStr < getRealTodayStr();
 
                 // If past date without active loan, show disabled
                 if (isPast && !loanInfo && !userRange) {
@@ -517,12 +613,12 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                     key={cell.dateStr}
                     onClick={() => !isPast && handleDateClick(cell.dateStr)}
                     onMouseEnter={() => !isPast && !returnDate && borrowDate && setHoverDate(cell.dateStr)}
-                    className={`min-h-[58px] p-1.5 rounded-xl border border-slate-100 transition-all ${
-                      isPast ? 'cursor-not-allowed' : 'cursor-pointer'
+                    className={`min-h-[70px] sm:min-h-[78px] p-1.5 rounded-xl border border-slate-100 transition-all ${
+                      isPast && !loanInfo ? 'cursor-not-allowed' : 'cursor-pointer'
                     } flex flex-col justify-between ${cellBg}`}
                     title={
                       loanInfo
-                        ? `On Loan: ${(loanInfo as any).loan?.userName || (loanInfo as any).hist?.borrower}`
+                        ? `Booked: ${(loanInfo as any).loan?.userName} (${(loanInfo as any).loan?.userMatric || 'ID'})\nPurpose: ${(loanInfo as any).loan?.purpose}\nStatus: ${(loanInfo as any).loan?.status}`
                         : isPast
                         ? 'Past date - loans closed'
                         : `Click to select ${cell.dateStr}`
@@ -537,13 +633,8 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                       )}
                     </div>
 
-                    <div className="text-[9px] truncate">
+                    <div className="text-[9px]">
                       {indicator}
-                      {loanInfo && (loanInfo.type === 'start' || loanInfo.type === 'between') && (
-                        <span className="truncate block opacity-80 text-[8px]">
-                          {(loanInfo as any).loan?.userName?.split(' ')[0]}
-                        </span>
-                      )}
                     </div>
                   </div>
                 );
@@ -1009,110 +1100,134 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
             /* ============================================================== */
             <>
               {/* SECTION 1: INTERACTIVE BORROW REQUEST FORM */}
-              <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                      Loan Application
+              {isUnderRepair ? (
+                <div className="bg-white rounded-3xl p-5 border border-rose-200 shadow-sm space-y-3 animate-in fade-in">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800 uppercase">
+                      Under Repair
                     </span>
-                    <h3 className="text-sm font-bold text-slate-900 mt-0.5">
-                      Choose Borrow & Return Dates
+                    <h3 className="text-sm font-bold text-slate-900">
+                      Asset Unavailable for Loan
                     </h3>
                   </div>
-
-                  {(borrowDate || returnDate) && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setBorrowDate('');
-                        setReturnDate('');
-                        setHoverDate(null);
-                      }}
-                      className="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition-colors"
-                    >
-                      Clear Selection
-                    </button>
-                  )}
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    This equipment is currently marked as under maintenance or technical repair. Loan reservations and checkout requests are temporarily disabled until FCSIT technicians complete inspection.
+                  </p>
+                  <button
+                    type="button"
+                    disabled
+                    className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-400 font-semibold text-xs border border-slate-200 cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <Wrench className="w-3.5 h-3.5 text-slate-400" />
+                    <span>Under Repair • Loan Requests Disabled</span>
+                  </button>
                 </div>
+              ) : (
+                <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                        Loan Application
+                      </span>
+                      <h3 className="text-sm font-bold text-slate-900 mt-0.5">
+                        Choose Borrow & Return Dates
+                      </h3>
+                    </div>
 
-                <form onSubmit={handleLoanSubmit} className="space-y-3 text-xs">
-                  
-                  {/* Date pickers (Auto-synced with calendar selection) */}
-                  <div className="grid grid-cols-2 gap-2">
+                    {(borrowDate || returnDate) && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setBorrowDate('');
+                          setReturnDate('');
+                          setHoverDate(null);
+                        }}
+                        className="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition-colors"
+                      >
+                        Clear Selection
+                      </button>
+                    )}
+                  </div>
+
+                  <form onSubmit={handleLoanSubmit} className="space-y-3 text-xs">
+                    
+                    {/* Date pickers (Auto-synced with calendar selection) */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                          Date to Borrow *
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          min={getRealTodayStr()}
+                          value={borrowDate}
+                          onChange={(e) => setBorrowDate(e.target.value)}
+                          className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                          Date to Return *
+                        </label>
+                        <input
+                          type="date"
+                          required
+                          min={borrowDate || getRealTodayStr()}
+                          value={returnDate}
+                          onChange={(e) => setReturnDate(e.target.value)}
+                          className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Purpose / Reason input */}
                     <div>
                       <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Date to Borrow *
+                        Reason & Project Objective *
                       </label>
-                      <input
-                        type="date"
+                      <textarea
+                        rows={2}
                         required
-                        min="2026-11-10"
-                        value={borrowDate}
-                        onChange={(e) => setBorrowDate(e.target.value)}
-                        className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
+                        placeholder="e.g. FYP Edge Deep Learning inference with YOLOv8 on Jetson Nano..."
+                        value={purpose}
+                        onChange={(e) => setPurpose(e.target.value)}
+                        className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600"
                       />
                     </div>
 
-                    <div>
-                      <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                        Date to Return *
-                      </label>
-                      <input
-                        type="date"
-                        required
-                        min={borrowDate || "2026-11-10"}
-                        value={returnDate}
-                        onChange={(e) => setReturnDate(e.target.value)}
-                        className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
-                      />
+                    <div className="text-[11px] text-slate-400">
+                      Student Borrower: <strong className="text-slate-700">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
                     </div>
-                  </div>
 
-                  {/* Purpose / Reason input */}
-                  <div>
-                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                      Reason & Project Objective *
-                    </label>
-                    <textarea
-                      rows={2}
-                      required
-                      placeholder="e.g. FYP Edge Deep Learning inference with YOLOv8 on Jetson Nano..."
-                      value={purpose}
-                      onChange={(e) => setPurpose(e.target.value)}
-                      className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-blue-600"
-                    />
-                  </div>
-
-                  <div className="text-[11px] text-slate-400">
-                    Student Borrower: <strong className="text-slate-700">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
-                  </div>
-
-                  {/* Action Button */}
-                  {currentHardware.availableUnits > 0 ? (
-                    <button
-                      type="submit"
-                      className="w-full py-2.5 rounded-xl bg-[#002B7F] hover:bg-blue-800 text-white font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5"
-                    >
-                      <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                      <span>Confirm Hardware Loan Request</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={handleJoinQueue}
-                      disabled={isUserInWaitlist}
-                      className={`w-full py-2.5 rounded-xl font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5 ${
-                        isUserInWaitlist
-                          ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
-                          : 'bg-amber-600 hover:bg-amber-700 text-white'
-                      }`}
-                    >
-                      <Users className="w-3.5 h-3.5" />
-                      <span>{isUserInWaitlist ? 'Already in Queue (#1)' : 'All Units On Loan: Join Queue'}</span>
-                    </button>
-                  )}
-                </form>
-              </div>
+                    {/* Action Button */}
+                    {currentHardware.availableUnits > 0 ? (
+                      <button
+                        type="submit"
+                        className="w-full py-2.5 rounded-xl bg-[#002B7F] hover:bg-blue-800 text-white font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+                      >
+                        <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+                        <span>Submit for Staff Approval</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleJoinQueue}
+                        disabled={isUserInWaitlist}
+                        className={`w-full py-2.5 rounded-xl font-semibold text-xs transition-colors shadow-sm flex items-center justify-center gap-1.5 ${
+                          isUserInWaitlist
+                            ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                            : 'bg-amber-600 hover:bg-amber-700 text-white'
+                        }`}
+                      >
+                        <Users className="w-3.5 h-3.5" />
+                        <span>{isUserInWaitlist ? 'Already in Queue (#1)' : 'All Units On Loan: Join Queue'}</span>
+                      </button>
+                    )}
+                  </form>
+                </div>
+              )}
 
               {/* SECTION 2: QUEUE LIST (WAITLIST) */}
               <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
@@ -1276,6 +1391,69 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Inspect Booked Hardware Loan Details */}
+      {inspectLoan && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-5 border-b border-slate-100 flex items-start justify-between">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Hardware Loan Record
+                </span>
+                <h3 className="text-sm font-bold text-slate-900 mt-0.5">{currentHardware.name}</h3>
+                <p className="text-xs text-slate-500 font-mono">Tag: {currentHardware.tag}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInspectLoan(null)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-3.5 text-xs">
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900">{inspectLoan.userName}</span>
+                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200">
+                    {inspectLoan.tokenCode}
+                  </span>
+                </div>
+                <div className="font-mono text-[11px] text-slate-500">
+                  Matric / Staff ID: {inspectLoan.userMatric || 'ID'}
+                </div>
+                <div className="flex items-center gap-1.5 text-slate-600 font-medium text-[11px]">
+                  <CalendarIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <span>Period: {inspectLoan.requestDate} → {inspectLoan.dueDate}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
+                    Purpose / Notes
+                  </span>
+                  <p className="text-slate-700 text-[11px] italic bg-white p-2 rounded-lg border border-slate-200/70">
+                    "{inspectLoan.purpose}"
+                  </p>
+                </div>
+              </div>
+
+              {inspectLoan.userId === currentUser.id && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setInspectLoan(null);
+                    setActiveTab('my-passes');
+                  }}
+                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase transition-colors cursor-pointer"
+                >
+                  [VIEW DIGITAL PASSPORT]
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

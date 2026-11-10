@@ -35,9 +35,6 @@ export const SmartWaitlistModule: React.FC = () => {
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
             Waitlist & Reallocation
           </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Real-time queue standby and 15-minute no-show forfeiture dynamic promotion.
-          </p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -116,11 +113,8 @@ export const SmartWaitlistModule: React.FC = () => {
         <div>
           <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
             <Zap className="w-3.5 h-3.5 text-amber-500" />
-            <span>Simulate No-Show Forfeiture & Dynamic Promotion</span>
+            <span>Reallocation & Standby Queue Dispatcher</span>
           </h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">
-            Test immediate reallocation of forfeited slots to candidate #1 in line.
-          </p>
         </div>
 
         <div className="overflow-x-auto">

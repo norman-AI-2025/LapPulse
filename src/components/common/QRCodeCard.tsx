@@ -8,7 +8,9 @@ import {
   Clock, 
   Calendar,
   ShieldCheck,
-  ArrowRight
+  ArrowRight,
+  QrCode,
+  FileText
 } from 'lucide-react';
 
 interface QRCodeCardProps {
@@ -41,7 +43,9 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
   compact = false
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const secondaryCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showSecondaryQr, setShowSecondaryQr] = useState(false);
 
   // If status is Active or Completed, or if isScanned is true, it is considered scanned
   const hasBeenScanned = isScanned || 
@@ -50,8 +54,11 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
     status === 'Completed' || 
     status === 'Returned';
 
+  // Can display secondary checkout/return QR pass
+  const canShowSecondaryPass = status === 'Active' || status === 'Active / Issued';
+
   useEffect(() => {
-    // Only generate QR code if it has NOT been scanned yet
+    // Primary QR code for initial check-in / borrow
     if (!hasBeenScanned && canvasRef.current) {
       QRCode.toCanvas(canvasRef.current, tokenCode, {
         width: compact ? 130 : 170,
@@ -67,6 +74,23 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
     }
   }, [tokenCode, hasBeenScanned, compact]);
 
+  useEffect(() => {
+    // Secondary QR code for checkout / return
+    if (showSecondaryQr && secondaryCanvasRef.current) {
+      QRCode.toCanvas(secondaryCanvasRef.current, tokenCode, {
+        width: compact ? 130 : 160,
+        margin: 1,
+        color: {
+          dark: '#0f172a',
+          light: '#ffffff'
+        },
+        errorCorrectionLevel: 'M'
+      }).catch((err) => {
+        console.error('Failed to generate Secondary QR Code:', err);
+      });
+    }
+  }, [tokenCode, showSecondaryQr, compact]);
+
   const handleCopy = () => {
     navigator.clipboard.writeText(tokenCode);
     setCopied(true);
@@ -74,8 +98,9 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
   };
 
   const handleDownload = () => {
-    if (!canvasRef.current) return;
-    const url = canvasRef.current.toDataURL('image/png');
+    const activeCanvas = showSecondaryQr ? secondaryCanvasRef.current : canvasRef.current;
+    if (!activeCanvas) return;
+    const url = activeCanvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
     a.download = `Pass-${tokenCode}.png`;
@@ -83,7 +108,6 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
   };
 
   // Status Badge Fill Styling according to user instruction:
-  // "for the status active ( fill the active words containe with green ) , for pending approval ( fill the pending approval words container yellow )"
   const getStatusBadgeClass = (statusStr: string) => {
     const s = statusStr.toLowerCase();
     if (s.includes('active')) {
@@ -120,43 +144,95 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
         
         {/* 
           WHEN PASSES ARE SCANNED:
-          Replace the pass QR code with time and date check in and supposed checkout!
+          Replace the initial QR code with details, and provide button with small QR logo to show checkout/return QR code!
         */}
         {hasBeenScanned ? (
-          <div className="w-full my-1 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-left space-y-3">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Pass Verified & Scanned</span>
-            </div>
+          showSecondaryQr ? (
+            /* SECONDARY QR CODE (CHECKOUT / RETURN PASS) */
+            <div className="w-full my-1 p-3.5 rounded-2xl bg-slate-950 text-white text-center space-y-2 animate-in fade-in">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                  <QrCode className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{type === 'space' ? 'Checkout Pass' : 'Return Pass'}</span>
+                </span>
+                <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                  {tokenCode}
+                </span>
+              </div>
 
-            {/* Check-In Details */}
-            <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {type === 'space' ? 'Time & Date Checked In' : 'Date Checked In (Issued)'}
+              <div className="p-2 bg-white rounded-2xl border border-slate-700 inline-block mx-auto shadow-inner">
+                <canvas ref={secondaryCanvasRef} className="rounded-xl block" />
               </div>
-              <div className="text-xs font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                <span>{scannedInfo?.checkInTimeDate || '10 Nov 2026 at 08:05 AM'}</span>
-              </div>
-            </div>
 
-            {/* Supposed Check-Out Details */}
-            <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {type === 'space' ? 'Time & Date Supposed to Check Out' : 'Date Supposed to Return (Due)'}
-              </div>
-              <div className="text-xs font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-blue-600" />
-                <span>{scannedInfo?.supposedCheckOutTimeDate || '10 Nov 2026 at 10:00 AM'}</span>
-              </div>
+              <p className="text-[10px] text-slate-300">
+                {type === 'space'
+                  ? 'Present at exit turnstile to get scanned for check-out'
+                  : 'Present to lab officer to get scanned for return inspection'}
+              </p>
+
+              <button
+                type="button"
+                onClick={() => setShowSecondaryQr(false)}
+                className="w-full py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5 text-slate-400" />
+                <span>View Check-In Details</span>
+              </button>
             </div>
-          </div>
+          ) : (
+            /* VERIFIED DETAILS CARD WITH BUTTON (SMALL QR LOGO) TO SHOW CHECKOUT/RETURN PASS */
+            <div className="w-full my-1 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-left space-y-2.5 animate-in fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Pass Verified & Scanned</span>
+                </div>
+                <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-100/80 px-2 py-0.2 rounded-full">
+                  {type === 'space' ? 'Session Active' : 'On Loan'}
+                </span>
+              </div>
+
+              {/* Check-In Details */}
+              <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {type === 'space' ? 'Time & Date Checked In' : 'Date Checked In (Issued)'}
+                </div>
+                <div className="text-xs font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{scannedInfo?.checkInTimeDate || `${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} at 08:05 AM`}</span>
+                </div>
+              </div>
+
+              {/* Supposed Check-Out Details */}
+              <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {type === 'space' ? 'Time & Date Supposed to Check Out' : 'Date Supposed to Return (Due)'}
+                </div>
+                <div className="text-xs font-bold text-slate-900 mt-0.5 flex items-center gap-1.5">
+                  <Calendar className="w-3.5 h-3.5 text-blue-600" />
+                  <span>{scannedInfo?.supposedCheckOutTimeDate || `${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} at 10:00 AM`}</span>
+                </div>
+              </div>
+
+              {/* BUTTON WITH SMALL QR LOGO TO SHOW CHECKOUT / RETURN PASS */}
+              {canShowSecondaryPass && (
+                <button
+                  type="button"
+                  onClick={() => setShowSecondaryQr(true)}
+                  className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-sm mt-1"
+                >
+                  <QrCode className="w-3.5 h-3.5 text-cyan-400" />
+                  <span>{type === 'space' ? 'Show Checkout Pass' : 'Show Return Pass'}</span>
+                </button>
+              )}
+            </div>
+          )
         ) : (
-          /* NOT YET SCANNED: Display Vector QR Pass */
+          /* NOT YET SCANNED: Display Initial Vector QR Pass */
           <div className="p-2 bg-white rounded-2xl border border-slate-100 shadow-inner inline-block my-1">
             <canvas ref={canvasRef} className="rounded-xl block" />
             <div className="text-[9px] font-semibold text-slate-400 mt-1 uppercase">
-              Present for Scan
+              {type === 'space' ? 'Present to get scanned at turnstile' : 'Present to get scanned to collect hardware'}
             </div>
           </div>
         )}
@@ -185,7 +261,7 @@ export const QRCodeCard: React.FC<QRCodeCardProps> = ({
             <span>{copied ? 'Copied' : 'Copy Code'}</span>
           </button>
           
-          {!hasBeenScanned && (
+          {(!hasBeenScanned || showSecondaryQr) && (
             <button
               onClick={handleDownload}
               className="text-slate-500 hover:text-slate-900 flex items-center gap-1 font-medium transition-colors"
