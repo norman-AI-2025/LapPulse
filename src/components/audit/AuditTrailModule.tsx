@@ -2,12 +2,7 @@ import React from 'react';
 import { useLabPulse } from '../../context/LabPulseContext';
 import { 
   History, 
-  ShieldCheck, 
-  Clock, 
-  Cpu, 
-  Building2, 
-  RotateCcw,
-  Sparkles
+  Clock 
 } from 'lucide-react';
 
 export const AuditTrailModule: React.FC = () => {
@@ -32,54 +27,54 @@ export const AuditTrailModule: React.FC = () => {
     <div className="space-y-6">
       
       {/* Top Banner */}
-      <div className="bento-card rounded-3xl p-5 sm:p-7 border border-slate-200/90 relative overflow-hidden">
+      <div className="bg-white rounded-xl p-5 sm:p-7 border border-slate-200 shadow-xs relative overflow-hidden">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-800 text-xs font-semibold mb-2">
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-slate-700 text-xs font-medium mb-2">
               <History className="w-3.5 h-3.5" />
-              <span>Immutable Ledger & Activity Stream</span>
+              <span>Immutable ledger & activity stream</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Cryptographic Audit Trail & Operations Log
             </h1>
           </div>
 
-          <div className="text-right">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Ledger Count</span>
-            <div className="text-xl font-black text-slate-900 mt-0.5">{auditLogs.length} Events Logged</div>
+          <div className="text-left sm:text-right">
+            <span className="text-xs font-medium text-slate-500 block">Ledger count</span>
+            <div className="text-lg font-mono tabular-nums font-semibold text-slate-900 mt-0.5">{auditLogs.length} events logged</div>
           </div>
         </div>
       </div>
 
       {/* AUDIT LOG TIMELINE LIST */}
-      <div className="bento-card rounded-3xl p-5 sm:p-6 border border-slate-200/90">
-        <div className="space-y-4">
-          {auditLogs.map((log, index) => (
+      <div className="bg-white rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs">
+        <div className="space-y-3">
+          {auditLogs.map((log) => (
             <div
               key={log.id}
-              className="flex items-start gap-3.5 p-3.5 rounded-2xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200/80"
+              className="flex items-start gap-3.5 p-3.5 rounded-lg hover:bg-slate-50 transition-colors duration-150 border border-transparent hover:border-slate-200"
             >
-              <div className="p-2 rounded-xl bg-slate-100 text-slate-700 mt-0.5">
+              <div className="p-2 rounded-md bg-slate-100 text-slate-600 mt-0.5">
                 <Clock className="w-4 h-4" />
               </div>
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-slate-900">{log.action}</span>
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border uppercase ${getCategoryBadge(log.category)}`}>
+                    <span className="font-semibold text-sm text-slate-900">{log.action}</span>
+                    <span className={`px-2 py-0.5 rounded-md text-xs font-mono tabular-nums font-medium border ${getCategoryBadge(log.category)}`}>
                       {log.category}
                     </span>
                   </div>
-                  <span className="text-[11px] font-mono text-slate-400">{log.timestamp}</span>
+                  <span className="text-xs font-mono tabular-nums text-slate-500">{log.timestamp}</span>
                 </div>
 
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">{log.details}</p>
 
-                <div className="mt-2 text-[10px] text-slate-400 flex items-center gap-2">
-                  <span>Actor: <strong className="text-slate-600">{log.actor}</strong> ({log.actorRole})</span>
+                <div className="mt-2 text-xs text-slate-400 flex items-center gap-2">
+                  <span>Actor: <strong className="text-slate-700 font-medium">{log.actor}</strong> ({log.actorRole})</span>
                   <span>•</span>
-                  <span>FCSIT Secure Audit Signature Valid</span>
+                  <span>FCSIT secure audit signature valid</span>
                 </div>
               </div>
             </div>

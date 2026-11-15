@@ -428,7 +428,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       </div>
 
       {/* Space Hero Info Header */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-4">
           <img
             src={room.imageUrl}
@@ -460,8 +460,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
         {/* Action Status */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 text-right">
-          <span className="text-xs font-medium text-slate-400">Timetable View</span>
-          <span className={`text-xs font-bold px-2.5 py-1 rounded-full border mt-1 ${
+          <span className="text-xs font-medium text-slate-400">Timetable view</span>
+          <span className={`text-xs font-medium px-2.5 py-1 rounded-md border mt-1 font-mono ${
             isUnderRepair
               ? 'text-rose-700 bg-rose-50 border-rose-200'
               : isOfficer
@@ -469,9 +469,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               : 'text-emerald-700 bg-emerald-50 border-emerald-200/60'
           }`}>
             {isUnderRepair
-              ? 'Under Repair • Bookings Disabled'
+              ? 'Under repair • bookings disabled'
               : isOfficer
-              ? 'Officer Mode: Schedule Read-Only'
+              ? 'Officer mode: schedule read-only'
               : 'Click any cell to book'}
           </span>
         </div>
@@ -479,17 +479,17 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
       {/* Under Repair Alert Banner */}
       {isUnderRepair && (
-        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
-          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
+          <div className="w-10 h-10 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
             <Wrench className="w-5 h-5" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900 uppercase">
-                Under Repair
+              <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-rose-200 text-rose-900">
+                Under repair
               </span>
-              <h3 className="text-xs sm:text-sm font-bold text-rose-950">
-                Facility Under Technical Maintenance
+              <h3 className="text-xs sm:text-sm font-semibold text-rose-950">
+                Facility under technical maintenance
               </h3>
             </div>
             <p className="text-xs text-rose-700 mt-1 leading-relaxed">
@@ -499,21 +499,21 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
         </div>
       )}
 
-      {/* Week Navigation Header (Faithful to uploaded screenshot with Last Week ⬅ This Week ➡ Next Week) */}
+      {/* Week Navigation Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-1 pt-1 pb-1">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-800">
-            Timetable Schedule: Week of {weekDays[0].displayDate} – {weekDays[6].displayDate}
+          <span className="text-xs font-semibold text-slate-800">
+            Timetable schedule: Week of {weekDays[0].displayDate} – {weekDays[6].displayDate}
           </span>
           {weekOffset === 0 && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">
-              Current Week
+            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-md bg-teal-100 text-teal-800">
+              Current week
             </span>
           )}
         </div>
 
-        {/* Top-Right Navigation matching the screenshot */}
-        <div className="flex items-center gap-3 text-xs font-semibold self-end sm:self-auto">
+        {/* Top-Right Navigation */}
+        <div className="flex items-center gap-3 text-xs font-medium self-end sm:self-auto">
           <button
             onClick={() => setWeekOffset((prev) => prev - 1)}
             className="text-sky-600 hover:text-sky-800 flex items-center gap-1 transition-colors cursor-pointer"
@@ -546,7 +546,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       </div>
 
       {/* THE INTERACTIVE TIMETABLE GRID (FAITHFUL TO FCSIT SCREENSHOT WITH APPLE-GRADE FINISH) */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
         
         {/* Scrollable Container */}
         <div className="overflow-x-auto">
@@ -564,14 +564,14 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                   <th
                     key={day.dateStr}
                     className={`p-3 text-center border-r border-b border-white transition-colors ${
-                      day.isToday ? 'bg-[#22B2B2] text-white font-extrabold' : 'bg-[#176B76]'
+                      day.isToday ? 'bg-[#22B2B2] text-white font-bold' : 'bg-[#176B76]'
                     }`}
                   >
-                    <div className="font-bold text-xs">{day.dayName}</div>
-                    <div className="text-[10px] font-semibold opacity-95 mt-0.5">{day.displayDate}</div>
+                    <div className="font-semibold text-xs">{day.dayName}</div>
+                    <div className="text-xs font-mono opacity-90 mt-0.5">{day.displayDate}</div>
                     {day.isToday && (
-                      <span className="inline-block mt-1 text-[9px] uppercase tracking-wider bg-white/25 text-white px-2 py-0.2 rounded-full font-bold">
-                        TODAY
+                      <span className="inline-block mt-1 text-xs font-mono font-medium bg-white/20 text-white px-2 py-0.5 rounded-md">
+                        Today
                       </span>
                     )}
                   </th>
@@ -584,8 +584,8 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               {TIME_BLOCKS.map((timeBlock, rowIndex) => (
                 <tr key={timeBlock} className="transition-colors">
                   
-                  {/* Sticky Time Block Label Column: Deep Teal matching screenshot */}
-                  <td className="sticky left-0 z-10 p-2.5 font-sans text-[11px] font-bold text-white bg-[#176B76] border-r border-b border-white text-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
+                  {/* Sticky Time Block Label Column */}
+                  <td className="sticky left-0 z-10 p-2.5 font-mono text-xs font-medium text-white bg-[#176B76] border-r border-b border-white text-center whitespace-nowrap shadow-[2px_0_5px_-2px_rgba(0,0,0,0.2)]">
                     {timeBlock}
                   </td>
 
@@ -594,7 +594,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                     const booking = getBookingForCell(day.dateStr, timeBlock);
                     const isMyBooking = booking?.userId === currentUser.id;
 
-                    // CASE 1: PUBLIC HOLIDAY / CLOSED (Dark Red - e.g. Hari Deepavali)
+                    // CASE 1: PUBLIC HOLIDAY / CLOSED
                     if (day.isHoliday) {
                       return (
                         <td
@@ -602,7 +602,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                           className="p-1 border-r border-b border-white bg-[#801818] text-white text-center cursor-not-allowed select-none transition-colors"
                         >
                           {rowIndex === 0 ? (
-                            <div className="py-1 font-extrabold text-[11px] tracking-wider uppercase text-white drop-shadow-xs">
+                            <div className="py-1 font-semibold text-xs text-white">
                               {day.holidayName}
                             </div>
                           ) : (
@@ -617,14 +617,14 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       return (
                         <td
                           key={day.dateStr}
-                          className="p-1 border-r border-b border-white bg-[#E5E7EB] text-slate-400 text-center text-[10px]"
+                          className="p-1 border-r border-b border-white bg-[#E5E7EB] text-slate-400 text-center text-xs"
                         >
-                          {rowIndex === 0 && <span className="font-semibold text-slate-500">Closed</span>}
+                          {rowIndex === 0 && <span className="font-medium text-slate-500">Closed</span>}
                         </td>
                       );
                     }
 
-                    // CASE 3: BOOKED CELL (Vibrant Cyan / Blue or Pending Yellow)
+                    // CASE 3: BOOKED CELL
                     if (booking) {
                       const isPending = booking.status === 'Pending Endorsement' || booking.status === 'Pending Approval';
                       const prevBooking = rowIndex > 0 ? getBookingForCell(day.dateStr, TIME_BLOCKS[rowIndex - 1]) : null;
@@ -638,7 +638,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                           onClick={() => handleCellClick(day, timeBlock)}
                           className={`p-1 border-r ${
                             isLastSlot ? 'border-b border-b-white' : 'border-b border-b-white/20'
-                          } border-white cursor-pointer transition-all ${
+                          } border-white cursor-pointer transition-colors ${
                             isPending
                               ? 'bg-[#FFEB3B] text-slate-900 hover:bg-yellow-300'
                               : isMyBooking
@@ -648,28 +648,28 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                           title={`Booked by ${booking.userName} (${booking.userMatric || 'ID'})\nPurpose: ${booking.purpose}\nStatus: ${booking.status}\nToken: ${booking.tokenCode}`}
                         >
                           {isFirstSlot ? (
-                            <div className="p-1 rounded text-[10px] leading-tight flex flex-col justify-between h-full min-h-[44px]">
+                            <div className="p-1 rounded text-xs leading-tight flex flex-col justify-between h-full min-h-[44px]">
                               <div className="flex items-center justify-between gap-1">
-                                <span className={`font-mono font-bold text-[9px] uppercase px-1 py-0.2 rounded ${
+                                <span className={`font-mono font-medium text-xs px-1.5 py-0.5 rounded-md ${
                                   isPending
                                     ? 'bg-slate-900 text-white'
                                     : isMyBooking
-                                    ? 'bg-amber-400 text-slate-950 font-black'
+                                    ? 'bg-amber-400 text-slate-950 font-semibold'
                                     : 'bg-white/25 text-white'
                                 }`}>
-                                  [{isMyBooking ? 'MY PASS' : isPending ? 'PENDING' : 'BOOKED'}]
+                                  {isMyBooking ? 'My pass' : isPending ? 'Pending' : 'Booked'}
                                 </span>
-                                <span className="font-mono text-[9px] opacity-80">
+                                <span className="font-mono text-xs opacity-80">
                                   {booking.tokenCode}
                                 </span>
                               </div>
 
-                              <div className="font-bold truncate text-[10px] mt-0.5">
+                              <div className="font-semibold truncate text-xs mt-0.5">
                                 {booking.userName}
                               </div>
 
-                              <div className="text-[9px] opacity-90 truncate italic">
-                                "{booking.purpose || 'Space Reservation'}"
+                              <div className="text-xs opacity-90 truncate italic">
+                                "{booking.purpose || 'Space reservation'}"
                               </div>
                             </div>
                           ) : (
@@ -679,7 +679,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       );
                     }
 
-                    // CASE 4: PAST DATE (No bookings permitted)
+                    // CASE 4: PAST DATE
                     if (day.isPast) {
                       return (
                         <td
@@ -692,50 +692,50 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       );
                     }
 
-                    // CASE 4.2: WITHIN 2 HOURS FROM NOW (Advance Notice Required)
+                    // CASE 4.2: WITHIN 2 HOURS FROM NOW
                     if (!isOfficer && isSlotWithin2Hours(day.dateStr, timeBlock)) {
                       return (
                         <td
                           key={day.dateStr}
                           onClick={() => handleCellClick(day, timeBlock)}
-                          className="p-1 border-r border-b border-white bg-slate-100/90 text-slate-400 text-center cursor-not-allowed select-none transition-colors"
+                          className="p-1 border-r border-b border-white bg-slate-100 text-slate-400 text-center cursor-not-allowed select-none transition-colors"
                           title={`Advance Notice Required: Earliest booking starts at ${getEarliestBookingTimeStr()} (< 2 hours from now)`}
                         >
                           <div className="h-5 flex items-center justify-center">
-                            <span className="text-[9px] font-medium text-slate-400/90 tracking-tight">
-                              &lt; 2h Notice
+                            <span className="text-xs font-mono text-slate-400">
+                              2h notice
                             </span>
                           </div>
                         </td>
                       );
                     }
 
-                    // CASE 4.5: UNDER REPAIR (Bookings Disabled)
+                    // CASE 4.5: UNDER REPAIR
                     if (isUnderRepair) {
                       return (
                         <td
                           key={day.dateStr}
                           className="p-1 border-r border-b border-white bg-rose-50/70 text-rose-700 text-center cursor-not-allowed select-none transition-colors"
-                          title="Facility Under Repair - Space bookings disabled"
+                          title="Facility under repair - space bookings disabled"
                         >
                           <div className="h-5 flex items-center justify-center">
-                            <span className="text-[9px] font-bold uppercase tracking-wider text-rose-600/80">
-                              Under Repair
+                            <span className="text-xs font-mono font-medium text-rose-700">
+                              Under repair
                             </span>
                           </div>
                         </td>
                       );
                     }
 
-                    // CASE 5: AVAILABLE CELL (Neutral Gray #E5E7EB matching screenshot, Click to Book)
+                    // CASE 5: AVAILABLE CELL
                     return (
                       <td
                         key={day.dateStr}
                         onClick={() => handleCellClick(day, timeBlock)}
-                        className="p-1 border-r border-b border-white bg-[#E5E7EB] hover:bg-teal-100/70 transition-all cursor-pointer group text-center"
+                        className="p-1 border-r border-b border-white bg-[#E5E7EB] hover:bg-teal-100/70 transition-colors cursor-pointer group text-center"
                       >
                         <div className="h-5 flex items-center justify-center">
-                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold text-teal-800 flex items-center gap-0.5">
+                          <span className="opacity-0 group-hover:opacity-100 transition-opacity text-xs font-medium text-teal-800 flex items-center gap-0.5">
                             <Plus className="w-3 h-3 text-teal-700" />
                             <span>Book</span>
                           </span>
@@ -749,19 +749,19 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
           </table>
         </div>
 
-        {/* Legend Bar at Bottom (Exact match to uploaded screenshot layout) */}
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs font-semibold">
+        {/* Legend Bar at Bottom */}
+        <div className="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs font-medium">
           <div className="flex items-center gap-6">
-            <span className="text-slate-500 font-bold uppercase text-[11px] tracking-wide">Legend :</span>
+            <span className="text-slate-500 font-medium text-xs">Legend:</span>
             
             <div className="flex items-center gap-2">
-              <span className="w-5 h-4 rounded-xs bg-[#E5E7EB] border border-slate-300 inline-block shadow-xs" />
+              <span className="w-4 h-4 rounded-xs bg-[#E5E7EB] border border-slate-300 inline-block shadow-xs" />
               <span className="text-slate-800">Available</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="w-5 h-4 rounded-xs bg-rose-100 border border-rose-300 inline-block shadow-xs" />
-              <span className="text-rose-800">Under Repair</span>
+              <span className="w-4 h-4 rounded-xs bg-rose-100 border border-rose-300 inline-block shadow-xs" />
+              <span className="text-rose-800">Under repair</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -800,17 +800,17 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
       {/* OFFICER USER FLOW: QUEUE LIST, HISTORY LIST & REPORTS (REPLACING BOOKING FUNCTION) */}
       {isOfficer && (
-        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-5 animate-in fade-in">
+        <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-xs space-y-5 animate-in fade-in">
           
           {/* Header & Sub-Navigation Pills */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
-                  Officer Desk
+                <span className="text-xs font-mono font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                  Officer desk
                 </span>
                 <span className="text-xs text-slate-400">•</span>
-                <span className="text-xs text-slate-500 font-medium">Laboratory Operations & Audit</span>
+                <span className="text-xs text-slate-500 font-medium">Laboratory operations & audit</span>
               </div>
               <h2 className="text-lg font-bold text-slate-900 mt-1">
                 Space Management Station: {room.name}
@@ -818,19 +818,19 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
             </div>
 
             {/* Segmented 3-Tab Control */}
-            <div className="flex items-center bg-slate-100 p-1 rounded-2xl">
+            <div className="flex items-center bg-slate-100 p-1 rounded-xl">
               <button
                 onClick={() => setOfficerTab('queue')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                   officerTab === 'queue'
-                    ? 'bg-white text-slate-900 shadow-sm'
+                    ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Users className="w-3.5 h-3.5 text-amber-500" />
-                <span>Queue List</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                  roomPendingBookings.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
+                <span>Queue list</span>
+                <span className={`text-xs font-mono tabular-nums px-1.5 py-0.2 rounded-md font-medium ${
+                  roomPendingBookings.length > 0 ? 'bg-amber-100 text-amber-900' : 'bg-slate-200 text-slate-600'
                 }`}>
                   {roomPendingBookings.length}
                 </span>
@@ -838,32 +838,32 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
 
               <button
                 onClick={() => setOfficerTab('history')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                   officerTab === 'history'
-                    ? 'bg-white text-slate-900 shadow-sm'
+                    ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Clock className="w-3.5 h-3.5 text-blue-500" />
-                <span>History List</span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-slate-200 text-slate-600">
+                <span>History list</span>
+                <span className="text-xs font-mono tabular-nums px-1.5 py-0.2 rounded-md font-medium bg-slate-200 text-slate-600">
                   {roomHistoryBookings.length}
                 </span>
               </button>
 
               <button
                 onClick={() => setOfficerTab('reports')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 cursor-pointer ${
                   officerTab === 'reports'
-                    ? 'bg-white text-slate-900 shadow-sm'
+                    ? 'bg-white text-slate-900 shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 <Wrench className="w-3.5 h-3.5 text-rose-500" />
-                <span>Space Reports</span>
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                <span>Space reports</span>
+                <span className={`text-xs font-mono tabular-nums px-1.5 py-0.2 rounded-md font-medium ${
                   roomReports.filter(r => r.status !== 'Resolved').length > 0
-                    ? 'bg-rose-100 text-rose-800'
+                    ? 'bg-rose-100 text-rose-900'
                     : 'bg-slate-200 text-slate-600'
                 }`}>
                   {roomReports.length}
@@ -889,7 +889,7 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               ) : (
                 <div className="space-y-3">
                   {roomPendingBookings.map((b) => (
-                    <div key={b.id} className="p-4 rounded-2xl border border-amber-200/80 bg-amber-50/30 space-y-3 transition-all hover:shadow-sm">
+                    <div key={b.id} className="p-4 rounded-xl border border-amber-200/80 bg-amber-50/30 space-y-3 transition-colors duration-150 hover:border-amber-300">
                       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                         <div>
                           <div className="flex items-center gap-2">
@@ -947,9 +947,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       </div>
 
                       {/* Reason & Project Objective Callout */}
-                      <div className="p-3 bg-white rounded-xl border border-slate-200/80">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-                          Reason & Project Objective
+                      <div className="p-3 bg-white rounded-lg border border-slate-200">
+                        <span className="text-xs font-medium text-slate-500 block mb-0.5">
+                          Reason & project objective
                         </span>
                         <p className="text-xs font-medium text-slate-800 leading-relaxed">
                           &ldquo;{b.purpose}&rdquo;
@@ -1032,39 +1032,39 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                         {isExpanded && (
                           <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5 text-xs animate-in fade-in">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Digital Pass Token</span>
-                                <span className="font-mono font-bold text-blue-700">{b.tokenCode}</span>
+                              <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                <span className="text-xs font-medium text-slate-500 block">Digital pass token</span>
+                                <span className="font-mono tabular-nums font-semibold text-blue-700">{b.tokenCode}</span>
                               </div>
-                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Registered Student Email</span>
+                              <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                <span className="text-xs font-medium text-slate-500 block">Registered student email</span>
                                 <span className="font-medium text-slate-800">{b.userEmail}</span>
                               </div>
                             </div>
 
-                            <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                              <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Full Reason & Purpose</span>
+                            <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                              <span className="text-xs font-medium text-slate-500 block mb-0.5">Full reason & purpose</span>
                               <p className="text-slate-800 font-medium">{b.purpose}</p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Physical Check-In</span>
-                                <span className="font-semibold text-slate-800">{b.checkInTime ? `${b.date} at ${b.checkInTime}` : 'Not checked in'}</span>
+                              <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                <span className="text-xs font-medium text-slate-500 block">Physical check-in</span>
+                                <span className="font-medium font-mono tabular-nums text-slate-800">{b.checkInTime ? `${b.date} at ${b.checkInTime}` : 'Not checked in'}</span>
                               </div>
-                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Physical Check-Out</span>
-                                <span className="font-semibold text-slate-800">{b.checkOutTime || 'Slot end checkout'}</span>
+                              <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                <span className="text-xs font-medium text-slate-500 block">Physical check-out</span>
+                                <span className="font-medium font-mono tabular-nums text-slate-800">{b.checkOutTime || 'Slot end checkout'}</span>
                               </div>
-                              <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                <span className="text-[10px] font-bold uppercase text-slate-400 block">Supervisor Endorsement</span>
-                                <span className="font-semibold text-slate-800">{b.supervisorName || 'Not required'}</span>
+                              <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                <span className="text-xs font-medium text-slate-500 block">Supervisor endorsement</span>
+                                <span className="font-medium text-slate-800">{b.supervisorName || 'Not required'}</span>
                               </div>
                             </div>
 
                             {b.adminNote && (
-                              <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-100 text-amber-900">
-                                <span className="text-[10px] font-bold uppercase block">Officer Review Note</span>
+                              <div className="p-2.5 bg-amber-50 rounded-lg border border-amber-100 text-amber-900">
+                                <span className="text-xs font-medium text-amber-800 block">Officer review note</span>
                                 <p className="text-xs">{b.adminNote}</p>
                               </div>
                             )}
@@ -1161,14 +1161,14 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                         {/* Expanded Report Details */}
                         {isExpanded && (
                           <div className="mt-3 pt-3 border-t border-slate-100 space-y-3 text-xs animate-in fade-in">
-                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
-                              <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Full Incident Description</span>
+                            <div className="p-3 bg-slate-50 rounded-lg border border-slate-100">
+                              <span className="text-xs font-medium text-slate-500 block mb-0.5">Full incident description</span>
                               <p className="text-slate-800 font-medium leading-relaxed">{rep.description}</p>
                             </div>
 
                             {rep.resolutionNotes && (
-                              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-100 text-emerald-950">
-                                <span className="text-[10px] font-bold uppercase text-emerald-700 block mb-0.5">Technician Resolution Log</span>
+                              <div className="p-3 bg-emerald-50 rounded-lg border border-emerald-100 text-emerald-950">
+                                <span className="text-xs font-medium text-emerald-700 block mb-0.5">Technician resolution log</span>
                                 <p className="leading-relaxed">{rep.resolutionNotes}</p>
                               </div>
                             )}
@@ -1219,37 +1219,37 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       {/* MODAL 1: Clean Interactive Booking Drawer when clicking an Available cell (STUDENTS ONLY) */}
       {!isOfficer && activeBookingSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
             
             <div className="p-5 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-                  Reserve Laboratory Slot
+                <span className="text-xs font-mono font-medium text-blue-700">
+                  Reserve laboratory slot
                 </span>
                 <h3 className="text-base font-bold text-slate-900 mt-0.5">{room.name}</h3>
                 <p className="text-xs text-slate-500 mt-0.5">{room.floor}, {room.block}</p>
               </div>
               <button
                 onClick={() => setActiveBookingSlot(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors duration-150 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleConfirmBooking} className="p-5 space-y-3.5 text-xs">
               
               {/* Selected Slot Metadata Card */}
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 grid grid-cols-2 gap-2">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 grid grid-cols-2 gap-2">
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Selected Date</span>
-                  <div className="font-bold text-slate-800 text-xs mt-0.5">
+                  <span className="text-xs font-medium text-slate-500 block">Selected date</span>
+                  <div className="font-semibold text-slate-800 text-xs mt-0.5">
                     {activeBookingSlot.date} ({activeBookingSlot.dayName})
                   </div>
                 </div>
                 <div>
-                  <span className="text-[10px] font-semibold text-slate-400 uppercase">Time Slot</span>
-                  <div className="font-mono font-bold text-slate-800 text-xs mt-0.5">
+                  <span className="text-xs font-medium text-slate-500 block">Time slot</span>
+                  <div className="font-mono tabular-nums font-semibold text-slate-800 text-xs mt-0.5">
                     {activeBookingSlot.timeBlock}
                   </div>
                 </div>
@@ -1284,9 +1284,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                       key={d}
                       type="button"
                       onClick={() => setDuration(d)}
-                      className={`py-1.5 px-2 rounded-xl text-[11px] font-semibold border transition-all ${
+                      className={`py-1.5 px-2 rounded-lg text-xs font-semibold border transition-colors duration-150 cursor-pointer ${
                         duration === d
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                          ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                           : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
@@ -1353,11 +1353,11 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       {/* MODAL 3: Submit New Space Incident / Issue Report */}
       {isReportModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">
-                  Report Space Issue
+                <span className="text-xs font-mono font-medium text-rose-600">
+                  Report space issue
                 </span>
                 <h3 className="text-base font-bold text-slate-900 mt-0.5">{room.name}</h3>
                 <p className="text-xs text-slate-500">{room.floor}, {room.block}</p>
@@ -1365,9 +1365,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
               <button
                 type="button"
                 onClick={() => setIsReportModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors duration-150 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -1460,34 +1460,34 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
       {/* MODAL 2: Inspect Booked Slot details + Option to Join Waitlist */}
       {inspectSlot && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Slot Details
+                <span className="text-xs font-mono font-medium text-slate-500">
+                  Slot details
                 </span>
                 <h3 className="text-sm font-bold text-slate-900 mt-0.5">{room.name}</h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs font-mono tabular-nums text-slate-500">
                   {inspectSlot.date} • {inspectSlot.booking.slot || inspectSlot.timeBlock}
                 </p>
               </div>
               <button
                 onClick={() => setInspectSlot(null)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors duration-150 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-5 space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-2xl space-y-1">
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-slate-800">{inspectSlot.booking.userName}</span>
-                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200">
+                  <span className="font-mono text-xs tabular-nums font-medium px-2 py-0.5 rounded-md bg-white border border-slate-200">
                     {inspectSlot.booking.tokenCode}
                   </span>
                 </div>
-                <p className="text-slate-600 text-[11px]">{inspectSlot.booking.purpose}</p>
+                <p className="text-slate-600 text-xs">{inspectSlot.booking.purpose}</p>
               </div>
 
               {inspectSlot.booking.userId === currentUser.id ? (
@@ -1496,9 +1496,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                     setInspectSlot(null);
                     setActiveTab('my-passes');
                   }}
-                  className="w-full py-2 rounded-xl bg-blue-600 text-white font-semibold text-xs"
+                  className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs transition-colors duration-150 shadow-xs cursor-pointer"
                 >
-                  View My Digital Pass
+                  View my digital pass
                 </button>
               ) : (
                 <button
@@ -1506,9 +1506,9 @@ export const SpaceTimetableView: React.FC<SpaceTimetableViewProps> = ({
                     joinWaitlist('room', room.id, room.name, `${inspectSlot.date} (${inspectSlot.timeBlock})`, inspectSlot.date);
                     setInspectSlot(null);
                   }}
-                  className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors"
+                  className="w-full py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs transition-colors duration-150 shadow-xs cursor-pointer"
                 >
-                  Join Waitlist for this Slot
+                  Join waitlist for this slot
                 </button>
               )}
             </div>

@@ -255,7 +255,7 @@ export const MessagesModule: React.FC = () => {
                 markAllNotificationsAsRead();
                 addToast('All Caught Up', 'All messages marked as read.', 'success');
               }}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-colors duration-150 cursor-pointer"
             >
               <CheckCheck className="w-3.5 h-3.5 text-blue-600" />
               <span>Mark all read</span>
@@ -271,10 +271,10 @@ export const MessagesModule: React.FC = () => {
         <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           <button
             onClick={() => setFilter('ALL')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               filter === 'ALL'
                 ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             All ({roleFiltered.length})
@@ -282,10 +282,10 @@ export const MessagesModule: React.FC = () => {
 
           <button
             onClick={() => setFilter('UNREAD')}
-            className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               filter === 'UNREAD'
                 ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             Unread ({unreadCount})
@@ -293,10 +293,10 @@ export const MessagesModule: React.FC = () => {
 
           <button
             onClick={() => setFilter('SPACE')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               filter === 'SPACE'
                 ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Building2 className="w-3.5 h-3.5" />
@@ -305,10 +305,10 @@ export const MessagesModule: React.FC = () => {
 
           <button
             onClick={() => setFilter('HARDWARE')}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               filter === 'HARDWARE'
                 ? 'bg-slate-900 text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
             <Cpu className="w-3.5 h-3.5" />
@@ -318,10 +318,10 @@ export const MessagesModule: React.FC = () => {
           {endorseCount > 0 && (
             <button
               onClick={() => setFilter('ENDORSEMENT')}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                 filter === 'ENDORSEMENT'
                   ? 'bg-slate-900 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               }`}
             >
               <CheckSquare2 className="w-3.5 h-3.5" />
@@ -355,9 +355,9 @@ export const MessagesModule: React.FC = () => {
       {/* NOTIFICATION FEED CARDS */}
       <div className="space-y-3.5">
         {displayList.length === 0 ? (
-          <div className="bg-white rounded-3xl p-12 border border-slate-200/80 shadow-xs text-center space-y-3">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
-              <Inbox className="w-7 h-7" />
+          <div className="bg-white rounded-xl p-12 border border-slate-200/80 shadow-xs text-center space-y-3">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center mx-auto text-slate-400">
+              <Inbox className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-800">
               {searchQuery ? 'No matching notifications' : 'No new notifications'}
@@ -390,7 +390,7 @@ export const MessagesModule: React.FC = () => {
               <div
                 key={notif.id}
                 onClick={() => toggleExpand(notif.id)}
-                className={`bg-white rounded-2xl border transition-all duration-200 overflow-hidden cursor-pointer group ${
+                className={`bg-white rounded-xl border transition-colors duration-150 overflow-hidden cursor-pointer group ${
                   isUnread
                     ? 'border-blue-300 ring-2 ring-blue-500/10 shadow-xs'
                     : 'border-slate-200/80 shadow-xs hover:border-slate-300'
@@ -436,16 +436,16 @@ export const MessagesModule: React.FC = () => {
                           {cleanTag}
                         </span>
 
-                        <span className="text-xs text-slate-400 font-medium">
+                        <span className="text-xs text-slate-400 font-normal">
                           {notif.timestamp}
                         </span>
 
                         {isUnread && (
-                          <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+                          <span className="w-2 h-2 rounded-full bg-blue-600" />
                         )}
                       </div>
 
-                      <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
+                      <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors truncate">
                         {notif.title}
                       </h3>
 
@@ -459,13 +459,13 @@ export const MessagesModule: React.FC = () => {
                   {/* Right: Quick Action & Toggle */}
                   <div className="flex items-center justify-between sm:justify-end gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 flex-shrink-0">
                     
-                    {/* Primary CTA: Pops up QR and Info Modal for Hardware and Space */}
+                    {/* Primary CTA */}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleActionClick(notif);
                       }}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer group-hover:scale-[1.02]"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer"
                     >
                       {isSpace ? (
                         <QrCode className="w-3.5 h-3.5 text-amber-300" />
@@ -519,27 +519,27 @@ export const MessagesModule: React.FC = () => {
                     {/* Metadata Bento Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 text-xs">
                       
-                      <div className="bg-white p-3 rounded-xl border border-slate-200/80 flex items-center justify-between">
+                      <div className="bg-white p-3 rounded-lg border border-slate-200/80 flex items-center justify-between">
                         <div className="space-y-0.5">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">Item / Venue</span>
-                          <div className="font-semibold text-slate-800 truncate max-w-[160px]">{notif.identifier}</div>
+                          <span className="text-xs font-medium text-slate-500">Item / venue</span>
+                          <div className="font-semibold text-slate-800 truncate max-w-[160px] font-mono">{notif.identifier}</div>
                         </div>
                         <button
                           onClick={(e) => handleCopyIdentifier(e, notif.identifier)}
-                          className="p-1 text-slate-400 hover:text-slate-700"
+                          className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"
                           title="Copy ID"
                         >
                           {copiedId === notif.identifier ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </div>
 
-                      <div className="bg-white p-3 rounded-xl border border-slate-200/80 space-y-0.5">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Scheduled Deadline</span>
-                        <div className="font-semibold text-slate-800">{notif.dueOrEndTime}</div>
+                      <div className="bg-white p-3 rounded-lg border border-slate-200/80 space-y-0.5">
+                        <span className="text-xs font-medium text-slate-500">Scheduled deadline</span>
+                        <div className="font-semibold text-slate-800 font-mono">{notif.dueOrEndTime}</div>
                       </div>
 
-                      <div className="bg-white p-3 rounded-xl border border-slate-200/80 space-y-0.5">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase">Operating Location</span>
+                      <div className="bg-white p-3 rounded-lg border border-slate-200/80 space-y-0.5">
+                        <span className="text-xs font-medium text-slate-500">Operating location</span>
                         <div className="font-semibold text-slate-800 truncate">{notif.locationOrDesk}</div>
                       </div>
 
@@ -547,10 +547,10 @@ export const MessagesModule: React.FC = () => {
 
                     {/* Operational Instruction Box */}
                     {notif.instruction && (
-                      <div className="bg-white p-3.5 rounded-xl border border-slate-200/80 text-xs text-slate-700 space-y-1">
-                        <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                      <div className="bg-white p-3 rounded-lg border border-slate-200/80 text-xs text-slate-700 space-y-1">
+                        <div className="font-semibold text-slate-900 flex items-center gap-1.5">
                           <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                          <span>Standard Operating Instruction:</span>
+                          <span>Standard operating instruction:</span>
                         </div>
                         <p className="leading-relaxed text-slate-600 pl-5">
                           {notif.instruction}
@@ -570,7 +570,7 @@ export const MessagesModule: React.FC = () => {
                             e.stopPropagation();
                             handleActionClick(notif);
                           }}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold shadow-xs transition-colors"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium shadow-xs transition-colors cursor-pointer"
                         >
                           <QrCode className="w-3.5 h-3.5 text-amber-300" />
                           <span>{notif.actionLabel.replace(/[[\]]/g, '')}</span>
@@ -587,21 +587,21 @@ export const MessagesModule: React.FC = () => {
         )}
       </div>
 
-      {/* POP UP QR CODE & INFO MODAL IN THE MIDDLE OF SCREEN WITH BLURRED BACKGROUND */}
+      {/* POP UP QR CODE & INFO MODAL */}
       {previewPass && (
         <div 
-          className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200 select-none"
+          className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-150 select-none"
           onClick={() => setPreviewPass(null)}
         >
           <div 
-            className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full border border-slate-200/90 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200 relative max-h-[92vh] overflow-y-auto scrollbar-none"
+            className="bg-white rounded-xl p-6 sm:p-7 max-w-md w-full border border-slate-200 shadow-xl space-y-4 animate-in zoom-in-95 duration-150 relative max-h-[92vh] overflow-y-auto scrollbar-none"
             onClick={(e) => e.stopPropagation()}
           >
             
             {/* Modal Header */}
             <div className="flex items-start justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-3">
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center border shadow-xs ${
+                <div className={`w-10 h-10 rounded-lg flex items-center justify-center border shadow-xs ${
                   previewPass.type === 'hardware'
                     ? 'bg-rose-50 border-rose-100 text-rose-700'
                     : 'bg-sky-50 border-sky-100 text-sky-700'
@@ -614,7 +614,7 @@ export const MessagesModule: React.FC = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900">
+                    <h3 className="text-sm font-semibold text-slate-900">
                       {previewPass.title}
                     </h3>
                   </div>
@@ -627,7 +627,7 @@ export const MessagesModule: React.FC = () => {
               {/* Close Button */}
               <button
                 onClick={() => setPreviewPass(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Close (Esc)"
               >
                 <X className="w-4 h-4" />
@@ -635,11 +635,11 @@ export const MessagesModule: React.FC = () => {
             </div>
 
             {/* Central Scannable QR Code Card */}
-            <div className="bg-slate-50/80 rounded-2xl p-4 sm:p-5 border border-slate-200/80 text-center space-y-3">
+            <div className="bg-slate-50/80 rounded-lg p-4 sm:p-5 border border-slate-200/80 text-center space-y-3">
               
               {/* QR Image Box */}
               {qrDataUrl && (
-                <div className="bg-white p-3.5 rounded-2xl border border-slate-200/80 inline-block shadow-xs">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 inline-block shadow-xs">
                   <img 
                     src={qrDataUrl} 
                     alt="Digital Pass QR Code" 
@@ -651,12 +651,12 @@ export const MessagesModule: React.FC = () => {
               {/* Token Code with 1-Click Copy */}
               <div className="space-y-1">
                 <div className="flex items-center justify-center gap-2">
-                  <span className="font-mono text-lg font-black text-slate-900 tracking-wider">
+                  <span className="font-mono text-base font-semibold tabular-nums text-slate-900 tracking-wider">
                     {previewPass.token}
                   </span>
                   <button
                     onClick={() => handleCopyToken(previewPass.token)}
-                    className="p-1 rounded-lg text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 transition-colors"
+                    className="p-1 rounded-md text-slate-400 hover:text-slate-800 hover:bg-slate-200/60 transition-colors cursor-pointer"
                     title="Copy token code"
                   >
                     {copiedToken ? (
@@ -668,48 +668,48 @@ export const MessagesModule: React.FC = () => {
                 </div>
 
                 <div className="flex items-center justify-center gap-1.5">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                  <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md border ${
                     previewPass.type === 'hardware'
                       ? 'bg-rose-50 text-rose-700 border-rose-200'
                       : 'bg-blue-50 text-blue-800 border-blue-200'
                   }`}>
                     {previewPass.statusBadge}
                   </span>
-                  <span className="text-[11px] text-slate-400">• FCSIT Scanner Verified</span>
+                  <span className="text-xs text-slate-400">• Scanner verified</span>
                 </div>
               </div>
 
             </div>
 
             {/* Metadata Info Bento Grid */}
-            <div className="grid grid-cols-2 gap-2.5 text-xs">
+            <div className="grid grid-cols-2 gap-2 text-xs">
               
-              <div className="col-span-2 bg-slate-50/60 p-3 rounded-xl border border-slate-200/70 space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  {previewPass.type === 'hardware' ? 'Equipment Unit' : 'Facility Venue'}
+              <div className="col-span-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200/70 space-y-0.5">
+                <span className="text-xs font-medium text-slate-500">
+                  {previewPass.type === 'hardware' ? 'Equipment unit' : 'Facility venue'}
                 </span>
-                <div className="font-bold text-slate-900 text-xs">
+                <div className="font-semibold text-slate-900 text-xs">
                   {previewPass.itemName}
                 </div>
-                <div className="font-mono text-[11px] text-slate-500">
+                <div className="font-mono text-xs text-slate-500">
                   {previewPass.itemTag}
                 </div>
               </div>
 
-              <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/70 space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70 space-y-0.5">
+                <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
                   <Clock className="w-3 h-3 text-slate-400" />
-                  <span>{previewPass.type === 'hardware' ? 'Return Cutoff' : 'Concluding Time'}</span>
+                  <span>{previewPass.type === 'hardware' ? 'Return cutoff' : 'Concluding time'}</span>
                 </span>
-                <div className="font-semibold text-slate-800 text-xs">
+                <div className="font-semibold text-slate-800 text-xs font-mono">
                   {previewPass.timeOrDue}
                 </div>
               </div>
 
-              <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/70 space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70 space-y-0.5">
+                <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-slate-400" />
-                  <span>Counter / Door</span>
+                  <span>Counter / door</span>
                 </span>
                 <div className="font-semibold text-slate-800 text-xs truncate">
                   {previewPass.location}
@@ -717,10 +717,10 @@ export const MessagesModule: React.FC = () => {
               </div>
 
               {previewPass.serialNumber && (
-                <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/70 space-y-0.5">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70 space-y-0.5">
+                  <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
                     <Hash className="w-3 h-3 text-slate-400" />
-                    <span>Serial / Node</span>
+                    <span>Serial / node</span>
                   </span>
                   <div className="font-mono text-slate-700 text-xs truncate">
                     {previewPass.serialNumber}
@@ -728,15 +728,15 @@ export const MessagesModule: React.FC = () => {
                 </div>
               )}
 
-              <div className="bg-slate-50/60 p-3 rounded-xl border border-slate-200/70 space-y-0.5">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+              <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200/70 space-y-0.5">
+                <span className="text-xs font-medium text-slate-500 flex items-center gap-1">
                   <User className="w-3 h-3 text-slate-400" />
                   <span>Cardholder</span>
                 </span>
                 <div className="font-semibold text-slate-800 text-xs truncate">
                   {previewPass.borrowerName}
                 </div>
-                <div className="font-mono text-[10px] text-slate-400">
+                <div className="font-mono text-xs text-slate-400">
                   {previewPass.borrowerMatric}
                 </div>
               </div>
@@ -744,7 +744,7 @@ export const MessagesModule: React.FC = () => {
             </div>
 
             {/* Operating Instruction Box */}
-            <div className="bg-blue-50/60 rounded-xl p-3 border border-blue-100 text-xs text-blue-900 leading-relaxed flex items-start gap-2">
+            <div className="bg-blue-50/60 rounded-lg p-3 border border-blue-100 text-xs text-blue-900 leading-relaxed flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
               <span>
                 {previewPass.type === 'hardware'
@@ -760,13 +760,13 @@ export const MessagesModule: React.FC = () => {
                   setPreviewPass(null);
                   setActiveTab('my-passes');
                 }}
-                className="flex-1 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition-all shadow-xs text-center cursor-pointer"
+                className="flex-1 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-colors shadow-xs text-center cursor-pointer"
               >
-                Go to My Passes
+                Go to my passes
               </button>
               <button
                 onClick={() => setPreviewPass(null)}
-                className="px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
               >
                 Close
               </button>

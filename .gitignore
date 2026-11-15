@@ -29,3 +29,6 @@ dist-ssr
 # TypeScript build info
 *.tsbuildinfo
 
+# Submodules or other repositories cloned locally
+BeautifulGate/
+

@@ -153,31 +153,31 @@ export const TelemetryModule: React.FC = () => {
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-16 animate-in fade-in duration-200">
       
-      {/* HEADER & SCOPE SELECTOR - Tasteful subtle colors, zero emojis, zero small descriptions */}
+      {/* HEADER & SCOPE SELECTOR */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-1">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 shadow-xs">
-            <BarChart3 className="w-5 h-5" />
+          <div className="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0 shadow-xs">
+            <BarChart3 className="w-4 h-4" />
           </div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
-              Operational Telemetry
+            <h1 className="text-lg font-semibold tracking-tight text-slate-900">
+              Operational telemetry
             </h1>
-            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-              Live Sync
+            <span className="text-xs font-mono font-medium px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Live sync
             </span>
           </div>
         </div>
 
         {/* Interactive Scope Filters */}
-        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/80 self-start sm:self-auto shadow-xs">
+        <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200/80 self-start sm:self-auto shadow-xs">
           {(['TODAY', 'WEEK', 'SEMESTER', 'YEAR'] as const).map((s) => (
             <button
               key={s}
               onClick={() => setTimeScope(s)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                 timeScope === s
-                  ? 'bg-slate-900 text-white shadow-xs'
+                  ? 'bg-white text-slate-900 shadow-xs border border-slate-200/60'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
               }`}
             >
@@ -190,97 +190,97 @@ export const TelemetryModule: React.FC = () => {
         </div>
       </div>
 
-      {/* SECTION A: 4-COLUMN SUMMARY CARDS (Tasteful Restrained Accents) */}
+      {/* SECTION A: 4-COLUMN SUMMARY CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
-        {/* Metric 1: Facility Occupancy (Blue Accent) */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between">
+        {/* Metric 1: Facility Occupancy */}
+        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Facility Occupancy</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+            <span className="text-xs font-medium text-slate-500">Facility occupancy</span>
+            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
               <Building2 className="w-4 h-4" />
             </div>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">
+            <div className="text-2xl font-semibold text-slate-900 font-mono tabular-nums tracking-tight">
               {occupancyPct}%
             </div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">In Session</span>
-            <span className="font-mono font-bold text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md">
-              {activeSessions} / {totalLabs} Labs
+            <span className="text-slate-500">In session</span>
+            <span className="font-mono font-medium text-blue-700 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md tabular-nums">
+              {activeSessions} / {totalLabs} labs
             </span>
           </div>
         </div>
 
-        {/* Metric 2: Hardware in Circulation (Indigo Accent) */}
-        <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between">
+        {/* Metric 2: Hardware in Circulation */}
+        <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Hardware Circulation</span>
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+            <span className="text-xs font-medium text-slate-500">Hardware circulation</span>
+            <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
               <Cpu className="w-4 h-4" />
             </div>
           </div>
           <div className="my-3">
-            <div className="text-3xl font-extrabold text-slate-900 font-mono tracking-tight">
-              {activeLoansCount} <span className="text-sm font-normal text-slate-400">Units</span>
+            <div className="text-2xl font-semibold text-slate-900 font-mono tabular-nums tracking-tight">
+              {activeLoansCount} <span className="text-xs font-normal text-slate-400 font-sans">units</span>
             </div>
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Locker Pool</span>
-            <span className="font-mono font-bold text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md">
-              82% Active
+            <span className="text-slate-500">Locker pool</span>
+            <span className="font-mono font-medium text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-md tabular-nums">
+              82% active
             </span>
           </div>
         </div>
 
-        {/* Metric 3: Overdue Returns (Rose Warning Accent) */}
+        {/* Metric 3: Overdue Returns */}
         <div 
           onClick={() => scrollToQueue('OVERDUE')}
-          className="bg-white rounded-2xl p-5 border border-rose-200/80 shadow-xs hover:border-rose-300 transition-all flex flex-col justify-between cursor-pointer group bg-gradient-to-br from-white to-rose-50/20"
+          className="bg-white rounded-xl p-5 border border-rose-200 shadow-xs hover:border-rose-300 transition-colors flex flex-col justify-between cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-rose-800 uppercase tracking-wider">Overdue Returns</span>
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <span className="text-xs font-medium text-rose-800">Overdue returns</span>
+            <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="my-3 flex items-baseline justify-between">
-            <div className="text-3xl font-extrabold text-rose-900 font-mono tracking-tight">
-              {overdueCount} <span className="text-sm font-normal text-rose-600">Units</span>
+            <div className="text-2xl font-semibold text-rose-900 font-mono tabular-nums tracking-tight">
+              {overdueCount} <span className="text-xs font-normal text-rose-600 font-sans">units</span>
             </div>
-            <ArrowUpRight className="w-4 h-4 text-rose-400 group-hover:text-rose-700 group-hover:translate-x-0.5 -translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-rose-400 group-hover:text-rose-700 transition-colors" />
           </div>
-          <div className="pt-2 border-t border-rose-100/80 flex items-center justify-between text-xs">
-            <span className="text-rose-700 font-medium">Summons Required</span>
-            <span className="font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md">
+          <div className="pt-2 border-t border-rose-100 flex items-center justify-between text-xs">
+            <span className="text-rose-700 font-medium">Notice required</span>
+            <span className="font-mono font-medium text-xs bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-md">
               Action
             </span>
           </div>
         </div>
 
-        {/* Metric 4: Pending Sign-Off & Repair (Amber Accent) */}
+        {/* Metric 4: Pending Sign-Off & Repair */}
         <div 
           onClick={() => scrollToQueue('PENDING')}
-          className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between cursor-pointer group"
+          className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs hover:border-slate-300 transition-colors flex flex-col justify-between cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Pending & Repair</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <span className="text-xs font-medium text-slate-500">Pending & repair</span>
+            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
           </div>
           <div className="my-3 flex items-baseline justify-between">
-            <div className="text-2xl font-extrabold text-slate-900 font-mono tracking-tight">
-              {pendingCount} <span className="text-xs font-normal text-slate-400">Review</span> • {inRepairCount} <span className="text-xs font-normal text-slate-400">Repair</span>
+            <div className="text-xl font-semibold text-slate-900 font-mono tabular-nums tracking-tight">
+              {pendingCount} <span className="text-xs font-normal text-slate-400 font-sans">review</span> • {inRepairCount} <span className="text-xs font-normal text-slate-400 font-sans">repair</span>
             </div>
-            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-0.5 -translate-y-0.5 transition-all" />
+            <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-800 transition-colors" />
           </div>
           <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Queue State</span>
-            <span className="font-mono font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
-              Sign-Off Req
+            <span className="text-slate-500">Queue status</span>
+            <span className="font-mono font-medium text-xs text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">
+              Sign-off needed
             </span>
           </div>
         </div>
@@ -291,11 +291,11 @@ export const TelemetryModule: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* 1. Peak Utilization Heatmap Matrix (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-white rounded-xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                Occupancy Matrix (08:00 – 19:00)
+              <h3 className="text-xs font-semibold text-slate-900">
+                Occupancy matrix (08:00 – 19:00)
               </h3>
 
               {/* Shading Legend (Clean Blue-Tinted Density Scale) */}
@@ -320,7 +320,7 @@ export const TelemetryModule: React.FC = () => {
               <table className="w-full border-collapse text-center select-none min-w-[480px]">
                 <thead>
                   <tr>
-                    <th className="p-2 text-xs font-semibold text-slate-400 uppercase text-left w-20">
+                    <th className="p-2 text-xs font-medium text-slate-500 text-left w-20">
                       Day
                     </th>
                     {HOURS.map((h) => (
@@ -354,7 +354,7 @@ export const TelemetryModule: React.FC = () => {
                               <div
                                 onMouseEnter={() => setHoveredCell({ day, hour: cell.hour, pct: cell.loadPct, activeCount: cell.activeCount })}
                                 onMouseLeave={() => setHoveredCell(null)}
-                                className={`h-8 sm:h-9 rounded-md transition-all cursor-pointer flex items-center justify-center font-mono text-[10px] sm:text-[11px] font-bold ${
+                                className={`h-8 sm:h-9 rounded-md transition-colors duration-150 cursor-pointer flex items-center justify-center font-mono text-[10px] sm:text-[11px] font-bold ${
                                   isLow
                                     ? 'bg-slate-100 text-slate-500 hover:bg-slate-200'
                                     : isModerate
@@ -374,7 +374,7 @@ export const TelemetryModule: React.FC = () => {
               </table>
             </div>
 
-            {/* Daily Average Strip - Seamlessly occupies container space */}
+            {/* Daily Average Strip */}
             <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-5 gap-2">
               {[
                 { day: 'Mon', avg: '76%', peak: '15:00' },
@@ -386,15 +386,15 @@ export const TelemetryModule: React.FC = () => {
                 <div
                   key={d.day}
                   onClick={() => setSelectedDay(selectedDay === d.day ? null : d.day)}
-                  className={`p-2 rounded-xl border text-center transition-all cursor-pointer ${
+                  className={`p-2 rounded-lg border text-center transition-colors cursor-pointer ${
                     selectedDay === d.day
                       ? 'bg-blue-50 border-blue-300 shadow-xs'
-                      : 'bg-slate-50/70 border-slate-100 hover:bg-slate-100 hover:border-slate-200'
+                      : 'bg-slate-50/70 border-slate-200/60 hover:bg-slate-100'
                   }`}
                 >
-                  <div className="text-[10px] font-bold text-slate-500 uppercase">{d.day}</div>
-                  <div className="text-xs font-bold font-mono text-slate-900 mt-0.5">{d.avg}</div>
-                  <div className="text-[9px] text-slate-400 font-mono mt-0.5 truncate">Peak {d.peak}</div>
+                  <div className="text-xs font-medium text-slate-500">{d.day}</div>
+                  <div className="text-xs font-semibold font-mono tabular-nums text-slate-900 mt-0.5">{d.avg}</div>
+                  <div className="text-xs text-slate-400 font-mono mt-0.5 truncate">Peak {d.peak}</div>
                 </div>
               ))}
             </div>
@@ -403,43 +403,43 @@ export const TelemetryModule: React.FC = () => {
           {/* Interactive Inspection Bar */}
           <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
             {hoveredCell ? (
-              <span className="font-semibold text-slate-900">
-                {hoveredCell.day} {hoveredCell.hour} — <strong className="text-blue-700">{hoveredCell.pct}% Load</strong> ({hoveredCell.activeCount}/25 Labs)
+              <span className="font-medium text-slate-900">
+                {hoveredCell.day} {hoveredCell.hour} — <strong className="text-blue-700 font-semibold">{hoveredCell.pct}% load</strong> ({hoveredCell.activeCount}/25 labs)
               </span>
             ) : selectedDay ? (
-              <span className="font-semibold text-slate-800">
-                Selected Day: <strong className="text-blue-900">{selectedDay}</strong> Concurrency Matrix
+              <span className="font-medium text-slate-800">
+                Selected day: <strong className="text-blue-900 font-semibold">{selectedDay}</strong> concurrency matrix
               </span>
             ) : (
-              <span className="text-slate-400 font-medium">
+              <span className="text-slate-400 font-normal">
                 Hover cells or select day to inspect concurrency
               </span>
             )}
-            <span className="font-mono text-[11px] font-bold text-blue-900 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded">
+            <span className="font-mono text-xs font-medium text-blue-900 bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-md tabular-nums">
               Peak: Tue 11:00 (96%)
             </span>
           </div>
         </div>
 
         {/* 2. Laboratory Demand Ranking (5 cols) */}
-        <div className="lg:col-span-5 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 bg-white rounded-xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                Laboratory Demand Ranking
+              <h3 className="text-xs font-semibold text-slate-900">
+                Laboratory demand ranking
               </h3>
-              <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+              <span className="font-mono text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
                 Top 4
               </span>
             </div>
 
-            {/* Laboratory Demand Radial Gauges (2x2 Grid matching uploaded ring gauge) */}
+            {/* Laboratory Demand Radial Gauges */}
             <div className="grid grid-cols-2 gap-3">
               {[
                 { 
                   name: 'Micro Lab [MM1]', 
                   pct: 88, 
-                  status: '88% PEAK', 
+                  status: '88% peak', 
                   sub: '47 PCs • Block A',
                   gaugeColor: '#1E88E5',
                   badgeClass: 'bg-blue-50 text-blue-700 border-blue-200' 
@@ -447,7 +447,7 @@ export const TelemetryModule: React.FC = () => {
                 { 
                   name: 'CCNA Lab', 
                   pct: 74, 
-                  status: '74% LOAD', 
+                  status: '74% load', 
                   sub: '41 PCs • Block B',
                   gaugeColor: '#002B7F',
                   badgeClass: 'bg-slate-100 text-slate-800 border-slate-200' 
@@ -455,7 +455,7 @@ export const TelemetryModule: React.FC = () => {
                 { 
                   name: 'Robotic Teaching Lab', 
                   pct: 65, 
-                  status: '65% ACTIVE', 
+                  status: '65% active', 
                   sub: '25 Pax • Block B',
                   gaugeColor: '#334155',
                   badgeClass: 'bg-slate-100 text-slate-700 border-slate-200' 
@@ -463,7 +463,7 @@ export const TelemetryModule: React.FC = () => {
                 { 
                   name: 'Lecture Room 2 [BK2]', 
                   pct: 48, 
-                  status: '48% MODERATE', 
+                  status: '48% moderate', 
                   sub: '36 Pax • Block B',
                   gaugeColor: '#64748B',
                   badgeClass: 'bg-slate-100 text-slate-600 border-slate-200' 
@@ -471,7 +471,7 @@ export const TelemetryModule: React.FC = () => {
               ].map((lab) => (
                 <div 
                   key={lab.name} 
-                  className="p-2.5 bg-slate-50/70 hover:bg-white border border-slate-100 hover:border-slate-200 hover:shadow-xs rounded-xl flex flex-col items-center text-center transition-all group"
+                  className="p-2.5 bg-slate-50/70 hover:bg-white border border-slate-100 hover:border-slate-200 rounded-lg flex flex-col items-center text-center transition-colors group"
                 >
                   <RadialGauge
                     value={lab.pct}
@@ -479,13 +479,13 @@ export const TelemetryModule: React.FC = () => {
                     strokeWidth={8}
                     color={lab.gaugeColor}
                   />
-                  <div className="mt-1.5 text-xs font-bold text-slate-900 leading-snug line-clamp-1 group-hover:text-blue-900 transition-colors">
+                  <div className="mt-1.5 text-xs font-medium text-slate-900 leading-snug line-clamp-1 group-hover:text-blue-900 transition-colors">
                     {lab.name}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-medium mt-0.5">
+                  <div className="text-xs text-slate-400 font-mono mt-0.5">
                     {lab.sub}
                   </div>
-                  <span className={`mt-1.5 text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${lab.badgeClass}`}>
+                  <span className={`mt-1.5 text-xs font-mono font-medium px-2 py-0.5 rounded-md border tabular-nums ${lab.badgeClass}`}>
                     {lab.status}
                   </span>
                 </div>
@@ -493,27 +493,27 @@ export const TelemetryModule: React.FC = () => {
             </div>
           </div>
 
-          {/* Grace-Period Drop Rate Card (Clickable to jump to grace table) */}
+          {/* Grace-Period Drop Rate Card */}
           <div 
             onClick={() => scrollToQueue('GRACE_EXPIRED')}
-            className="bg-amber-50/60 p-4 rounded-xl border border-amber-200/80 flex items-center justify-between cursor-pointer hover:bg-amber-50 transition-colors group"
+            className="bg-amber-50/60 p-4 rounded-lg border border-amber-200 flex items-center justify-between cursor-pointer hover:bg-amber-50 transition-colors group"
           >
             <div>
-              <div className="text-[10px] font-bold text-amber-800 uppercase tracking-wider">
-                Grace-Period Drop Rate
+              <div className="text-xs font-medium text-amber-800">
+                Grace-period drop rate
               </div>
-              <div className="text-2xl font-black text-amber-950 font-mono mt-0.5">
-                14% No-Show Forfeitures
+              <div className="text-xl font-semibold text-amber-950 font-mono tabular-nums mt-0.5">
+                14% no-show forfeitures
               </div>
             </div>
-            <div className="flex items-center gap-1 text-xs font-bold text-amber-900 bg-white px-3 py-1.5 rounded-lg border border-amber-200 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="flex items-center gap-1 text-xs font-medium text-amber-900 bg-white px-2.5 py-1 rounded-md border border-amber-200 shadow-xs">
               <span>Inspect</span>
               <ChevronRight className="w-3.5 h-3.5 text-amber-600" />
             </div>
           </div>
 
           {/* Purpose Split Badge Row */}
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-500">
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-slate-500 font-mono">
             <span>Coursework: 55%</span>
             <span>•</span>
             <span>FYP: 35%</span>
@@ -528,14 +528,14 @@ export const TelemetryModule: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* 1. Hardware Inventory Turnover (6 cols) */}
-        <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-6 bg-white rounded-xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                Hardware Inventory Turnover
+              <h3 className="text-xs font-semibold text-slate-900">
+                Hardware inventory turnover
               </h3>
-              <span className="font-mono text-xs font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
-                3.4 Days Avg
+              <span className="font-mono text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md tabular-nums">
+                3.4 days avg
               </span>
             </div>
 
@@ -547,7 +547,7 @@ export const TelemetryModule: React.FC = () => {
                   active: 12, 
                   total: 12, 
                   pct: 100, 
-                  tag: '100% CRITICAL', 
+                  tag: '100% critical', 
                   tagColor: 'bg-rose-50 text-rose-700 border-rose-200', 
                   gaugeColor: '#E11D48' 
                 },
@@ -556,7 +556,7 @@ export const TelemetryModule: React.FC = () => {
                   active: 18, 
                   total: 25, 
                   pct: 72, 
-                  tag: '72% ACTIVE', 
+                  tag: '72% active', 
                   tagColor: 'bg-blue-50 text-blue-700 border-blue-200', 
                   gaugeColor: '#1E88E5' 
                 },
@@ -565,7 +565,7 @@ export const TelemetryModule: React.FC = () => {
                   active: 8, 
                   total: 15, 
                   pct: 53, 
-                  tag: '53% IN USE', 
+                  tag: '53% in use', 
                   tagColor: 'bg-slate-100 text-slate-700 border-slate-200', 
                   gaugeColor: '#334155' 
                 },
@@ -574,14 +574,14 @@ export const TelemetryModule: React.FC = () => {
                   active: 8, 
                   total: 20, 
                   pct: 40, 
-                  tag: '40% IN USE', 
+                  tag: '40% in use', 
                   tagColor: 'bg-slate-100 text-slate-700 border-slate-200', 
                   gaugeColor: '#64748B' 
                 }
               ].map((item) => (
                 <div 
                   key={item.name} 
-                  className="flex items-center gap-3.5 p-2.5 bg-slate-50/70 hover:bg-white rounded-xl border border-slate-100 hover:border-slate-200 hover:shadow-xs transition-all"
+                  className="flex items-center gap-3.5 p-2.5 bg-slate-50/70 hover:bg-white rounded-lg border border-slate-100 hover:border-slate-200 transition-colors"
                 >
                   <RadialGauge
                     value={item.pct}
@@ -590,14 +590,14 @@ export const TelemetryModule: React.FC = () => {
                     color={item.gaugeColor}
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-bold text-slate-900 truncate">
+                    <div className="text-xs font-semibold text-slate-900 truncate">
                       {item.name}
                     </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
-                      {item.active} / {item.total} Units in Circulation
+                    <div className="text-xs text-slate-400 mt-0.5 font-mono tabular-nums">
+                      {item.active} / {item.total} units in circulation
                     </div>
                   </div>
-                  <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border flex-shrink-0 ${item.tagColor}`}>
+                  <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md border flex-shrink-0 tabular-nums ${item.tagColor}`}>
                     {item.tag}
                   </span>
                 </div>
@@ -606,20 +606,20 @@ export const TelemetryModule: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Circulation Pool</span>
-            <span className="font-semibold text-slate-900 font-mono">46 Units Active</span>
+            <span>Circulation pool</span>
+            <span className="font-semibold text-slate-900 font-mono tabular-nums">46 units active</span>
           </div>
         </div>
 
         {/* 2. Condition Breakdown & QA Desk (6 cols) */}
-        <div className="lg:col-span-6 bg-white rounded-2xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-6 bg-white rounded-xl p-6 border border-slate-200 shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                Defect Audit Breakdown
+              <h3 className="text-xs font-semibold text-slate-900">
+                Defect audit breakdown
               </h3>
-              <span className="font-mono text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded">
-                3 Flagged Assets
+              <span className="font-mono text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-md">
+                3 flagged assets
               </span>
             </div>
 
@@ -627,30 +627,30 @@ export const TelemetryModule: React.FC = () => {
             <div className="grid grid-cols-3 gap-2.5">
               {[
                 { 
-                  label: 'Missing Cables & Adapters', 
+                  label: 'Missing cables & adapters', 
                   pct: 52, 
                   color: '#E11D48',
-                  badge: '52% LOSS',
+                  badge: '52% loss',
                   badgeClass: 'bg-rose-50 text-rose-700 border-rose-200'
                 },
                 { 
-                  label: 'Chassis & Port Damage', 
+                  label: 'Chassis & port damage', 
                   pct: 31, 
                   color: '#D97706',
-                  badge: '31% WEAR',
+                  badge: '31% wear',
                   badgeClass: 'bg-amber-50 text-amber-700 border-amber-200'
                 },
                 { 
-                  label: 'Power & Boot Failures', 
+                  label: 'Power & boot failures', 
                   pct: 17, 
                   color: '#475569',
-                  badge: '17% FAULT',
+                  badge: '17% fault',
                   badgeClass: 'bg-slate-100 text-slate-700 border-slate-200'
                 }
               ].map((def) => (
                 <div 
                   key={def.label} 
-                  className="p-3 bg-slate-50/70 hover:bg-white rounded-xl border border-slate-100 hover:border-slate-200 flex flex-col items-center text-center transition-all"
+                  className="p-3 bg-slate-50/70 hover:bg-white rounded-lg border border-slate-100 hover:border-slate-200 flex flex-col items-center text-center transition-colors"
                 >
                   <RadialGauge
                     value={def.pct}
@@ -658,21 +658,21 @@ export const TelemetryModule: React.FC = () => {
                     strokeWidth={7.5}
                     color={def.color}
                   />
-                  <span className="mt-2 text-[11px] font-bold text-slate-800 leading-tight line-clamp-2 h-7 flex items-center justify-center">
+                  <span className="mt-2 text-xs font-medium text-slate-800 leading-tight line-clamp-2 h-7 flex items-center justify-center">
                     {def.label}
                   </span>
-                  <span className={`mt-2 text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border ${def.badgeClass}`}>
+                  <span className={`mt-2 text-xs font-mono font-medium px-1.5 py-0.5 rounded-md border tabular-nums ${def.badgeClass}`}>
                     {def.badge}
                   </span>
                 </div>
               ))}
             </div>
 
-            {/* Active Defect Asset Records (Eliminates blank space & provides actionable triage) */}
+            {/* Active Defect Asset Records */}
             <div className="mt-3.5 space-y-2">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                <span>Active QA Quarantine Records</span>
-                <span className="font-mono text-rose-600 font-semibold">3 Flagged</span>
+              <div className="text-xs font-medium text-slate-500 flex items-center justify-between">
+                <span>Active QA quarantine records</span>
+                <span className="font-mono text-rose-600 font-semibold">3 flagged</span>
               </div>
               {[
                 {
@@ -680,7 +680,7 @@ export const TelemetryModule: React.FC = () => {
                   tag: 'FCSIT-HW-JET-01',
                   name: 'NVIDIA Jetson Orin Nano',
                   issue: 'Missing 19V DC power barrel adapter & HDMI cable',
-                  status: 'INVESTIGATING',
+                  status: 'Investigating',
                   statusClass: 'bg-rose-50 text-rose-700 border-rose-200'
                 },
                 {
@@ -688,7 +688,7 @@ export const TelemetryModule: React.FC = () => {
                   tag: 'FCSIT-HW-ESP-12',
                   name: 'ESP32 IoT Sensor Node',
                   issue: 'OLED display flickering; pin header solder loose',
-                  status: 'PENDING PARTS',
+                  status: 'Pending parts',
                   statusClass: 'bg-amber-50 text-amber-700 border-amber-200'
                 },
                 {
@@ -696,30 +696,30 @@ export const TelemetryModule: React.FC = () => {
                   tag: 'FCSIT-HW-OSC-02',
                   name: 'Rigol Digital Oscilloscope',
                   issue: 'Ch 2 BNC ground alligator lead broken clip',
-                  status: 'IN REPAIR',
+                  status: 'In repair',
                   statusClass: 'bg-slate-100 text-slate-700 border-slate-200'
                 }
               ].map((flag) => (
                 <div
                   key={flag.id}
                   onClick={() => setActiveTab('hardware')}
-                  className="p-2 bg-slate-50/80 hover:bg-slate-100/90 rounded-xl border border-slate-100 flex items-center justify-between gap-2.5 transition-all cursor-pointer group"
+                  className="p-2 bg-slate-50/80 hover:bg-slate-100/90 rounded-lg border border-slate-100 flex items-center justify-between gap-2.5 transition-colors cursor-pointer group"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="font-mono text-[10px] font-bold text-slate-900 group-hover:text-blue-900">
+                      <span className="font-mono text-xs font-semibold text-slate-900 group-hover:text-blue-900">
                         {flag.tag}
                       </span>
-                      <span className="text-slate-400 text-[10px]">•</span>
-                      <span className="text-xs font-semibold text-slate-800 truncate">
+                      <span className="text-slate-300 text-xs">•</span>
+                      <span className="text-xs font-medium text-slate-800 truncate">
                         {flag.name}
                       </span>
                     </div>
-                    <div className="text-[10px] text-slate-500 truncate mt-0.5">
+                    <div className="text-xs text-slate-500 truncate mt-0.5">
                       {flag.issue}
                     </div>
                   </div>
-                  <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border flex-shrink-0 ${flag.statusClass}`}>
+                  <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md border flex-shrink-0 ${flag.statusClass}`}>
                     {flag.status}
                   </span>
                 </div>
@@ -730,13 +730,13 @@ export const TelemetryModule: React.FC = () => {
           {/* Action Trigger */}
           <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
             <span className="text-xs text-slate-500 font-medium">
-              Maintenance Desk
+              Maintenance desk
             </span>
             <button
               onClick={() => setActiveTab('hardware')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium shadow-xs transition-colors cursor-pointer"
             >
-              <span>Inspect Passports</span>
+              <span>Inspect passports</span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
             </button>
           </div>

@@ -240,27 +240,27 @@ export const ReportDefectModal: React.FC = () => {
       />
 
       {/* Modal Container */}
-      <div className="relative w-full max-w-xl bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-xl bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-10 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] flex flex-col">
         
         {/* Header */}
         <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-white sticky top-0 z-10">
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-slate-900 text-white uppercase tracking-wider">
+              <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-slate-100 text-slate-800">
                 FCSIT Operations
               </span>
-              <span className="text-xs font-semibold text-slate-400">
+              <span className="text-xs text-slate-500 font-mono">
                 Reporter: {currentUser.name} ({currentUser.matricOrStaffId})
               </span>
             </div>
-            <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-1">
-              File Defect & Maintenance Ticket
+            <h2 className="text-base font-semibold text-slate-900 tracking-tight mt-1">
+              File defect & maintenance ticket
             </h2>
           </div>
 
           <button
             onClick={closeReportModal}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -271,31 +271,31 @@ export const ReportDefectModal: React.FC = () => {
           
           {/* Two-Segment Mode Switch */}
           <div>
-            <div className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
-              Select Defect Target
+            <div className="text-xs font-medium text-slate-600 mb-2">
+              Select defect target
             </div>
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
               <button
                 type="button"
                 onClick={() => setMode('SPACE')}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center ${
+                className={`py-2 px-3 rounded-md text-xs font-medium transition-colors text-center cursor-pointer ${
                   mode === 'SPACE'
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                [SPACE / ROOM REPAIR]
+                Space / room repair
               </button>
               <button
                 type="button"
                 onClick={() => setMode('HARDWARE')}
-                className={`py-2 px-3 rounded-lg text-xs font-bold transition-all text-center ${
+                className={`py-2 px-3 rounded-md text-xs font-medium transition-colors text-center cursor-pointer ${
                   mode === 'HARDWARE'
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                [HARDWARE DEFECT]
+                Hardware defect
               </button>
             </div>
           </div>
@@ -305,13 +305,13 @@ export const ReportDefectModal: React.FC = () => {
             <div className="space-y-4">
               {/* Target Facility Dropdown */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Target Facility / Venue
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Target facility / venue
                 </label>
                 <select
                   value={selectedRoomId}
                   onChange={(e) => setSelectedRoomId(e.target.value)}
-                  className="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-400 text-slate-900"
+                  className="w-full px-3 py-2 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 text-slate-900"
                 >
                   {rooms.map((r) => (
                     <option key={r.id} value={r.id}>
@@ -323,22 +323,22 @@ export const ReportDefectModal: React.FC = () => {
 
               {/* Specific Location inside Room */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Specific Location / Station Inside Room
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Specific location / station inside room
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., Workstation PC-14, Main Projector Wall, Rack Unit B"
                   value={specificLocation}
                   onChange={(e) => setSpecificLocation(e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-400 text-slate-900 placeholder:text-slate-400"
+                  className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 text-slate-900 placeholder:text-slate-400"
                 />
               </div>
 
               {/* Repair Category Selector Pills */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                  Repair Classification Category
+                <label className="block text-xs font-medium text-slate-700 mb-2">
+                  Repair classification category
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                   {SPACE_CATEGORIES.map((cat) => (
@@ -346,13 +346,13 @@ export const ReportDefectModal: React.FC = () => {
                       key={cat}
                       type="button"
                       onClick={() => setSelectedSpaceCategory(cat)}
-                      className={`p-2 rounded-xl text-[10px] font-bold text-left transition-all border ${
+                      className={`p-2 rounded-lg text-xs font-medium text-left transition-colors border cursor-pointer ${
                         selectedSpaceCategory === cat
                           ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      [{cat}]
+                      {cat}
                     </button>
                   ))}
                 </div>
@@ -365,13 +365,13 @@ export const ReportDefectModal: React.FC = () => {
             <div className="space-y-4">
               {/* Target Hardware Identifier */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Target Equipment Asset
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Target equipment asset
                 </label>
                 <select
                   value={selectedHardwareId}
                   onChange={(e) => handleHardwareChange(e.target.value)}
-                  className="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-400 text-slate-900"
+                  className="w-full px-3 py-2 text-xs font-medium bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 text-slate-900"
                 >
                   {hardware.map((h) => (
                     <option key={h.id} value={h.id}>
@@ -383,22 +383,22 @@ export const ReportDefectModal: React.FC = () => {
 
               {/* Serial Number / Asset Tag Field */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-                  Asset Tag / Monospace Serial Number
+                <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                  Asset tag / serial number
                 </label>
                 <input
                   type="text"
                   placeholder="e.g., SN-NV-ORIN-9421 or FCSIT-HW-042"
                   value={serialNumber}
                   onChange={(e) => setSerialNumber(e.target.value)}
-                  className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-400 text-slate-900"
+                  className="w-full px-3 py-2 text-xs font-mono bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 text-slate-900"
                 />
               </div>
 
               {/* Hardware Defect Type Selector Pills */}
               <div>
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">
-                  Hardware Malfunction Category
+                <label className="block text-xs font-medium text-slate-700 mb-2">
+                  Hardware malfunction category
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                   {HARDWARE_CATEGORIES.map((cat) => (
@@ -406,13 +406,13 @@ export const ReportDefectModal: React.FC = () => {
                       key={cat}
                       type="button"
                       onClick={() => setSelectedHardwareCategory(cat)}
-                      className={`p-2 rounded-xl text-[10px] font-bold text-left transition-all border ${
+                      className={`p-2 rounded-lg text-xs font-medium text-left transition-colors border cursor-pointer ${
                         selectedHardwareCategory === cat
                           ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
                           : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                       }`}
                     >
-                      [{cat}]
+                      {cat}
                     </button>
                   ))}
                 </div>
@@ -422,8 +422,8 @@ export const ReportDefectModal: React.FC = () => {
 
           {/* Photo Attachment Container */}
           <div>
-            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-              Physical Fault Evidence Photograph
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Fault evidence photograph
             </label>
 
             {/* Hidden File Picker Input */}
@@ -447,7 +447,7 @@ export const ReportDefectModal: React.FC = () => {
 
             {/* 1. Live Camera Viewfinder Mode */}
             {isCameraActive ? (
-              <div className="relative rounded-2xl overflow-hidden border border-slate-900 bg-black aspect-video flex items-center justify-center">
+              <div className="relative rounded-lg overflow-hidden border border-slate-900 bg-black aspect-video flex items-center justify-center">
                 <video
                   ref={videoRef}
                   autoPlay
@@ -457,9 +457,9 @@ export const ReportDefectModal: React.FC = () => {
                 />
 
                 {/* Viewfinder Badge */}
-                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/80 text-white font-mono text-[10px] font-bold backdrop-blur-xs">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                  <span>CAMERA ACTIVE</span>
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-900/80 text-white font-mono text-xs font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span>Camera active</span>
                 </div>
 
                 {/* Shutter / Capture Actions */}
@@ -467,24 +467,24 @@ export const ReportDefectModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={capturePhoto}
-                    className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-900 font-bold rounded-xl text-xs uppercase tracking-wide transition-all shadow-lg flex items-center gap-2 cursor-pointer active:scale-95"
+                    className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-900 font-medium rounded-lg text-xs transition-colors shadow-md flex items-center gap-2 cursor-pointer"
                   >
                     <Camera className="w-4 h-4 text-slate-900" />
-                    <span>[SNAP PHOTO]</span>
+                    <span>Snap photo</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={stopCamera}
-                    className="px-3 py-2 bg-slate-900/80 hover:bg-slate-900 text-white font-bold rounded-xl text-xs uppercase transition-all backdrop-blur-xs cursor-pointer"
+                    className="px-3 py-2 bg-slate-900/80 hover:bg-slate-900 text-white font-medium rounded-lg text-xs transition-colors cursor-pointer"
                   >
-                    [CANCEL]
+                    Cancel
                   </button>
                 </div>
               </div>
             ) : photoUrl ? (
               /* 2. Photo Captured or Uploaded Preview */
-              <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-slate-50">
+              <div className="relative rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
                 <img
                   src={photoUrl}
                   alt="Defect Evidence"
@@ -494,25 +494,25 @@ export const ReportDefectModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={startCamera}
-                    className="px-2.5 py-1 bg-slate-900/90 text-white text-[10px] font-bold rounded-lg backdrop-blur-xs hover:bg-slate-800 transition-colors cursor-pointer flex items-center gap-1"
+                    className="px-2.5 py-1 bg-slate-900/90 text-white text-xs font-medium rounded-md hover:bg-slate-800 transition-colors cursor-pointer flex items-center gap-1"
                   >
                     <Camera className="w-3 h-3" />
-                    <span>[RETAKE PHOTO]</span>
+                    <span>Retake</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setPhotoUrl(null)}
-                    className="px-2.5 py-1 bg-rose-600 text-white text-[10px] font-bold rounded-lg backdrop-blur-xs hover:bg-rose-700 transition-colors cursor-pointer"
+                    className="px-2.5 py-1 bg-rose-600 text-white text-xs font-medium rounded-md hover:bg-rose-700 transition-colors cursor-pointer"
                   >
-                    [REMOVE PHOTO]
+                    Remove
                   </button>
                 </div>
               </div>
             ) : (
               /* 3. Empty State with Take Photo & Upload Options */
-              <div className="border border-dashed border-slate-300 rounded-2xl p-4 bg-slate-50/50 flex flex-col items-center justify-center text-center">
+              <div className="border border-dashed border-slate-300 rounded-lg p-4 bg-slate-50/50 flex flex-col items-center justify-center text-center">
                 {cameraError && (
-                  <div className="mb-2 text-[10px] font-semibold text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-lg">
+                  <div className="mb-2 text-xs font-medium text-rose-600 bg-rose-50 border border-rose-200 px-2.5 py-1 rounded-md">
                     {cameraError}
                   </div>
                 )}
@@ -520,23 +520,23 @@ export const ReportDefectModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={startCamera}
-                    className="px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                   >
                     <Camera className="w-3.5 h-3.5 text-white" />
-                    <span>Take Photo</span>
+                    <span>Take photo</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                    className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 hover:bg-slate-100 transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
                   >
                     <Upload className="w-3.5 h-3.5 text-slate-500" />
-                    <span>Upload Image</span>
+                    <span>Upload image</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-400">
-                  Direct camera access to take picture or local file upload supported.
+                <p className="text-xs text-slate-400">
+                  Direct camera access or image file upload.
                 </p>
               </div>
             )}
@@ -544,8 +544,8 @@ export const ReportDefectModal: React.FC = () => {
 
           {/* Issue Description */}
           <div>
-            <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider mb-1.5">
-              Fault Symptoms & Operational Impact
+            <label className="block text-xs font-medium text-slate-700 mb-1.5">
+              Fault symptoms & operational impact
             </label>
             <textarea
               required
@@ -557,7 +557,7 @@ export const ReportDefectModal: React.FC = () => {
               }
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-slate-400 text-slate-900 placeholder:text-slate-400"
+              className="w-full px-3 py-2 text-xs bg-white border border-slate-200 rounded-lg focus:outline-none focus:border-slate-400 text-slate-900 placeholder:text-slate-400"
             />
           </div>
 
@@ -566,9 +566,9 @@ export const ReportDefectModal: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting || !description.trim()}
-              className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold tracking-wide uppercase transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>{mode === 'SPACE' ? '[SUBMIT SPACE REPORT]' : '[SUBMIT HARDWARE DEFECT REPORT]'}</span>
+              <span>{mode === 'SPACE' ? 'Submit space report' : 'Submit hardware defect report'}</span>
             </button>
           </div>
         </form>

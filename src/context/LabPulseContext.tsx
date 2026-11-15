@@ -80,6 +80,12 @@ interface LabPulseContextType {
   // Navigation
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  selectedRoomId: string | null;
+  setSelectedRoomId: (id: string | null) => void;
+  selectedHardwareId: string | null;
+  setSelectedHardwareId: (id: string | null) => void;
+  navigateToRoomSchedule: (roomId: string) => void;
+  navigateToHardwareCalendar: (hardwareId: string) => void;
   
   // Data lists
   rooms: LabRoom[];
@@ -263,6 +269,19 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
     if (saved === 'lecturer') return 'supervisor';
     return 'labs';
   });
+  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedHardwareId, setSelectedHardwareId] = useState<string | null>(null);
+
+  const navigateToRoomSchedule = useCallback((roomId: string) => {
+    setSelectedRoomId(roomId);
+    setActiveTab('labs');
+  }, []);
+
+  const navigateToHardwareCalendar = useCallback((hardwareId: string) => {
+    setSelectedHardwareId(hardwareId);
+    setActiveTab('hardware');
+  }, []);
+
   const [toasts, setToasts] = useState<ToastNotification[]>([]);
 
   // Persistent States - Guaranteed FCSIT 23 Real Spaces
@@ -2154,6 +2173,12 @@ export const LabPulseProvider: React.FC<{ children: ReactNode }> = ({ children }
         logout,
         activeTab,
         setActiveTab,
+        selectedRoomId,
+        setSelectedRoomId,
+        selectedHardwareId,
+        setSelectedHardwareId,
+        navigateToRoomSchedule,
+        navigateToHardwareCalendar,
         rooms,
         hardware,
         bookings,

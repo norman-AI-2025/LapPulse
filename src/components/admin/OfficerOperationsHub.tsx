@@ -31,7 +31,9 @@ export const OfficerOperationsHub: React.FC = () => {
     approveLoan,
     addToast,
     addAuditLog,
-    setActiveTab
+    setActiveTab,
+    navigateToRoomSchedule,
+    navigateToHardwareCalendar
   } = useLabPulse();
 
   // Active view segment: 'ALL' | 'ATTENTION' | 'SPACES' | 'HARDWARE'
@@ -249,9 +251,9 @@ export const OfficerOperationsHub: React.FC = () => {
     <div className="space-y-6 max-w-6xl mx-auto pb-16 animate-in fade-in duration-200">
       
       {/* INSTITUTIONAL HEADER & QUICK STATS */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-slate-900 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+          <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
             <Inbox className="w-5 h-5" />
           </div>
           <div>
@@ -259,8 +261,8 @@ export const OfficerOperationsHub: React.FC = () => {
               <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">
                 Operations Directory & Attention Hub
               </h1>
-              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
-                OFFICER DISPATCH
+              <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                Officer dispatch
               </span>
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -273,14 +275,14 @@ export const OfficerOperationsHub: React.FC = () => {
         <div className="flex items-center gap-2 self-start sm:self-auto">
           <button
             onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium shadow-xs transition-colors cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-blue-600" />
             <span>Export CSV</span>
           </button>
           <button
             onClick={handlePrint}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold shadow-xs transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-medium shadow-xs transition-colors cursor-pointer"
           >
             <FileText className="w-3.5 h-3.5 text-slate-600" />
             <span>Print</span>
@@ -289,32 +291,32 @@ export const OfficerOperationsHub: React.FC = () => {
       </div>
 
       {/* FILTER & SEARCH SEGMENT BAR */}
-      <div className="bg-white rounded-2xl p-2.5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div className="bg-white rounded-2xl p-2 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* View Switcher Pills */}
         <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveSegment('ALL')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeSegment === 'ALL'
                 ? 'bg-slate-900 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            [ALL OVERVIEWS]
+            All overviews
           </button>
 
           <button
             onClick={() => setActiveSegment('ATTENTION')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeSegment === 'ATTENTION'
                 ? 'bg-rose-600 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <span>[IMMEDIATE ATTENTION]</span>
+            <span>Immediate attention</span>
             {totalAttentionCount > 0 && (
-              <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${
-                activeSegment === 'ATTENTION' ? 'bg-white text-rose-700' : 'bg-rose-500 text-white'
+              <span className={`px-1.5 py-0.5 rounded font-mono text-xs tabular-nums leading-none ${
+                activeSegment === 'ATTENTION' ? 'bg-white text-rose-700 font-semibold' : 'bg-rose-50 text-rose-700 border border-rose-200'
               }`}>
                 {totalAttentionCount}
               </span>
@@ -323,15 +325,15 @@ export const OfficerOperationsHub: React.FC = () => {
 
           <button
             onClick={() => setActiveSegment('SPACES')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeSegment === 'SPACES'
-                ? 'bg-blue-600 text-white shadow-xs'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <span>[RESERVED SPACES]</span>
-            <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${
-              activeSegment === 'SPACES' ? 'bg-white text-blue-700' : 'bg-slate-200 text-slate-700'
+            <span>Reserved spaces</span>
+            <span className={`px-1.5 py-0.5 rounded font-mono text-xs tabular-nums leading-none ${
+              activeSegment === 'SPACES' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'
             }`}>
               {activeSpaceBookings.length}
             </span>
@@ -339,15 +341,15 @@ export const OfficerOperationsHub: React.FC = () => {
 
           <button
             onClick={() => setActiveSegment('HARDWARE')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
               activeSegment === 'HARDWARE'
-                ? 'bg-slate-800 text-white shadow-xs'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            <span>[BOOKED HARDWARE]</span>
-            <span className={`px-1.5 py-0.2 rounded font-mono text-[10px] ${
-              activeSegment === 'HARDWARE' ? 'bg-white text-slate-800' : 'bg-slate-200 text-slate-700'
+            <span>Booked hardware</span>
+            <span className={`px-1.5 py-0.5 rounded font-mono text-xs tabular-nums leading-none ${
+              activeSegment === 'HARDWARE' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-700'
             }`}>
               {activeHardwareLoans.length}
             </span>
@@ -362,7 +364,7 @@ export const OfficerOperationsHub: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search token, user, space, or asset..."
-            className="w-full bg-slate-50 text-slate-900 text-xs rounded-xl pl-9 pr-3 py-2 border border-slate-200 focus:outline-none focus:border-slate-400 focus:bg-white transition-all font-medium placeholder:text-slate-400"
+            className="w-full bg-slate-50 text-slate-900 text-xs rounded-lg pl-9 pr-3 py-2 border border-slate-200 focus:outline-none focus:border-slate-400 focus:bg-white transition-colors font-medium placeholder:text-slate-400"
           />
         </div>
       </div>
@@ -371,60 +373,60 @@ export const OfficerOperationsHub: React.FC = () => {
       {/* 1. IMMEDIATE ATTENTION QUEUE */}
       {/* ===================================================================== */}
       {(activeSegment === 'ALL' || activeSegment === 'ATTENTION') && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden">
           
           {/* Header & Category Switcher */}
           <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
+              <div className="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
                 <ShieldAlert className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
-                    Immediate Attention Queue
+                  <h2 className="text-sm font-semibold text-slate-900">
+                    Immediate attention queue
                   </h2>
-                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800">
-                    [{totalAttentionCount} ITEMS ACTIONABLE]
+                  <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-rose-50 text-rose-800 border border-rose-200">
+                    {totalAttentionCount} actionable
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Critical compliance breaches, elapsed 15-minute check-in windows, and pending authorizations
                 </p>
               </div>
             </div>
 
             {/* Sub-Tabs for Attention Queue */}
-            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl self-start md:self-auto">
+            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-lg self-start md:self-auto">
               <button
                 onClick={() => setQueueTab('OVERDUE')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                   queueTab === 'OVERDUE'
                     ? 'bg-rose-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Overdue Hardware ({overdueHardwareItems.length})
+                Overdue hardware ({overdueHardwareItems.length})
               </button>
               <button
                 onClick={() => setQueueTab('GRACE_EXPIRED')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                   queueTab === 'GRACE_EXPIRED'
                     ? 'bg-amber-600 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Grace Expired ({graceExpiredSlots.length})
+                Grace expired ({graceExpiredSlots.length})
               </button>
               <button
                 onClick={() => setQueueTab('PENDING')}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
                   queueTab === 'PENDING'
                     ? 'bg-slate-900 text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Pending Approvals ({pendingApprovals.length})
+                Pending approvals ({pendingApprovals.length})
               </button>
             </div>
           </div>
@@ -433,12 +435,12 @@ export const OfficerOperationsHub: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse min-w-[700px]">
               <thead>
-                <tr className="bg-slate-50/70 border-b border-slate-100 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
-                  <th className="py-3 px-5">Target Asset / Space</th>
-                  <th className="py-3 px-5">Student / Borrower</th>
-                  <th className="py-3 px-5">Timeline / Deadline</th>
-                  <th className="py-3 px-5">Status Reason</th>
-                  <th className="py-3 px-5 text-right">Action</th>
+                <tr className="bg-slate-50/80 border-b border-slate-200/80 text-slate-500 font-medium text-xs">
+                  <th className="py-2.5 px-4">Target asset / space</th>
+                  <th className="py-2.5 px-4">Student / borrower</th>
+                  <th className="py-2.5 px-4">Timeline / deadline</th>
+                  <th className="py-2.5 px-4">Status reason</th>
+                  <th className="py-2.5 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-sans">
@@ -448,8 +450,8 @@ export const OfficerOperationsHub: React.FC = () => {
                     <tr>
                       <td colSpan={5} className="py-8 text-center text-slate-400">
                         <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
-                        <span className="font-semibold text-slate-600 text-xs">No overdue equipment assets</span>
-                        <p className="text-[11px] text-slate-400 mt-0.5">All hardware in circulation is within valid loan period.</p>
+                        <span className="font-medium text-slate-600 text-xs">No overdue equipment assets</span>
+                        <p className="text-xs text-slate-400 mt-0.5">All hardware in circulation is within valid loan period.</p>
                       </td>
                     </tr>
                   ) : (
@@ -457,34 +459,34 @@ export const OfficerOperationsHub: React.FC = () => {
                       const isNotified = notifiedItems[row.id];
                       return (
                         <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3 px-5">
-                            <span className="font-mono text-slate-400 text-[10px] font-bold block">{row.id} • {row.tag}</span>
-                            <span className="font-bold text-slate-900">{row.name}</span>
+                          <td className="py-3 px-4">
+                            <span className="font-mono text-slate-400 text-xs font-medium block">{row.id} • {row.tag}</span>
+                            <span className="font-semibold text-slate-900">{row.name}</span>
                           </td>
-                          <td className="py-3 px-5">
-                            <span className="font-semibold text-slate-800 block">{row.borrower}</span>
-                            <span className="font-mono text-slate-400 text-[11px]">{row.matric}</span>
+                          <td className="py-3 px-4">
+                            <span className="font-medium text-slate-800 block">{row.borrower}</span>
+                            <span className="font-mono text-slate-400 text-xs">{row.matric}</span>
                           </td>
-                          <td className="py-3 px-5 font-mono text-rose-700 font-semibold">
+                          <td className="py-3 px-4 font-mono text-rose-700 font-medium">
                             Due: {row.due}
                           </td>
-                          <td className="py-3 px-5">
-                            <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
-                              [{row.violation.toUpperCase()}]
+                          <td className="py-3 px-4">
+                            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200">
+                              {row.violation}
                             </span>
                           </td>
-                          <td className="py-3 px-5 text-right">
+                          <td className="py-3 px-4 text-right">
                             <button
                               onClick={() => handleSendNotice(row.id, row.borrower)}
                               disabled={isNotified}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer ${
                                 isNotified
                                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                   : 'bg-rose-600 hover:bg-rose-700 text-white shadow-xs'
                               }`}
                             >
-                              <Send className="w-3 h-3" />
-                              <span>{isNotified ? 'Notice Sent' : 'Transmit Notice'}</span>
+                              <Send className="w-3.5 h-3.5" />
+                              <span>{isNotified ? 'Notice sent' : 'Transmit notice'}</span>
                             </button>
                           </td>
                         </tr>
@@ -499,8 +501,8 @@ export const OfficerOperationsHub: React.FC = () => {
                     <tr>
                       <td colSpan={5} className="py-8 text-center text-slate-400">
                         <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
-                        <span className="font-semibold text-slate-600 text-xs">No expired check-in reservations</span>
-                        <p className="text-[11px] text-slate-400 mt-0.5">All active reservations have either checked in on time or are not yet expired.</p>
+                        <span className="font-medium text-slate-600 text-xs">No expired check-in reservations</span>
+                        <p className="text-xs text-slate-400 mt-0.5">All active reservations have either checked in on time or are not yet expired.</p>
                       </td>
                     </tr>
                   ) : (
@@ -508,34 +510,34 @@ export const OfficerOperationsHub: React.FC = () => {
                       const isRevoked = revokedItems[row.id];
                       return (
                         <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                          <td className="py-3 px-5">
-                            <span className="font-mono text-slate-400 text-[10px] font-bold block">{row.id} • {row.code}</span>
-                            <span className="font-bold text-slate-900">{row.name}</span>
+                          <td className="py-3 px-4">
+                            <span className="font-mono text-slate-400 text-xs font-medium block">{row.id} • {row.code}</span>
+                            <span className="font-semibold text-slate-900">{row.name}</span>
                           </td>
-                          <td className="py-3 px-5">
-                            <span className="font-semibold text-slate-800 block">{row.borrower}</span>
-                            <span className="font-mono text-slate-400 text-[11px]">{row.matric}</span>
+                          <td className="py-3 px-4">
+                            <span className="font-medium text-slate-800 block">{row.borrower}</span>
+                            <span className="font-mono text-slate-400 text-xs">{row.matric}</span>
                           </td>
-                          <td className="py-3 px-5 font-mono text-amber-700 font-semibold">
+                          <td className="py-3 px-4 font-mono text-amber-700 font-medium">
                             {row.slot}
                           </td>
-                          <td className="py-3 px-5">
-                            <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
-                              [{row.violation.toUpperCase()}]
+                          <td className="py-3 px-4">
+                            <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200">
+                              {row.violation}
                             </span>
                           </td>
-                          <td className="py-3 px-5 text-right">
+                          <td className="py-3 px-4 text-right">
                             <button
                               onClick={() => handleRevokeGraceSlot(row.bookingId, row.name, row.id)}
                               disabled={isRevoked}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors inline-flex items-center gap-1.5 cursor-pointer ${
                                 isRevoked
                                   ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
                                   : 'bg-amber-600 hover:bg-amber-700 text-white shadow-xs'
                               }`}
                             >
-                              <RotateCcw className="w-3 h-3" />
-                              <span>{isRevoked ? 'Slot Reallocated' : 'Revoke & Waitlist'}</span>
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>{isRevoked ? 'Slot reallocated' : 'Revoke & waitlist'}</span>
                             </button>
                           </td>
                         </tr>
@@ -550,38 +552,38 @@ export const OfficerOperationsHub: React.FC = () => {
                     <tr>
                       <td colSpan={5} className="py-8 text-center text-slate-400">
                         <CheckCircle2 className="w-6 h-6 text-emerald-500 mx-auto mb-1" />
-                        <span className="font-semibold text-slate-600 text-xs">All requests reviewed and authorized</span>
-                        <p className="text-[11px] text-slate-400 mt-0.5">No space reservations or hardware loan authorizations pending officer review.</p>
+                        <span className="font-medium text-slate-600 text-xs">All requests reviewed and authorized</span>
+                        <p className="text-xs text-slate-400 mt-0.5">No space reservations or hardware loan authorizations pending officer review.</p>
                       </td>
                     </tr>
                   ) : (
                     filteredPending.map((row) => (
                       <tr key={row.id} className="hover:bg-slate-50/60 transition-colors">
-                        <td className="py-3 px-5">
-                          <span className="font-mono text-slate-400 text-[10px] font-bold block">
-                            {row.type.toUpperCase()} • {row.id} • {row.identifier}
+                        <td className="py-3 px-4">
+                          <span className="font-mono text-slate-400 text-xs font-medium block">
+                            {row.type === 'space' ? 'Space' : 'Hardware'} • {row.id} • {row.identifier}
                           </span>
-                          <span className="font-bold text-slate-900">{row.name}</span>
+                          <span className="font-semibold text-slate-900">{row.name}</span>
                         </td>
-                        <td className="py-3 px-5">
-                          <span className="font-semibold text-slate-800 block">{row.borrower}</span>
-                          <span className="font-mono text-slate-400 text-[11px]">{row.matric}</span>
+                        <td className="py-3 px-4">
+                          <span className="font-medium text-slate-800 block">{row.borrower}</span>
+                          <span className="font-mono text-slate-400 text-xs">{row.matric}</span>
                         </td>
-                        <td className="py-3 px-5 font-mono text-slate-700 font-semibold">
+                        <td className="py-3 px-4 font-mono text-slate-700 font-medium">
                           {row.detail}
                         </td>
-                        <td className="py-3 px-5">
-                          <span className="inline-block text-[10px] font-bold px-2 py-0.5 rounded bg-blue-50 text-blue-800 border border-blue-200">
-                            [AWAITING OFFICER REVIEW]
+                        <td className="py-3 px-4">
+                          <span className="inline-block text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200">
+                            Awaiting review
                           </span>
                         </td>
-                        <td className="py-3 px-5 text-right">
+                        <td className="py-3 px-4 text-right">
                           <button
                             onClick={() => handleApprove(row)}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition-all inline-flex items-center gap-1.5 cursor-pointer"
+                            className="px-3.5 py-1.5 rounded-lg text-xs font-medium bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-colors inline-flex items-center gap-1.5 cursor-pointer"
                           >
-                            <Check className="w-3 h-3" />
-                            <span>Authorize Pass</span>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Authorize pass</span>
                           </button>
                         </td>
                       </tr>
@@ -598,33 +600,33 @@ export const OfficerOperationsHub: React.FC = () => {
       {/* 2. RESERVED SPACES DIRECTORY (LIGHT THEME BENTO CONTAINER) */}
       {/* ===================================================================== */}
       {(activeSegment === 'ALL' || activeSegment === 'SPACES') && (
-        <div className="bg-white text-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+        <div className="bg-white text-slate-900 rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200">
                 <Calendar className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold tracking-tight text-slate-900 uppercase">
-                  Reserved Spaces Directory
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Reserved spaces directory
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Live overview of laboratory spaces currently occupied or scheduled by students and staff
                 </p>
               </div>
             </div>
-            <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
-              [{filteredSpaces.length} {filteredSpaces.length === 1 ? 'SPACE RESERVATION' : 'SPACE RESERVATIONS'}]
+            <span className="font-mono text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+              {filteredSpaces.length} {filteredSpaces.length === 1 ? 'reservation' : 'reservations'}
             </span>
           </div>
 
           {filteredSpaces.length === 0 ? (
-            <div className="py-6 px-4 text-center rounded-2xl bg-slate-50 border border-slate-200 mt-4">
+            <div className="py-8 px-4 text-center rounded-2xl bg-slate-50 border border-slate-200 mt-4">
               <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
-              <p className="text-xs font-bold text-slate-800">
-                No Laboratory Spaces Currently Reserved
+              <p className="text-xs font-semibold text-slate-800">
+                No laboratory spaces currently reserved
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 All 23 FCSIT laboratory facilities are vacant. New student or staff reservations will appear here in real time.
               </p>
             </div>
@@ -632,19 +634,26 @@ export const OfficerOperationsHub: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mt-4">
               {filteredSpaces.map((b) => {
                 const room = rooms.find((r) => r.id === b.roomId);
+                const targetRoomId = b.roomId || room?.id;
                 return (
                   <div
                     key={b.id}
-                    onClick={() => setActiveTab('labs')}
-                    className="group/card bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-4 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+                    onClick={() => {
+                      if (targetRoomId) {
+                        navigateToRoomSchedule(targetRoomId);
+                      } else {
+                        setActiveTab('labs');
+                      }
+                    }}
+                    className="group/card bg-white hover:bg-slate-50/70 border border-slate-200 hover:border-slate-300 rounded-2xl p-4 transition-colors cursor-pointer flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200">
-                          {b.roomCode || room?.code || 'SPACE'}
+                        <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 border border-blue-200">
+                          {b.roomCode || room?.code || 'Space'}
                         </span>
                         <span
-                          className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
+                          className={`font-mono text-xs font-medium px-2 py-0.5 rounded-md border ${
                             b.status === 'Active'
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : b.status === 'Approved'
@@ -652,18 +661,18 @@ export const OfficerOperationsHub: React.FC = () => {
                               : 'bg-amber-50 text-amber-900 border-amber-200'
                           }`}
                         >
-                          [{b.status.toUpperCase()}]
+                          {b.status}
                         </span>
                       </div>
 
-                      <h3 className="text-xs font-bold text-slate-900 group-hover/card:text-blue-900 transition-colors line-clamp-1">
+                      <h3 className="text-xs font-semibold text-slate-900 group-hover/card:text-blue-900 transition-colors line-clamp-1">
                         {b.roomName || room?.name}
                       </h3>
 
-                      <div className="mt-2.5 space-y-1.5 text-[11px] text-slate-600">
+                      <div className="mt-2.5 space-y-1.5 text-xs text-slate-600">
                         <div className="flex items-center gap-1.5 text-slate-500">
                           <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                          <span className="text-slate-800 font-semibold">
+                          <span className="text-slate-800 font-medium">
                             {b.date} • {b.slot}
                           </span>
                         </div>
@@ -676,16 +685,16 @@ export const OfficerOperationsHub: React.FC = () => {
                         </div>
 
                         {b.purpose && (
-                          <p className="text-[10px] text-slate-500 line-clamp-1 italic pt-0.5">
+                          <p className="text-xs text-slate-500 line-clamp-1 italic pt-0.5">
                             "{b.purpose}"
                           </p>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-[11px] font-bold text-blue-900 group-hover/card:text-blue-700">
-                      <span>View Space Schedule</span>
-                      <ChevronRight className="w-3.5 h-3.5 group-hover/card:translate-x-1 transition-transform" />
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-blue-900 group-hover/card:text-blue-700">
+                      <span>View space schedule</span>
+                      <ChevronRight className="w-3.5 h-3.5 group-hover/card:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 );
@@ -699,33 +708,33 @@ export const OfficerOperationsHub: React.FC = () => {
       {/* 3. BOOKED & ISSUED HARDWARE DIRECTORY (LIGHT THEME) */}
       {/* ===================================================================== */}
       {(activeSegment === 'ALL' || activeSegment === 'HARDWARE') && (
-        <div className="bg-white text-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-200 shadow-sm">
+        <div className="bg-white text-slate-900 rounded-xl p-5 sm:p-6 border border-slate-200 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200">
+              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200">
                 <Cpu className="w-4 h-4" />
               </div>
               <div>
-                <h2 className="text-sm font-bold tracking-tight text-slate-900 uppercase">
-                  Booked & Issued Hardware Directory
+                <h2 className="text-sm font-semibold text-slate-900">
+                  Booked & issued hardware directory
                 </h2>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-xs text-slate-500">
                   Live overview of laboratory hardware assets currently checked out or reserved by borrowers
                 </p>
               </div>
             </div>
-            <span className="font-mono text-[10px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
-              [{filteredHardware.length} {filteredHardware.length === 1 ? 'ACTIVE LOAN' : 'ACTIVE LOANS'}]
+            <span className="font-mono text-xs font-medium px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 border border-slate-200 self-start sm:self-auto">
+              {filteredHardware.length} {filteredHardware.length === 1 ? 'active loan' : 'active loans'}
             </span>
           </div>
 
           {filteredHardware.length === 0 ? (
-            <div className="py-6 px-4 text-center rounded-2xl bg-slate-50 border border-slate-200 mt-4">
+            <div className="py-8 px-4 text-center rounded-2xl bg-slate-50 border border-slate-200 mt-4">
               <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
-              <p className="text-xs font-bold text-slate-800">
-                No Hardware Currently Checked Out or Reserved
+              <p className="text-xs font-semibold text-slate-800">
+                No hardware currently checked out or reserved
               </p>
-              <p className="text-[11px] text-slate-500 mt-0.5">
+              <p className="text-xs text-slate-500 mt-0.5">
                 All dev kits, sensors, and oscilloscopes are secured in FCSIT lockers. Pending and active loans will appear here in real time.
               </p>
             </div>
@@ -733,19 +742,26 @@ export const OfficerOperationsHub: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 mt-4">
               {filteredHardware.map((loan) => {
                 const item = hardware.find((h) => h.id === loan.hardwareId);
+                const targetHardwareId = loan.hardwareId || item?.id;
                 return (
                   <div
                     key={loan.id}
-                    onClick={() => setActiveTab('hardware')}
-                    className="group/card bg-slate-50/70 hover:bg-white border border-slate-200 hover:border-blue-400 hover:shadow-md rounded-2xl p-4 transition-all duration-200 cursor-pointer flex flex-col justify-between"
+                    onClick={() => {
+                      if (targetHardwareId) {
+                        navigateToHardwareCalendar(targetHardwareId);
+                      } else {
+                        setActiveTab('hardware');
+                      }
+                    }}
+                    className="group/card bg-white hover:bg-slate-50/70 border border-slate-200 hover:border-slate-300 rounded-2xl p-4 transition-colors cursor-pointer flex flex-col justify-between"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-200">
+                        <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-blue-50 text-blue-900 border border-blue-200">
                           {loan.hardwareTag || item?.tag || 'HW'}
                         </span>
                         <span
-                          className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded border ${
+                          className={`font-mono text-xs font-medium px-2 py-0.5 rounded-md border ${
                             loan.status === 'Active / Issued'
                               ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
                               : loan.status === 'Overdue'
@@ -753,15 +769,15 @@ export const OfficerOperationsHub: React.FC = () => {
                               : 'bg-amber-50 text-amber-800 border-amber-200'
                           }`}
                         >
-                          [{loan.status.toUpperCase()}]
+                          {loan.status}
                         </span>
                       </div>
 
-                      <h3 className="text-xs font-bold text-slate-900 group-hover/card:text-blue-900 transition-colors line-clamp-1">
+                      <h3 className="text-xs font-semibold text-slate-900 group-hover/card:text-blue-900 transition-colors line-clamp-1">
                         {loan.hardwareName || item?.name}
                       </h3>
 
-                      <div className="mt-2.5 space-y-1.5 text-[11px] text-slate-600">
+                      <div className="mt-2.5 space-y-1.5 text-xs text-slate-600">
                         <div className="flex items-center gap-1.5 text-slate-400">
                           <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                           <span className="text-slate-800 font-medium">
@@ -777,16 +793,16 @@ export const OfficerOperationsHub: React.FC = () => {
                         </div>
 
                         {loan.purpose && (
-                          <p className="text-[10px] text-slate-500 line-clamp-1 italic pt-0.5">
+                          <p className="text-xs text-slate-500 line-clamp-1 italic pt-0.5">
                             "{loan.purpose}"
                           </p>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 border-t border-slate-200/80 flex items-center justify-between text-[11px] font-bold text-blue-900 group-hover/card:text-blue-700">
-                      <span>Open Hardware Details</span>
-                      <ChevronRight className="w-3.5 h-3.5 group-hover/card:translate-x-1 transition-transform" />
+                    <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-medium text-blue-900 group-hover/card:text-blue-700">
+                      <span>Open hardware details</span>
+                      <ChevronRight className="w-3.5 h-3.5 group-hover/card:translate-x-0.5 transition-transform" />
                     </div>
                   </div>
                 );

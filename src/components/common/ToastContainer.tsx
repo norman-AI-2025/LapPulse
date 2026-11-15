@@ -17,35 +17,35 @@ export const ToastContainer: React.FC = () => {
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto rounded-2xl p-4 shadow-island border backdrop-blur-xl transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 ${
+            className={`pointer-events-auto rounded-lg p-3.5 shadow-md border transition-[opacity,transform] duration-150 animate-in fade-in slide-in-from-bottom-1 ${
               isSuccess
-                ? 'bg-white/95 border-emerald-200/80 text-slate-800'
+                ? 'bg-white border-emerald-200 text-slate-800'
                 : isError
-                ? 'bg-white/95 border-rose-200/80 text-slate-800'
+                ? 'bg-white border-rose-200 text-slate-800'
                 : isWarning
-                ? 'bg-white/95 border-amber-200/80 text-slate-800'
-                : 'bg-white/95 border-blue-200/80 text-slate-800'
+                ? 'bg-white border-amber-200 text-slate-800'
+                : 'bg-white border-slate-200 text-slate-800'
             }`}
           >
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex-shrink-0">
-                {isSuccess && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-                {isError && <AlertCircle className="w-5 h-5 text-rose-600" />}
-                {isWarning && <AlertTriangle className="w-5 h-5 text-amber-500" />}
-                {toast.type === 'info' && <Info className="w-5 h-5 text-blue-600" />}
+                {isSuccess && <CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+                {isError && <AlertCircle className="w-4 h-4 text-rose-600" />}
+                {isWarning && <AlertTriangle className="w-4 h-4 text-amber-500" />}
+                {toast.type === 'info' && <Info className="w-4 h-4 text-blue-600" />}
               </div>
 
               <div className="flex-1 min-w-0">
-                <h5 className="text-sm font-semibold text-slate-900 leading-snug">{toast.title}</h5>
+                <h5 className="text-xs font-semibold text-slate-900 leading-snug">{toast.title}</h5>
                 <p className="text-xs text-slate-600 mt-0.5 leading-relaxed break-words">{toast.message}</p>
               </div>
 
               <button
                 onClick={() => removeToast(toast.id)}
-                className="text-slate-400 hover:text-slate-600 p-1 -mr-1 -mt-1 rounded-lg transition-colors"
+                className="text-slate-400 hover:text-slate-600 p-1 -mr-1 -mt-1 rounded-md transition-colors cursor-pointer"
                 aria-label="Close notification"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

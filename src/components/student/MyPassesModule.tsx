@@ -198,10 +198,10 @@ export const MyPassesModule: React.FC = () => {
           
           <button
             onClick={() => setActiveTab('hardware')}
-            className="px-3.5 py-1.5 rounded-xl bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm"
+            className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
           >
             <Cpu className="w-3.5 h-3.5 text-blue-600" />
-            <span>Borrow Device</span>
+            <span>Borrow device</span>
           </button>
         </div>
       </div>
@@ -211,48 +211,48 @@ export const MyPassesModule: React.FC = () => {
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setPassFilter('all')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
               passFilter === 'all'
-                ? 'bg-slate-900 text-white shadow-sm'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
-            All Passes ({myBookings.length + myLoans.length})
+            All passes ({myBookings.length + myLoans.length})
           </button>
 
           <button
             onClick={() => setPassFilter('spaces')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
               passFilter === 'spaces'
-                ? 'bg-slate-900 text-white shadow-sm'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             <Building2 className="w-3.5 h-3.5 text-blue-500" />
-            <span>Space Passes ({myBookings.length})</span>
+            <span>Space passes ({myBookings.length})</span>
           </button>
 
           <button
             onClick={() => setPassFilter('devices')}
-            className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
               passFilter === 'devices'
-                ? 'bg-slate-900 text-white shadow-sm'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
             <Cpu className="w-3.5 h-3.5 text-indigo-500" />
-            <span>Device Passes ({myLoans.length})</span>
+            <span>Device passes ({myLoans.length})</span>
           </button>
         </div>
 
-        <span className="text-xs text-slate-400 hidden sm:inline">
+        <span className="text-xs text-slate-400 hidden sm:inline font-mono">
           Showing {totalVisibleCount} active pass(es)
         </span>
       </div>
 
       {/* 15-MINUTE GRACE WATCHDOG BAR (SPACE CHECK-IN TIMER OR ACTIVE SESSION) */}
       {showSpaces && currentSpacePass && (
-        <div className={`rounded-3xl p-4 sm:p-5 border transition-all ${
+        <div className={`rounded-xl p-4 sm:p-5 border transition-colors ${
           currentSpacePass.status === 'Active'
             ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950'
             : secondsRemaining < 180
@@ -261,7 +261,7 @@ export const MyPassesModule: React.FC = () => {
         }`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
             <div className="flex items-start sm:items-center gap-3.5">
-              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-xs ${
                 currentSpacePass.status === 'Active'
                   ? 'bg-emerald-600 text-white'
                   : 'bg-amber-500 text-white'
@@ -269,22 +269,22 @@ export const MyPassesModule: React.FC = () => {
                 {currentSpacePass.status === 'Active' ? (
                   <CheckCircle2 className="w-5 h-5" />
                 ) : (
-                  <Clock className="w-5 h-5 animate-pulse" />
+                  <Clock className="w-5 h-5" />
                 )}
               </div>
 
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded-md ${
+                  <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md ${
                     currentSpacePass.status === 'Active'
                       ? 'bg-emerald-200 text-emerald-900'
                       : 'bg-amber-200 text-amber-900'
                   }`}>
                     {currentSpacePass.status === 'Active'
-                      ? '[SESSION ACTIVE • CHECKED IN]'
-                      : `[15-MIN CHECK-IN TIMER: ${formatCountdown(secondsRemaining)}]`}
+                      ? 'Session active • Checked in'
+                      : `Check-in window: ${formatCountdown(secondsRemaining)}`}
                   </span>
-                  <span className="text-xs font-bold text-slate-900">
+                  <span className="text-xs font-semibold text-slate-900">
                     {currentSpacePass.roomName} ({currentSpacePass.slot})
                   </span>
                 </div>
@@ -292,34 +292,34 @@ export const MyPassesModule: React.FC = () => {
                 <div className="text-xs mt-1 text-slate-600">
                   {currentSpacePass.status === 'Active' ? (
                     <span>
-                      Checked in at <strong>{currentSpacePass.checkInTime || '08:05 AM'}</strong> • Supposed Check-Out: <strong>{getSlotEndTime(currentSpacePass.slot)}</strong>. Present your checkout QR pass at the exit turnstile to get scanned upon departure.
+                      Checked in at <strong className="font-mono">{currentSpacePass.checkInTime || '08:05 AM'}</strong> • Scheduled check-out: <strong className="font-mono">{getSlotEndTime(currentSpacePass.slot)}</strong>. Present checkout pass at exit turnstile upon departure.
                     </span>
                   ) : (
                     <span>
-                      Session has started. <strong>Staff/student must get this Check-In QR scanned at the entrance turnstile within {formatCountdown(secondsRemaining)}</strong>. If your QR code is not scanned before time expires, this booking will automatically cancel.
+                      Session has started. <strong>Present check-in QR pass at turnstile within {formatCountdown(secondsRemaining)}</strong>. Unclaimed passes will forfeit automatically.
                     </span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* SCANNER ACTIONS ONLY - NO BYPASS BUTTONS */}
+            {/* SCANNER ACTIONS */}
             <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
               {currentSpacePass.status === 'Approved' ? (
                 <button
                   onClick={() => processToken(currentSpacePass.tokenCode)}
-                  className="px-4 py-2 rounded-xl bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg bg-[#002B7F] hover:bg-blue-800 text-white text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   <Scan className="w-3.5 h-3.5 text-cyan-300" />
-                  <span>Get Check-In QR Scanned</span>
+                  <span>Get check-in QR scanned</span>
                 </button>
               ) : (
                 <button
                   onClick={() => processToken(currentSpacePass.tokenCode)}
-                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
                   <Scan className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Get Checkout QR Scanned</span>
+                  <span>Get checkout QR scanned</span>
                 </button>
               )}
             </div>
@@ -329,15 +329,15 @@ export const MyPassesModule: React.FC = () => {
 
       {/* PASS CARDS GRID */}
       {totalVisibleCount === 0 ? (
-        <div className="bg-white rounded-3xl p-8 text-center border border-slate-200">
-          <QrCode className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-          <h3 className="text-xs font-bold text-slate-800">No Active Passes Found</h3>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+        <div className="bg-white rounded-xl p-8 text-center border border-slate-200">
+          <QrCode className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+          <h3 className="text-xs font-semibold text-slate-800">No active passes found</h3>
+          <p className="text-xs text-slate-400 mt-0.5">
             You don&apos;t have any active space or device passes matching this filter.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           
           {/* 1. SPACE PASSES */}
           {visibleSpacePasses.map((b) => {
@@ -369,15 +369,15 @@ export const MyPassesModule: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => processToken(b.tokenCode)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      className="flex-1 py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
                       <Scan className="w-3.5 h-3.5 text-blue-700" />
-                      <span>Get Check-In QR Scanned</span>
+                      <span>Get check-in QR scanned</span>
                     </button>
                     
                     <button
                       onClick={() => cancelBooking(b.id)}
-                      className="py-2 px-3 rounded-xl bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 text-xs font-medium transition-colors"
+                      className="py-2 px-3 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-500 hover:text-rose-700 border border-slate-200 text-xs font-medium transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -387,10 +387,10 @@ export const MyPassesModule: React.FC = () => {
                 {b.status === 'Active' && (
                   <button
                     onClick={() => processToken(b.tokenCode)}
-                    className="w-full py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-2 px-3 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Scan className="w-3.5 h-3.5 text-emerald-700" />
-                    <span>Get Checkout QR Scanned</span>
+                    <span>Get checkout QR scanned</span>
                   </button>
                 )}
               </div>
@@ -422,24 +422,24 @@ export const MyPassesModule: React.FC = () => {
                   ]}
                 />
 
-                {/* Scan Action Pill for Hardware: ONLY WAY TO BORROW & RETURN */}
+                {/* Scan Action Pill for Hardware */}
                 {l.status === 'Pending Approval' && (
                   <button
                     onClick={() => processToken(l.tokenCode)}
-                    className="w-full py-2 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-2 px-3 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Scan className="w-3.5 h-3.5 text-blue-700" />
-                    <span>Get QR Scanned to Borrow</span>
+                    <span>Get QR scanned to borrow</span>
                   </button>
                 )}
 
                 {(l.status === 'Active / Issued' || l.status === 'Overdue') && (
                   <button
                     onClick={() => processToken(l.tokenCode)}
-                    className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    className="w-full py-2 px-3 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Scan className="w-3.5 h-3.5 text-cyan-300" />
-                    <span>Get Return QR Scanned</span>
+                    <span>Get return QR scanned</span>
                   </button>
                 )}
               </div>
@@ -449,15 +449,15 @@ export const MyPassesModule: React.FC = () => {
       )}
 
       {/* ALL HISTORY RECORDS TABLE */}
-      <div className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm mt-6">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-xs mt-6">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-xs font-bold text-slate-900">Passes & Verification Registry</h3>
-            <span className="text-[10px] text-slate-400 uppercase tracking-wider font-mono">
-              ({passFilter.toUpperCase()})
+            <h3 className="text-xs font-semibold text-slate-900">Passes & verification registry</h3>
+            <span className="text-xs text-slate-400 font-mono">
+              ({passFilter})
             </span>
           </div>
-          <span className="text-[11px] text-slate-400">
+          <span className="text-xs text-slate-400 font-mono">
             {myBookings.length + myLoans.length} total entries
           </span>
         </div>
@@ -466,12 +466,12 @@ export const MyPassesModule: React.FC = () => {
           <table className="w-full text-xs text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 text-slate-400 bg-slate-50/50">
-                <th className="p-3">Type & Item</th>
-                <th className="p-3">Token Code</th>
-                <th className="p-3">Check-In / Start</th>
-                <th className="p-3">Supposed Check-Out / Due</th>
+                <th className="p-3">Type & item</th>
+                <th className="p-3">Token code</th>
+                <th className="p-3">Check-in / start</th>
+                <th className="p-3">Scheduled check-out / due</th>
                 <th className="p-3">Status</th>
-                <th className="p-3 text-right">Verification Action</th>
+                <th className="p-3 text-right">Verification action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -481,19 +481,19 @@ export const MyPassesModule: React.FC = () => {
                   <tr key={b.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-3">
                       <div className="font-semibold text-slate-800">{b.roomName}</div>
-                      <div className="text-[10px] text-slate-400">{b.roomCode}</div>
+                      <div className="text-xs font-mono text-slate-400">{b.roomCode}</div>
                     </td>
-                    <td className="p-3 font-mono font-bold text-slate-700">{b.tokenCode}</td>
-                    <td className="p-3 text-slate-600">
+                    <td className="p-3 font-mono font-medium tabular-nums text-slate-700">{b.tokenCode}</td>
+                    <td className="p-3 text-slate-600 font-mono">
                       {b.status === 'Active' || b.status === 'Completed'
                         ? `${b.date} • ${b.checkInTime || '08:05 AM'}`
-                        : `${b.date} (Slot: ${b.slot})`}
+                        : `${b.date} (${b.slot})`}
                     </td>
-                    <td className="p-3 text-slate-600 font-medium">
+                    <td className="p-3 text-slate-600 font-mono font-medium">
                       {b.date} • {getSlotEndTime(b.slot)}
                     </td>
                     <td className="p-3">
-                      <span className={`text-[10px] px-2.5 py-0.5 rounded-full ${getStatusFillClass(b.status)}`}>
+                      <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md ${getStatusFillClass(b.status)}`}>
                         {b.status}
                       </span>
                     </td>
@@ -501,21 +501,21 @@ export const MyPassesModule: React.FC = () => {
                       {b.status === 'Approved' ? (
                         <button
                           onClick={() => processToken(b.tokenCode)}
-                          className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px] inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium text-xs inline-flex items-center gap-1 cursor-pointer"
                         >
                           <Scan className="w-3 h-3" />
-                          <span>Get Scanned (Check In)</span>
+                          <span>Check in</span>
                         </button>
                       ) : b.status === 'Active' ? (
                         <button
                           onClick={() => processToken(b.tokenCode)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 font-semibold text-[11px] inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 hover:bg-slate-200 font-medium text-xs inline-flex items-center gap-1 cursor-pointer"
                         >
                           <Scan className="w-3 h-3" />
-                          <span>Get Scanned (Exit)</span>
+                          <span>Exit</span>
                         </button>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">Concluded</span>
+                        <span className="text-slate-400 text-xs">Concluded</span>
                       )}
                     </td>
                   </tr>
@@ -527,13 +527,13 @@ export const MyPassesModule: React.FC = () => {
                   <tr key={l.id} className="hover:bg-slate-50/50 transition-colors">
                     <td className="p-3">
                       <div className="font-semibold text-slate-800">{l.hardwareName}</div>
-                      <div className="text-[10px] text-slate-400">{l.hardwareTag}</div>
+                      <div className="text-xs font-mono text-slate-400">{l.hardwareTag}</div>
                     </td>
-                    <td className="p-3 font-mono font-bold text-slate-700">{l.tokenCode}</td>
-                    <td className="p-3 text-slate-600">{l.requestDate}</td>
-                    <td className="p-3 text-slate-600 font-medium">{l.dueDate}</td>
+                    <td className="p-3 font-mono font-medium tabular-nums text-slate-700">{l.tokenCode}</td>
+                    <td className="p-3 text-slate-600 font-mono">{l.requestDate}</td>
+                    <td className="p-3 text-slate-600 font-mono font-medium">{l.dueDate}</td>
                     <td className="p-3">
-                      <span className={`text-[10px] px-2.5 py-0.5 rounded-full ${getStatusFillClass(l.status)}`}>
+                      <span className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md ${getStatusFillClass(l.status)}`}>
                         {l.status}
                       </span>
                     </td>
@@ -541,21 +541,21 @@ export const MyPassesModule: React.FC = () => {
                       {l.status === 'Pending Approval' ? (
                         <button
                           onClick={() => processToken(l.tokenCode)}
-                          className="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px] inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium text-xs inline-flex items-center gap-1 cursor-pointer"
                         >
                           <Scan className="w-3 h-3" />
-                          <span>Get Scanned (Borrow)</span>
+                          <span>Borrow</span>
                         </button>
                       ) : l.status === 'Active / Issued' || l.status === 'Overdue' ? (
                         <button
                           onClick={() => processToken(l.tokenCode)}
-                          className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 hover:bg-slate-200 font-semibold text-[11px] inline-flex items-center gap-1 cursor-pointer"
+                          className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-800 hover:bg-slate-200 font-medium text-xs inline-flex items-center gap-1 cursor-pointer"
                         >
                           <Scan className="w-3 h-3" />
-                          <span>Get Scanned (Return)</span>
+                          <span>Return</span>
                         </button>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">Restocked</span>
+                        <span className="text-slate-400 text-xs">Restocked</span>
                       )}
                     </td>
                   </tr>

@@ -24,9 +24,8 @@ const CATEGORIES: ('All' | HardwareCategory)[] = [
 ];
 
 export const HardwareLendingModule: React.FC = () => {
-  const { hardware, loans, waitlist, reports } = useLabPulse();
+  const { hardware, loans, waitlist, reports, selectedHardwareId, setSelectedHardwareId } = useLabPulse();
 
-  const [selectedHardwareId, setSelectedHardwareId] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<'All' | HardwareCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -82,9 +81,9 @@ export const HardwareLendingModule: React.FC = () => {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
               selectedCategory === cat
-                ? 'bg-slate-900 text-white font-semibold shadow-sm'
+                ? 'bg-slate-900 text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -107,7 +106,7 @@ export const HardwareLendingModule: React.FC = () => {
             <div
               key={item.id}
               onClick={() => setSelectedHardwareId(item.id)}
-              className="bg-white rounded-3xl overflow-hidden border border-slate-200/90 hover:border-slate-400/80 hover:shadow-md transition-all duration-200 cursor-pointer group flex flex-col justify-between"
+              className="bg-white rounded-xl overflow-hidden border border-slate-200 hover:border-slate-300 shadow-xs transition-colors cursor-pointer group flex flex-col justify-between"
             >
               <div>
                 {/* 1. Hardware Image Container */}
@@ -115,12 +114,12 @@ export const HardwareLendingModule: React.FC = () => {
                   <img
                     src={item.imageUrl}
                     alt={item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-cover"
                   />
                   
                   {/* Tag badge */}
                   <div className="absolute top-3 left-3">
-                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white/90 text-slate-900 backdrop-blur-md shadow-sm">
+                    <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-white/95 text-slate-900 shadow-xs">
                       {item.tag}
                     </span>
                   </div>
@@ -128,66 +127,66 @@ export const HardwareLendingModule: React.FC = () => {
                   {/* Top-Right Stock Status Pill */}
                   <div className="absolute top-3 right-3">
                     <span
-                      className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full shadow-sm backdrop-blur-md ${
+                      className={`text-xs font-mono font-medium px-2 py-0.5 rounded-md shadow-xs ${
                         isUnderRepair
-                          ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
                           : isOutOfStock
                           ? 'bg-rose-100 text-rose-800'
                           : 'bg-emerald-100 text-emerald-800'
                       }`}
                     >
                       {isUnderRepair
-                        ? 'Under Repair'
+                        ? 'Under repair'
                         : isOutOfStock
-                        ? 'On Loan (0 Free)'
-                        : `${item.availableUnits} Available`}
+                        ? 'On loan (0 free)'
+                        : `${item.availableUnits} available`}
                     </span>
                   </div>
                 </div>
 
                 {/* 2. Hardware Name & Metadata */}
                 <div className="p-4 sm:p-5">
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug">
+                  <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-900 transition-colors leading-snug">
                     {item.name}
                   </h3>
 
-                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 font-medium">
+                  <div className="flex items-center gap-1.5 mt-1.5 text-xs text-slate-500 font-normal">
                     <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                     <span>{item.location} (SN: {item.serialNumber})</span>
                   </div>
 
                   {/* Health score & Queue summary */}
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
                     <div className="flex items-center gap-1.5 text-slate-600">
                       <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Health: <strong>{item.healthPercentage}%</strong></span>
+                      <span>Health: <strong className="font-medium text-slate-900">{item.healthPercentage}%</strong></span>
                     </div>
 
                     {queueCount > 0 ? (
-                      <span className="text-amber-700 font-semibold text-[11px] bg-amber-50 px-2 py-0.5 rounded-md">
-                        {queueCount} in Queue
+                      <span className="text-amber-700 font-medium text-xs bg-amber-50 px-2 py-0.5 rounded-md">
+                        {queueCount} in queue
                       </span>
                     ) : (
-                      <span className="text-slate-400 text-[11px]">{item.totalUnits} Units Total</span>
+                      <span className="text-slate-400 text-xs">{item.totalUnits} units total</span>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* 3. Replaced "Passport" and "Request Loan" with prominent "Status & Calendar" Action */}
+              {/* 3. Action */}
               <div className="px-4 pb-4 sm:px-5 sm:pb-5">
-                <div className={`w-full py-2.5 px-3.5 rounded-xl text-xs font-semibold flex items-center justify-between transition-colors shadow-sm ${
+                <div className={`w-full py-2.5 px-3.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors shadow-xs ${
                   isUnderRepair
                     ? 'bg-rose-50 text-rose-700 border border-rose-200'
                     : 'bg-slate-50 group-hover:bg-slate-900 group-hover:text-white text-slate-800'
                 }`}>
                   <span className="flex items-center gap-2">
                     <Calendar className={`w-4 h-4 ${isUnderRepair ? 'text-rose-600' : 'text-blue-600 group-hover:text-white'}`} />
-                    <span>{isUnderRepair ? 'Under Repair • View Calendar' : 'Check Status & Calendar'}</span>
+                    <span>{isUnderRepair ? 'Under repair • view calendar' : 'Check status & calendar'}</span>
                   </span>
-                  <span className="flex items-center gap-1 text-[11px] text-slate-400 group-hover:text-slate-300">
-                    <span>{isUnderRepair ? 'Loans Disabled' : 'Borrow Schedule'}</span>
-                    <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  <span className="flex items-center gap-1 text-xs text-slate-400 group-hover:text-slate-300">
+                    <span>{isUnderRepair ? 'Loans disabled' : 'Borrow schedule'}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
               </div>

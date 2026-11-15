@@ -389,34 +389,34 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
       </div>
 
       {/* Hardware Status Hero Card */}
-      <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-start gap-4">
           <img
             src={item.imageUrl}
             alt={item.name}
-            className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border border-slate-100 flex-shrink-0"
+            className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover border border-slate-100 flex-shrink-0"
           />
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800">
+              <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-800">
                 {item.tag}
               </span>
-              <span className="text-xs text-slate-400">SN: {item.serialNumber}</span>
-              <span className="text-xs text-slate-400">•</span>
-              <span className="text-xs text-slate-500 flex items-center gap-1">
+              <span className="text-xs text-slate-400 font-mono">SN: {item.serialNumber}</span>
+              <span className="text-xs text-slate-300">•</span>
+              <span className="text-xs text-slate-500 flex items-center gap-1 font-normal">
                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
                 {item.location}
               </span>
             </div>
             
-            <h1 className="text-lg sm:text-xl font-bold text-slate-900 mt-1">{item.name}</h1>
+            <h1 className="text-base sm:text-lg font-semibold text-slate-900 mt-1">{item.name}</h1>
             
             <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-              <span className="flex items-center gap-1 font-semibold text-slate-700">
+              <span className="flex items-center gap-1 font-mono text-slate-700">
                 <Activity className="w-3.5 h-3.5 text-emerald-600" />
                 Health: {item.healthPercentage}%
               </span>
-              <span>•</span>
+              <span className="text-slate-300">•</span>
               <span>{item.category}</span>
             </div>
           </div>
@@ -424,8 +424,8 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
         {/* Live Availability Status Pill */}
         <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-100 text-right">
-          <span className="text-xs text-slate-400">Current Stock Status</span>
-          <span className={`text-xs font-bold px-3 py-1 rounded-full mt-1 border ${
+          <span className="text-xs text-slate-400">Stock status</span>
+          <span className={`text-xs font-mono font-medium px-2.5 py-1 rounded-md mt-1 border ${
             isUnderRepair
               ? 'bg-rose-50 text-rose-800 border-rose-300'
               : currentHardware.availableUnits > 0
@@ -433,27 +433,27 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
               : 'bg-rose-50 text-rose-800 border-rose-200'
           }`}>
             {isUnderRepair
-              ? 'Under Repair • Out of Service'
+              ? 'Under repair • out of service'
               : currentHardware.availableUnits > 0
-              ? `${currentHardware.availableUnits} of ${currentHardware.totalUnits} Units Available`
-              : 'All Units Currently On Loan'}
+              ? `${currentHardware.availableUnits} of ${currentHardware.totalUnits} units available`
+              : 'All units on loan'}
           </span>
         </div>
       </div>
 
       {/* Under Repair Alert Banner */}
       {isUnderRepair && (
-        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
-          <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+        <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 sm:p-5 flex items-start gap-3.5 text-rose-950 animate-in fade-in">
+          <div className="w-10 h-10 rounded-lg bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-xs mt-0.5">
             <Wrench className="w-5 h-5" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-200 text-rose-900 uppercase">
-                Under Repair
+              <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-rose-200 text-rose-900">
+                Under repair
               </span>
-              <h3 className="text-xs sm:text-sm font-bold text-rose-950">
-                Equipment Under Technical Maintenance
+              <h3 className="text-xs sm:text-sm font-semibold text-rose-950">
+                Equipment under technical maintenance
               </h3>
             </div>
             <p className="text-xs text-rose-700 mt-1 leading-relaxed">
@@ -467,35 +467,35 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
         
         {/* LEFT COLUMN: INTERACTIVE BORROWING CALENDAR (7 cols) */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+        <div className="lg:col-span-7 bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-4">
           
           {/* Calendar Header with Month Navigation */}
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-sm font-semibold text-slate-900">
                 {monthNames[currentMonth]} {currentYear}
               </h2>
-              <span className="text-xs text-slate-400">Borrowing Schedule</span>
+              <span className="text-xs text-slate-400">Borrowing schedule</span>
             </div>
 
             <div className="flex items-center gap-1">
               <button
                 onClick={handlePrevMonth}
-                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
-                title="Previous Month"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                title="Previous month"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 onClick={handleResetToday}
-                className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                className="px-2.5 py-1 text-xs font-medium rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
               >
                 Today
               </button>
               <button
                 onClick={handleNextMonth}
-                className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"
-                title="Next Month"
+                className="p-1.5 rounded-lg hover:bg-slate-100 text-slate-600 transition-colors cursor-pointer"
+                title="Next month"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>
@@ -506,7 +506,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
           <div className="select-none">
             
             {/* Days of week header */}
-            <div className="grid grid-cols-7 gap-1 text-center font-bold text-[11px] text-slate-400 uppercase py-1 border-b border-slate-100">
+            <div className="grid grid-cols-7 gap-1 text-center font-medium text-xs text-slate-400 py-1 border-b border-slate-100">
               <div>Mon</div>
               <div>Tue</div>
               <div>Wed</div>
@@ -526,19 +526,19 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                 let cellBg = 'bg-white hover:bg-slate-50 text-slate-800';
                 let indicator = null;
 
-                // 1. User Selection Range (Highest priority visual feedback)
+                // 1. User Selection Range
                 if (userRange === 'start' || userRange === 'end' || userRange === 'single') {
-                  cellBg = 'bg-[#002B7F] text-white font-bold shadow-sm';
+                  cellBg = 'bg-[#002B7F] text-white font-medium shadow-xs';
                   indicator = (
-                    <span className="text-[9px] block leading-tight text-amber-300 font-bold">
+                    <span className="text-xs block leading-tight text-amber-300 font-medium">
                       {userRange === 'start' ? 'Borrow' : userRange === 'end' ? 'Return' : 'Selected'}
                     </span>
                   );
                 } else if (userRange === 'between') {
-                  cellBg = 'bg-[#DBEAFE] text-blue-900 font-semibold';
+                  cellBg = 'bg-[#DBEAFE] text-blue-900 font-medium';
                 } else if (userRange === 'hover-end') {
-                  cellBg = 'bg-blue-200 text-blue-900 font-semibold border-blue-400';
-                  indicator = <span className="text-[9px] block text-blue-800 font-bold">Return</span>;
+                  cellBg = 'bg-blue-200 text-blue-900 font-medium border-blue-400';
+                  indicator = <span className="text-xs block text-blue-800 font-medium">Return</span>;
                 } else if (userRange === 'hover-between') {
                   cellBg = 'bg-blue-50 text-blue-800';
                 }
@@ -550,46 +550,46 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
                   if (isMyLoan) {
                     cellBg = isPending 
-                      ? 'bg-amber-400 text-slate-950 font-bold border-2 border-amber-500 shadow-xs' 
-                      : 'bg-[#002B7F] text-white font-bold border-2 border-blue-400 shadow-xs';
+                      ? 'bg-amber-400 text-slate-950 font-medium border-2 border-amber-500 shadow-xs' 
+                      : 'bg-[#002B7F] text-white font-medium border-2 border-blue-400 shadow-xs';
                   } else if (isPending) {
-                    cellBg = 'bg-[#FFEB3B] text-slate-950 font-semibold border border-yellow-400';
+                    cellBg = 'bg-[#FFEB3B] text-slate-950 font-medium border border-yellow-400';
                   } else {
                     if (loanInfo.type === 'start') {
-                      cellBg = 'bg-[#00B4D8] text-white font-bold rounded-l-xl';
+                      cellBg = 'bg-[#00B4D8] text-white font-medium rounded-l-lg';
                     } else if (loanInfo.type === 'end') {
-                      cellBg = 'bg-[#0077B6] text-white font-bold rounded-r-xl';
+                      cellBg = 'bg-[#0077B6] text-white font-medium rounded-r-lg';
                     } else if (loanInfo.type === 'between') {
-                      cellBg = 'bg-[#00B4D8]/90 text-white font-medium';
+                      cellBg = 'bg-[#00B4D8]/90 text-white font-normal';
                     } else if (loanInfo.type === 'single') {
-                      cellBg = 'bg-[#00B4D8] text-white font-bold rounded-xl';
+                      cellBg = 'bg-[#00B4D8] text-white font-medium rounded-lg';
                     } else {
                       cellBg = 'bg-slate-100 text-slate-500';
                     }
                   }
 
-                  const statusTag = isMyLoan ? 'MY PASS' : isPending ? 'PENDING' : 'BOOKED';
+                  const statusTag = isMyLoan ? 'My pass' : isPending ? 'Pending' : 'Booked';
                   const phaseTag = loanInfo.type === 'start' ? 'Start' : loanInfo.type === 'end' ? 'Due' : loanInfo.type === 'single' ? '1 Day' : 'Reserved';
 
                   indicator = (
                     <div className="space-y-0.5 mt-1 text-left">
                       <div className="flex items-center justify-between gap-0.5">
-                        <span className={`text-[8px] font-mono font-black uppercase px-1 py-0.2 rounded leading-tight ${
+                        <span className={`text-[10px] font-mono font-medium px-1 py-0.2 rounded leading-tight ${
                           isMyLoan ? 'bg-amber-300 text-slate-950' : isPending ? 'bg-slate-900 text-white' : 'bg-white/25 text-white'
                         }`}>
-                          [{statusTag}]
+                          {statusTag}
                         </span>
-                        <span className="text-[8px] font-mono opacity-80">
+                        <span className="text-[10px] font-mono opacity-80">
                           {phaseTag}
                         </span>
                       </div>
                       {loan && (
                         <>
-                          <div className="font-bold truncate text-[9px] leading-tight mt-0.5">
+                          <div className="font-medium truncate text-xs leading-tight mt-0.5">
                             {loan.userName}
                           </div>
-                          <div className="text-[8px] opacity-90 truncate italic leading-tight">
-                            "{loan.purpose || 'Hardware Loan'}"
+                          <div className="text-xs opacity-90 truncate italic leading-tight">
+                            "{loan.purpose || 'Hardware loan'}"
                           </div>
                         </>
                       )}
@@ -613,7 +613,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                     key={cell.dateStr}
                     onClick={() => !isPast && handleDateClick(cell.dateStr)}
                     onMouseEnter={() => !isPast && !returnDate && borrowDate && setHoverDate(cell.dateStr)}
-                    className={`min-h-[70px] sm:min-h-[78px] p-1.5 rounded-xl border border-slate-100 transition-all ${
+                    className={`min-h-[70px] sm:min-h-[78px] p-1.5 rounded-lg border border-slate-100 transition-colors ${
                       isPast && !loanInfo ? 'cursor-not-allowed' : 'cursor-pointer'
                     } flex flex-col justify-between ${cellBg}`}
                     title={
@@ -625,15 +625,15 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                     }
                   >
                     <div className="flex items-center justify-between">
-                      <span className={`text-xs font-semibold ${cell.isToday && userRange !== 'start' ? 'px-1.5 py-0.2 rounded-md bg-emerald-500 text-white font-bold' : ''}`}>
+                      <span className={`text-xs font-medium font-mono ${cell.isToday && userRange !== 'start' ? 'px-1.5 py-0.2 rounded-md bg-emerald-500 text-white font-semibold' : ''}`}>
                         {cell.dayNumber}
                       </span>
                       {cell.isToday && (
-                        <span className="text-[8px] font-bold text-emerald-600">TODAY</span>
+                        <span className="text-[10px] font-mono font-medium text-emerald-600">Today</span>
                       )}
                     </div>
 
-                    <div className="text-[9px]">
+                    <div className="text-xs">
                       {indicator}
                     </div>
                   </div>
@@ -642,19 +642,19 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
             </div>
           </div>
 
-          {/* Color-Coded Legend matching user request */}
-          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs font-medium text-slate-600">
+          {/* Color-Coded Legend */}
+          <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs font-normal text-slate-600">
             <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-[10px] font-bold uppercase text-slate-400">Legend:</span>
+              <span className="text-xs font-medium text-slate-500">Legend:</span>
               
               <div className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded-md bg-[#00B4D8] inline-block" />
-                <span className="text-[11px]">Borrowed (Start)</span>
+                <span className="w-3.5 h-3.5 rounded bg-[#00B4D8] inline-block" />
+                <span className="text-xs">Borrowed (start)</span>
               </div>
 
               <div className="flex items-center gap-1.5">
-                <span className="w-3.5 h-3.5 rounded-md bg-[#E0F2FE] border border-sky-300 inline-block" />
-                <span className="text-[11px]">Dates in Between</span>
+                <span className="w-3.5 h-3.5 rounded bg-[#E0F2FE] border border-sky-300 inline-block" />
+                <span className="text-xs">Dates in between</span>
               </div>
 
               <div className="flex items-center gap-1.5">
@@ -683,33 +683,33 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
           {/* OFFICER VIEW: QUEUE LIST, HISTORY LIST & REPORTS (NO BOOKING)  */}
           {/* ============================================================== */}
           {isOfficer ? (
-            <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4 animate-in fade-in">
+            <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-4 animate-in fade-in">
               
               {/* Header & Sub-Navigation Pills */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
-                    Officer Station
+                  <span className="text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
+                    Officer station
                   </span>
-                  <h3 className="text-sm font-bold text-slate-900 mt-1">
-                    Asset Operations
+                  <h3 className="text-sm font-semibold text-slate-900 mt-1">
+                    Asset operations
                   </h3>
                 </div>
 
                 {/* Segmented 3-Tab Control */}
-                <div className="flex items-center bg-slate-100 p-1 rounded-2xl self-start sm:self-auto">
+                <div className="flex items-center bg-slate-100 p-1 rounded-lg self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => setOfficerTab('queue')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                       officerTab === 'queue'
-                        ? 'bg-white text-slate-900 shadow-sm'
+                        ? 'bg-white text-slate-900 shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     <Users className="w-3.5 h-3.5 text-amber-500" />
                     <span>Queue</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    <span className={`text-xs px-1.5 py-0.2 rounded-md font-mono ${
                       itemPendingLoans.length > 0 ? 'bg-amber-100 text-amber-800' : 'bg-slate-200 text-slate-600'
                     }`}>
                       {itemPendingLoans.length}
@@ -719,15 +719,15 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setOfficerTab('history')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                       officerTab === 'history'
-                        ? 'bg-white text-slate-900 shadow-sm'
+                        ? 'bg-white text-slate-900 shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     <Clock className="w-3.5 h-3.5 text-blue-500" />
                     <span>History</span>
-                    <span className="text-[10px] px-1.5 py-0.2 rounded-full font-bold bg-slate-200 text-slate-600">
+                    <span className="text-xs px-1.5 py-0.2 rounded-md font-mono bg-slate-200 text-slate-600">
                       {itemHistoryLoans.length + itemLoanHistory.length}
                     </span>
                   </button>
@@ -735,15 +735,15 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setOfficerTab('reports')}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                       officerTab === 'reports'
-                        ? 'bg-white text-slate-900 shadow-sm'
+                        ? 'bg-white text-slate-900 shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     <Wrench className="w-3.5 h-3.5 text-rose-500" />
                     <span>Reports</span>
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                    <span className={`text-xs px-1.5 py-0.2 rounded-md font-mono ${
                       itemDefects.filter(d => d.status !== 'Resolved').length > 0
                         ? 'bg-rose-100 text-rose-800'
                         : 'bg-slate-200 text-slate-600'
@@ -771,7 +771,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   ) : (
                     <div className="space-y-3">
                       {itemPendingLoans.map((l) => (
-                        <div key={l.id} className="p-4 rounded-2xl border border-amber-200/80 bg-amber-50/30 space-y-3 transition-all hover:shadow-sm">
+                        <div key={l.id} className="p-4 rounded-xl border border-amber-200/80 bg-amber-50/30 space-y-3 transition-colors duration-150 hover:border-amber-300">
                           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
                             <div>
                               <div className="flex items-center gap-2">
@@ -813,9 +813,9 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                           </div>
 
                           {/* Reason & Project Objective Callout */}
-                          <div className="p-3 bg-white rounded-xl border border-slate-200/80">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-                              Reason & Project Objective
+                          <div className="p-3 bg-white rounded-lg border border-slate-200">
+                            <span className="text-xs font-medium text-slate-500 block mb-0.5">
+                              Reason & project objective
                             </span>
                             <p className="text-xs font-medium text-slate-800 leading-relaxed">
                               &ldquo;{l.purpose}&rdquo;
@@ -884,39 +884,39 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                             {isExpanded && (
                               <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2.5 text-xs animate-in fade-in">
                                 <div className="grid grid-cols-2 gap-2">
-                                  <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-bold uppercase text-slate-400 block">Token Pass Code</span>
-                                    <span className="font-mono font-bold text-blue-700">{l.tokenCode}</span>
+                                  <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                    <span className="text-xs font-medium text-slate-500 block">Token pass code</span>
+                                    <span className="font-mono tabular-nums font-semibold text-blue-700">{l.tokenCode}</span>
                                   </div>
-                                  <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-bold uppercase text-slate-400 block">Serial Number</span>
-                                    <span className="font-mono font-semibold text-slate-800">{l.serialNumber}</span>
+                                  <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                    <span className="text-xs font-medium text-slate-500 block">Serial number</span>
+                                    <span className="font-mono tabular-nums font-medium text-slate-800">{l.serialNumber}</span>
                                   </div>
                                 </div>
 
-                                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Full Project Purpose</span>
+                                <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                  <span className="text-xs font-medium text-slate-500 block mb-0.5">Full project purpose</span>
                                   <p className="text-slate-800 font-medium">{l.purpose}</p>
                                 </div>
 
                                 {l.conditionOut && (
-                                  <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                    <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Condition Upon Issue</span>
+                                  <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                    <span className="text-xs font-medium text-slate-500 block mb-0.5">Condition upon issue</span>
                                     <p className="text-slate-700">{l.conditionOut}</p>
                                   </div>
                                 )}
 
                                 {/* Mandatory Physical Checklist Results */}
-                                <div className="p-2.5 bg-white rounded-xl border border-slate-100 space-y-1">
-                                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-1">Physical Audit Checklist</span>
-                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 text-[11px] text-slate-700">
-                                    <span className="flex items-center gap-1 text-emerald-700">
-                                      <Check className="w-3 h-3" /> Chassis Intact
+                                <div className="p-2.5 bg-white rounded-lg border border-slate-100 space-y-1">
+                                  <span className="text-xs font-medium text-slate-500 block mb-1">Physical audit checklist</span>
+                                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 text-xs text-slate-700">
+                                    <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                                      <Check className="w-3 h-3" /> Chassis intact
                                     </span>
-                                    <span className="flex items-center gap-1 text-emerald-700">
-                                      <Check className="w-3 h-3" /> Accessories Included
+                                    <span className="flex items-center gap-1 text-emerald-700 font-medium">
+                                      <Check className="w-3 h-3" /> Accessories included
                                     </span>
-                                    <span className="flex items-center gap-1 text-emerald-700">
+                                    <span className="flex items-center gap-1 text-emerald-700 font-medium">
                                       <Check className="w-3 h-3" /> Powers on OK
                                     </span>
                                   </div>
@@ -958,8 +958,8 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
                             {isExpanded && (
                               <div className="mt-3 pt-3 border-t border-slate-200/80 space-y-2 text-xs animate-in fade-in">
-                                <div className="p-2.5 bg-white rounded-xl border border-slate-100">
-                                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Return Audit Notes</span>
+                                <div className="p-2.5 bg-white rounded-lg border border-slate-100">
+                                  <span className="text-xs font-medium text-slate-500 block mb-0.5">Return audit notes</span>
                                   <p className="text-slate-800 font-medium">{hist.notes || 'Clean return verified by technical officer.'}</p>
                                 </div>
                               </div>
@@ -1049,8 +1049,8 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                             {/* Expanded Defect Details & Officer Status Controls */}
                             {isExpanded && (
                               <div className="mt-3 pt-3 border-t border-slate-100 space-y-2 text-xs animate-in fade-in">
-                                <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-100">
-                                  <span className="text-[10px] font-bold uppercase text-slate-400 block mb-0.5">Defect Diagnostic Record</span>
+                                <div className="p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                                  <span className="text-xs font-medium text-slate-500 block mb-0.5">Defect diagnostic record</span>
                                   <p className="text-slate-800 font-medium">{d.issue}</p>
                                 </div>
 
@@ -1101,13 +1101,13 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
             <>
               {/* SECTION 1: INTERACTIVE BORROW REQUEST FORM */}
               {isUnderRepair ? (
-                <div className="bg-white rounded-3xl p-5 border border-rose-200 shadow-sm space-y-3 animate-in fade-in">
+                <div className="bg-white rounded-xl p-5 border border-rose-200 shadow-xs space-y-3 animate-in fade-in">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-800 uppercase">
-                      Under Repair
+                    <span className="font-mono text-xs font-medium px-2 py-0.5 rounded-md bg-rose-100 text-rose-800">
+                      Under repair
                     </span>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      Asset Unavailable for Loan
+                    <h3 className="text-sm font-semibold text-slate-900">
+                      Asset unavailable for loan
                     </h3>
                   </div>
                   <p className="text-xs text-slate-600 leading-relaxed">
@@ -1116,21 +1116,21 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   <button
                     type="button"
                     disabled
-                    className="w-full py-2.5 rounded-xl bg-slate-100 text-slate-400 font-semibold text-xs border border-slate-200 cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-2.5 rounded-lg bg-slate-100 text-slate-400 font-medium text-xs border border-slate-200 cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     <Wrench className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Under Repair • Loan Requests Disabled</span>
+                    <span>Under repair • loan requests disabled</span>
                   </button>
                 </div>
               ) : (
-                <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3.5">
+                <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-3.5">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                        Loan Application
+                      <span className="text-xs font-medium text-blue-700">
+                        Loan application
                       </span>
-                      <h3 className="text-sm font-bold text-slate-900 mt-0.5">
-                        Choose Borrow & Return Dates
+                      <h3 className="text-sm font-semibold text-slate-900 mt-0.5">
+                        Choose borrow & return dates
                       </h3>
                     </div>
 
@@ -1142,20 +1142,20 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                           setReturnDate('');
                           setHoverDate(null);
                         }}
-                        className="text-[11px] font-semibold text-slate-400 hover:text-rose-600 transition-colors"
+                        className="text-xs font-medium text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
                       >
-                        Clear Selection
+                        Clear selection
                       </button>
                     )}
                   </div>
 
                   <form onSubmit={handleLoanSubmit} className="space-y-3 text-xs">
                     
-                    {/* Date pickers (Auto-synced with calendar selection) */}
+                    {/* Date pickers */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                          Date to Borrow *
+                        <label className="block text-xs font-medium text-slate-600 mb-1">
+                          Date to borrow *
                         </label>
                         <input
                           type="date"
@@ -1163,13 +1163,13 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                           min={getRealTodayStr()}
                           value={borrowDate}
                           onChange={(e) => setBorrowDate(e.target.value)}
-                          className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
+                          className="w-full text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                          Date to Return *
+                        <label className="block text-xs font-medium text-slate-600 mb-1">
+                          Date to return *
                         </label>
                         <input
                           type="date"
@@ -1177,7 +1177,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                           min={borrowDate || getRealTodayStr()}
                           value={returnDate}
                           onChange={(e) => setReturnDate(e.target.value)}
-                          className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
+                          className="w-full text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:border-blue-600"
                         />
                       </div>
                     </div>
@@ -1230,7 +1230,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
               )}
 
               {/* SECTION 2: QUEUE LIST (WAITLIST) */}
-              <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     <Users className="w-3.5 h-3.5 text-amber-600" />
@@ -1285,7 +1285,7 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
               </div>
 
               {/* SECTION 3: BORROWING HISTORY LOG */}
-              <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-3">
+              <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-xs space-y-3">
                 <h3 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5 text-slate-600" />
                   <span>Borrowing History</span>
@@ -1323,29 +1323,29 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
       {/* DEFECT REPORT MODAL (OFFICER / USER FLOW) */}
       {isDefectModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-md overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden">
             <div className="p-5 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold text-rose-600 uppercase tracking-wider">
-                  Report Hardware Defect
+                <span className="text-xs font-medium text-rose-600">
+                  Report hardware defect
                 </span>
-                <h3 className="text-base font-bold text-slate-900 mt-0.5">{currentHardware.name}</h3>
-                <p className="text-xs text-slate-500">{currentHardware.tag} • SN: {currentHardware.serialNumber}</p>
+                <h3 className="text-sm font-semibold text-slate-900 mt-0.5">{currentHardware.name}</h3>
+                <p className="text-xs text-slate-500 font-mono">{currentHardware.tag} • SN: {currentHardware.serialNumber}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsDefectModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <form onSubmit={handleDefectSubmit} className="p-5 space-y-3.5 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">
-                  Defect Description / Symptoms *
+                <label className="block font-medium text-slate-700 mb-1">
+                  Defect description / symptoms *
                 </label>
                 <textarea
                   rows={3}
@@ -1353,16 +1353,16 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                   placeholder="e.g. HDMI output signal unstable, USB port 2 bent pin, intermittent power cutoff under load..."
                   value={defectIssue}
                   onChange={(e) => setDefectIssue(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-rose-500"
+                  className="w-full text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:border-rose-500"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Severity Rating</label>
+                <label className="block font-medium text-slate-700 mb-1">Severity rating</label>
                 <select
                   value={defectSeverity}
                   onChange={(e: any) => setDefectSeverity(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none"
+                  className="w-full text-xs p-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none"
                 >
                   <option value="Minor">Minor (Usable with warning, -5% Health)</option>
                   <option value="Moderate">Moderate (Restricted usage, -12% Health)</option>
@@ -1370,24 +1370,24 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                 </select>
               </div>
 
-              <div className="text-[11px] text-slate-400">
-                Reported by: <strong className="text-slate-700">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
+              <div className="text-xs text-slate-400">
+                Reported by: <strong className="text-slate-700 font-semibold">{currentUser.name}</strong> ({currentUser.matricOrStaffId})
               </div>
 
               <div className="pt-2 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsDefectModalOpen(false)}
-                  className="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-xl font-medium"
+                  className="px-4 py-2 text-xs text-slate-500 hover:bg-slate-100 rounded-lg font-medium cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-medium rounded-lg shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Log Defect in Passport</span>
+                  <span>Log defect</span>
                 </button>
               </div>
             </form>
@@ -1397,14 +1397,14 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
 
       {/* MODAL: Inspect Booked Hardware Loan Details */}
       {inspectLoan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-900/40 backdrop-blur-xs animate-in fade-in">
+          <div className="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-150">
             <div className="p-5 border-b border-slate-100 flex items-start justify-between">
               <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Hardware Loan Record
+                <span className="text-xs font-medium text-slate-500">
+                  Hardware loan record
                 </span>
-                <h3 className="text-sm font-bold text-slate-900 mt-0.5">{currentHardware.name}</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mt-0.5">{currentHardware.name}</h3>
                 <p className="text-xs text-slate-500 font-mono">Tag: {currentHardware.tag}</p>
               </div>
               <button
@@ -1412,30 +1412,30 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                 onClick={() => setInspectLoan(null)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-700 cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="p-5 space-y-3.5 text-xs">
-              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+              <div className="p-3.5 bg-slate-50 rounded-lg border border-slate-100 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-900">{inspectLoan.userName}</span>
-                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200">
+                  <span className="font-semibold text-slate-900">{inspectLoan.userName}</span>
+                  <span className="font-mono text-xs font-semibold tabular-nums px-2 py-0.5 rounded-md bg-white border border-slate-200">
                     {inspectLoan.tokenCode}
                   </span>
                 </div>
-                <div className="font-mono text-[11px] text-slate-500">
+                <div className="font-mono text-xs text-slate-500">
                   Matric / Staff ID: {inspectLoan.userMatric || 'ID'}
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-600 font-medium text-[11px]">
+                <div className="flex items-center gap-1.5 text-slate-600 font-normal text-xs font-mono">
                   <CalendarIcon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                   <span>Period: {inspectLoan.requestDate} → {inspectLoan.dueDate}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-0.5">
-                    Purpose / Notes
+                  <span className="text-xs font-medium text-slate-500 block mb-0.5">
+                    Purpose / notes
                   </span>
-                  <p className="text-slate-700 text-[11px] italic bg-white p-2 rounded-lg border border-slate-200/70">
+                  <p className="text-slate-700 text-xs italic bg-white p-2 rounded-lg border border-slate-200/70">
                     "{inspectLoan.purpose}"
                   </p>
                 </div>
@@ -1448,9 +1448,9 @@ export const HardwareCalendarView: React.FC<HardwareCalendarViewProps> = ({
                     setInspectLoan(null);
                     setActiveTab('my-passes');
                   }}
-                  className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase transition-colors cursor-pointer"
+                  className="w-full py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs transition-colors cursor-pointer"
                 >
-                  [VIEW DIGITAL PASSPORT]
+                  View digital pass
                 </button>
               )}
             </div>
